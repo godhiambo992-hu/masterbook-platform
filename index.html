@@ -1,1 +1,141 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Masterbook — A comprehensive digital learning platform for every learner.">
+<title>MASTERBOOK | Learning Without Boundaries</title>
+<style>
+:root {
+  --navy:#10243e;
+  --blue:#1769aa;
+  --gold:#e5ad42;
+  --light:#f4f7fb;
+  --text:#243449;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;color:var(--text);background:white;line-height:1.6}
+header{background:var(--navy);color:white;padding:17px 6%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px}
+.logo{font-size:25px;font-weight:800;letter-spacing:2px}
+.logo span{color:var(--gold)}
+nav{display:flex;gap:18px;flex-wrap:wrap}
+nav a{color:white;text-decoration:none;font-size:14px}
+nav a:hover{color:var(--gold)}
+.hero{background:linear-gradient(120deg,#10243e,#1769aa);color:white;padding:75px 7%;text-align:center}
+.hero h1{font-size:clamp(34px,6vw,55px);line-height:1.15;margin-bottom:20px}
+.hero h1 span{color:var(--gold)}
+.hero p{max-width:680px;margin:0 auto 25px;color:#e4edf7}
+.btn{display:inline-block;background:var(--gold);color:#10243e;text-decoration:none;padding:12px 23px;border-radius:5px;font-weight:bold}
+section{padding:55px 7%}
+.section-title{text-align:center;margin-bottom:30px}
+.section-title h2{font-size:30px;color:var(--navy)}
+.section-title p{color:#64748b}
+.search{display:block;width:min(600px,100%);margin:25px auto;padding:15px;border:1px solid #d5deea;border-radius:7px;font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+.card{padding:25px;background:var(--light);border-radius:9px;border:1px solid #e5eaf1;transition:.2s}
+.card:hover{transform:translateY(-4px);box-shadow:0 8px 22px #10243e16}
+.card h3{color:var(--navy);margin-bottom:9px}
+.card p{font-size:14px;color:#64748b}
+.card a{display:inline-block;margin-top:15px;color:var(--blue);font-weight:bold;text-decoration:none}
+.feature{background:#edf3f9}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:20px;text-align:center}
+.stats strong{display:block;font-size:27px;color:var(--blue)}
+footer{background:var(--navy);color:white;padding:35px 7%;text-align:center}
+footer p{font-size:13px;color:#cbd5e1;margin-top:8px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">MASTER<span>BOOK</span></div>
+  <nav>
+    <a href="#home">Home</a>
+    <a href="#library">Library</a>
+    <a href="#levels">Education</a>
+    <a href="#about">About</a>
+  </nav>
+</header>
+
+<main>
+<section class="hero" id="home">
+  <h1>Learning <span>Without Boundaries.</span></h1>
+  <p>A comprehensive digital learning ecosystem connecting learners, educators, knowledge and technology across the world.</p>
+  <a href="#library" class="btn">Explore Learning Resources</a>
+</section>
+
+<section id="library">
+  <div class="section-title">
+    <h2>Explore the Masterbook Library</h2>
+    <p>Discover educational resources for every stage of learning.</p>
+  </div>
+  <input class="search" id="search" placeholder="Search educational resources..." aria-label="Search resources">
+  <div class="grid" id="resources">
+    <article class="card"><h3>Mathematics</h3><p>Mathematical concepts, worked examples, exercises and revision materials.</p><a href="#levels">Explore →</a></article>
+    <article class="card"><h3>Geography</h3><p>Physical geography, human geography, maps and geographical investigations.</p><a href="#levels">Explore →</a></article>
+    <article class="card"><h3>Sciences</h3><p>Scientific concepts, practical learning and assessment resources.</p><a href="#levels">Explore →</a></article>
+    <article class="card"><h3>Languages</h3><p>Language learning, grammar, literature and communication.</p><a href="#levels">Explore →</a></article>
+    <article class="card"><h3>Research</h3><p>Academic research, methodology, referencing and scholarly resources.</p><a href="#levels">Explore →</a></article>
+    <article class="card"><h3>Technology & AI</h3><p>Digital literacy, computing, artificial intelligence and innovation.</p><a href="#levels">Explore →</a></article>
+  </div>
+</section>
+
+<section class="feature" id="levels">
+  <div class="section-title">
+    <h2>Education for Every Level</h2>
+    <p>One platform. Multiple educational pathways.</p>
+  </div>
+  <div class="grid">
+    <article class="card"><h3>Primary Education</h3><p>Foundational learning, CBC resources and learner support.</p></article>
+    <article class="card"><h3>Secondary Education</h3><p>Junior and senior school learning materials and assessments.</p></article>
+    <article class="card"><h3>University Education</h3><p>Lecture notes, academic resources, research and revision.</p></article>
+    <article class="card"><h3>Professional Education</h3><p>Career development, professional skills and lifelong learning.</p></article>
+  </div>
+</section>
+
+<section>
+  <div class="section-title">
+    <h2>Our Educational Ecosystem</h2>
+    <p>Designed to connect knowledge with opportunity.</p>
+  </div>
+  <div class="stats">
+    <div><strong>4</strong>Education levels</div>
+    <div><strong>Global</strong>Learning ambition</div>
+    <div><strong>Digital</strong>Learning resources</div>
+    <div><strong>AI</strong>Innovation pathway</div>
+  </div>
+</section>
+
+<section class="feature" id="about">
+  <div class="section-title">
+    <h2>About MASTERBOOK</h2>
+    <p>Masterbook aims to make quality education more accessible through technology, structured knowledge and collaboration.</p>
+  </div>
+  <div class="grid">
+    <article class="card"><h3>Our Vision</h3><p>To build a trusted global digital learning ecosystem.</p></article>
+    <article class="card"><h3>Our Mission</h3><p>To connect learners with accessible, relevant and quality educational resources.</p></article>
+    <article class="card"><h3>Our Approach</h3><p>Combine original content, approved contributors, technology and innovation.</p></article>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="logo">MASTER<span>BOOK</span></div>
+  <p>Learning Without Boundaries.</p>
+  <p>© 2026 Masterbook. All rights reserved.</p>
+  <p>Developed by G.O. Odhiambo</p>
+</footer>
+
+<script>
+const search = document.getElementById('search');
+search.addEventListener('input', () => {
+  const term = search.value.toLowerCase();
+  document.querySelectorAll('#resources .card').forEach(card => {
+    card.classList.toggle('hidden', !card.innerText.toLowerCase().includes(term));
+  });
+});
+</script>
+</body>
+</html>
+
