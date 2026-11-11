@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MASTERBOOK | Digital Library</title>
+<style>
+:root{
+--navy:#10243e;
+--blue:#1769aa;
+--gold:#e5ad42;
+--light:#f4f7fb;
+}
+*{box-sizing:border-box}
+body{
+margin:0;
+font-family:Arial,sans-serif;
+color:#243449;
+background:var(--light);
+}
+header{
+background:var(--navy);
+color:white;
+padding:20px 6%;
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:15px;
+}
+.logo{font-size:24px;font-weight:bold;letter-spacing:2px}
+.logo span{color:var(--gold)}
+header a{color:white;text-decoration:none}
+main{padding:35px 6%}
+.hero{
+background:linear-gradient(120deg,var(--navy),var(--blue));
+color:white;
+padding:40px 25px;
+border-radius:12px;
+text-align:center;
+}
+.hero h1{font-size:32px}
+.hero p{color:#e4edf7}
+.controls{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+gap:12px;
+margin:25px 0;
+}
+input,select{
+width:100%;
+padding:14px;
+border:1px solid #ccd5e1;
+border-radius:6px;
+font-size:15px;
+background:white;
+}
+.heading{margin:30px 0 15px;color:var(--navy)}
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:18px;
+}
+.card{
+background:white;
+padding:22px;
+border-radius:9px;
+border:1px solid #e1e7ef;
+box-shadow:0 3px 10px #10243e08;
+}
+.card h3{color:var(--navy);margin-top:0}
+.tag{
+display:inline-block;
+padding:4px 9px;
+background:#e8f1fb;
+color:var(--blue);
+font-size:12px;
+border-radius:20px;
+margin-bottom:10px;
+}
+.card p{font-size:14px;line-height:1.6}
+.meta{font-size:12px;color:#64748b}
+.empty{
+text-align:center;
+padding:30px;
+color:#64748b;
+display:none;
+}
+footer{
+background:var(--navy);
+color:white;
+text-align:center;
+padding:25px;
+margin-top:50px;
+font-size:13px;
+}
+</style>
+</head>
+<body>
+
+<header>
+<a href="index.html" class="logo">MASTER<span>BOOK</span></a>
+<a href="index.html">← Back to Home</a>
+</header>
+
+<main>
+<div class="hero">
+<h1>MASTERBOOK Digital Library</h1>
+<p>Discover knowledge. Explore subjects. Advance your learning.</p>
+</div>
+
+<h2 class="heading">Explore Educational Resources</h2>
+
+<div class="controls">
+<input id="search" type="search" placeholder="Search subjects or resources...">
+
+<select id="level">
+<option value="">All Education Levels</option>
+<option>Primary</option>
+<option>Junior School</option>
+<option>Senior School</option>
+<option>University</option>
+<option>Professional</option>
+</select>
+
+<select id="category">
+<option value="">All Subjects</option>
+<option>Mathematics</option>
+<option>Geography</option>
+<option>Science</option>
+<option>Languages</option>
+<option>Research</option>
+<option>Technology</option>
+</select>
+</div>
+
+<h2 class="heading">Available Learning Collections</h2>
+
+<div class="grid" id="library">
+
+<article class="card" data-level="Primary" data-category="Mathematics">
+<span class="tag">Primary</span>
+<h3>Mathematics Foundations</h3>
+<p>Foundational mathematical concepts, numeracy, calculations and problem-solving.</p>
+<div class="meta">Mathematics · Primary Education</div>
+</article>
+
+<article class="card" data-level="Junior School" data-category="Mathematics">
+<span class="tag">Junior School</span>
+<h3>Junior Mathematics</h3>
+<p>Mathematical reasoning, algebra, geometry and practical applications.</p>
+<div class="meta">Mathematics · CBC</div>
+</article>
+
+<article class="card" data-level="Senior School" data-category="Geography">
+<span class="tag">Senior School</span>
+<h3>Senior School Geography</h3>
+<p>Physical geography, human geography, environmental studies and geographical investigations.</p>
+<div class="meta">Geography · CBC</div>
+</article>
+
+<article class="card" data-level="Senior School" data-category="Science">
+<span class="tag">Senior School</span>
+<h3>Science Learning</h3>
+<p>Scientific principles, investigations and practical learning resources.</p>
+<div class="meta">Science · Senior School</div>
+</article>
+
+<article class="card" data-level="University" data-category="Research">
+<span class="tag">University</span>
+<h3>Academic Research</h3>
+<p>Research methodology, academic writing, referencing and research design.</p>
+<div class="meta">Research · University</div>
+</article>
+
+<article class="card" data-level="University" data-category="Technology">
+<span class="tag">University</span>
+<h3>Information Technology</h3>
+<p>Computing, digital literacy, software development and information systems.</p>
+<div class="meta">Technology · University</div>
+</article>
+
+<article class="card" data-level="Professional" data-category="Technology">
+<span class="tag">Professional</span>
+<h3>Digital Skills and AI</h3>
+<p>Artificial intelligence, digital transformation and professional technology skills.</p>
+<div class="meta">Technology · Professional</div>
+</article>
+
+<article class="card" data-level="Primary" data-category="Languages">
+<span class="tag">Primary</span>
+<h3>Language Development</h3>
+<p>Reading, writing, grammar, comprehension and communication skills.</p>
+<div class="meta">Languages · Primary Education</div>
+</article>
+
+</div>
+
+<div class="empty" id="empty">
+<h3>No matching resources found.</h3>
+<p>Try another subject or education level.</p>
+</div>
+
+</main>
+
+<footer>
+<strong>MASTERBOOK</strong>
+<p>Learning Without Boundaries.</p>
+<p>© 2026 MASTERBOOK | G.O. Odhiambo</p>
+</footer>
+
+<script>
+const search=document.getElementById('search');
+const level=document.getElementById('level');
+const category=document.getElementById('category');
+const cards=document.querySelectorAll('.card');
+const empty=document.getElementById('empty');
+
+function filterLibrary(){
+let visible=0;
+cards.forEach(card=>{
+const matchesText=card.innerText.toLowerCase().includes(search.value.toLowerCase());
+const matchesLevel=!level.value||card.dataset.level===level.value;
+const matchesCategory=!category.value||card.dataset.category===category.value;
+const show=matchesText&&matchesLevel&&matchesCategory;
+card.style.display=show?'block':'none';
+if(show)visible++;
+});
+empty.style.display=visible?'none':'block';
+}
+search.addEventListener('input',filterLibrary);
+level.addEventListener('change',filterLibrary);
+category.addEventListener('change',filterLibrary);
+</script>
+
+</body>
+</html>
