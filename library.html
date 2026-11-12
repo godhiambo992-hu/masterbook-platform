@@ -237,16 +237,105 @@ category.addEventListener('change',filterLibrary);
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
 const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY ="sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE";
 
 const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_PUBLISHABLE_KEY
 );
 
-console.log("MASTERBOOK Supabase connection initialized.");
+const search = document.getElementById("search");
+const level = document.getElementById("level");
+const category = document.getElementById("category");
+const library = document.getElementById("library");
+const empty = document.getElementById("empty");
+
+function escapeHTML(value) {
+    return String(value || "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[char]);
+}
+
+function filterLibrary() {
+    const cards = library.querySelectorAll(".card");
+    let visible = 0;
+
+    cards.forEach(card => {
+        const matchesText = card.innerText.toLowerCase()
+            .includes(search.value.toLowerCase());
+
+        const matchesLevel = !level.value ||
+            card.dataset.level === level.value;
+
+        const matchesCategory = !category.value ||
+            card.dataset.category === category.value;
+
+        const show = matchesText && matchesLevel && matchesCategory;
+
+        card.style.display = show ? "block" : "none";
+
+        if (show) visible++;
+    });
+
+    empty.style.display = visible ? "none" : "block";
+}
+
+async function loadResources() {
+    console.log("Connecting to MASTERBOOK resources...");
+
+    const { data, error } = await supabaseClient
+        .from("resources")
+        .select("id,title,description,education_level,subject,resource_type,curriculum")
+        .eq("status", "Published")
+        .eq("access_tier", "Free")
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        console.error("Resource loading failed:", error);
+        return;
+    }
+
+    console.log("Resources retrieved:", data.length);
+
+    data.forEach(resource => {
+        const card = document.createElement("article");
+        card.className = "card";
+
+        card.dataset.level = resource.education_level;
+        card.dataset.category = resource.subject;
+
+        card.innerHTML = `
+            <span class="tag">${escapeHTML(resource.education_level)}</span>
+            <h3>${escapeHTML(resource.title)}</h3>
+            <p>${escapeHTML(resource.description)}</p>
+            <div class="meta">
+                ${escapeHTML(resource.subject)} ·
+                ${escapeHTML(resource.resource_type)} ·
+                ${escapeHTML(resource.curriculum)}
+            </div>
+        `;
+
+        library.appendChild(card);
+    });
+
+    filterLibrary();
+}
+
+search.addEventListener("input", filterLibrary);
+level.addEventListener("change", filterLibrary);
+category.addEventListener("change", filterLibrary);
+
+loadResources();
 </script>
 
 
