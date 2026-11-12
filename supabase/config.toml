@@ -1,0 +1,25 @@
+
+project_id = "bxsrhvcqjjtdnflhoplu"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "https://godhiambo992-hu.github.io"
+additional_redirect_urls = [
+  "https://godhiambo992-hu.github.io/masterbook-platform/",
+  "https://godhiambo992-hu.github.io/masterbook-platform/**"
+]
