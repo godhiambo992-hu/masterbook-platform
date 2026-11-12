@@ -1,0 +1,28 @@
+
+name: MASTERBOOK Supabase Deployment
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout MASTERBOOK
+        uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Check Supabase CLI
+        run: supabase --version
+
+      - name: Verify migration files
+        run: |
+          test -f supabase/config.toml
+          test -f supabase/migrations/20261112160000_masterbook_resources.sql
+          test -f supabase/migrations/20261112161000_masterbook_storage.sql
+          echo "MASTERBOOK migration files found."
