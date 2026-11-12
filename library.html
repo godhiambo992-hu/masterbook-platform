@@ -210,33 +210,6 @@ font-size:13px;
 <p>© 2026 MASTERBOOK | G.O. Odhiambo</p>
 </footer>
 
-<script>
-const search=document.getElementById('search');
-const level=document.getElementById('level');
-const category=document.getElementById('category');
-const cards=document.querySelectorAll('.card');
-const empty=document.getElementById('empty');
-
-function filterLibrary(){
-let visible=0;
-cards.forEach(card=>{
-const matchesText=card.innerText.toLowerCase().includes(search.value.toLowerCase());
-const matchesLevel=!level.value||card.dataset.level===level.value;
-const matchesCategory=!category.value||card.dataset.category===category.value;
-const show=matchesText&&matchesLevel&&matchesCategory;
-card.style.display=show?'block':'none';
-if(show)visible++;
-});
-empty.style.display=visible?'none':'block';
-}
-search.addEventListener('input',filterLibrary);
-level.addEventListener('change',filterLibrary);
-category.addEventListener('change',filterLibrary);
-</script>
-
-
-
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
