@@ -234,5 +234,19 @@ level.addEventListener('change',filterLibrary);
 category.addEventListener('change',filterLibrary);
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co/rest/v1/";
+const SUPABASE_PUBLISHABLE_KEY"sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+);
+
+console.log("MASTERBOOK connection initialized.");
+</script>
+
 </body>
 </html>
