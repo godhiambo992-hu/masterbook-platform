@@ -3,380 +3,656 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#102b50">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MASTERBOOK | Contributor Portal</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
 
 <style>
+:root{
+ --navy:#10243e;--blue:#1769aa;--gold:#e6ad38;
+ --bg:#f3f6fa;--white:#fff;--green:#16834a;
+ --red:#bd3434;--muted:#718096;
+}
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f3f6fb;color:#17243a}
-header{background:#102b50;color:white;padding:18px 5%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-header h2{margin:0}
-nav{display:flex;gap:13px;flex-wrap:wrap}
-nav a{color:white;text-decoration:none;font-size:14px}
-main{max-width:1050px;margin:28px auto;padding:0 16px}
-.card{background:white;border-radius:12px;padding:22px;margin-bottom:20px;box-shadow:0 3px 14px #0000000d}
-h1,h2{color:#15365e}
-input,select,textarea{width:100%;padding:12px;margin:8px 0 15px;border:1px solid #ccd5e0;border-radius:7px;font-size:15px}
-button{background:#145da0;color:white;border:0;border-radius:7px;padding:12px 18px;cursor:pointer;font-weight:bold}
-button:disabled{opacity:.6;cursor:not-allowed}
-.secondary{background:#52657c}
-.status{padding:12px;border-radius:7px;background:#edf3fa;margin:12px 0;overflow-wrap:anywhere}
-.resource{border-bottom:1px solid #e4e9ef;padding:14px 0}
-.resource:last-child{border:0}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
-.hidden{display:none!important}
-small{color:#64748b}
-footer{text-align:center;padding:20px;color:#64748b}
-.loader-wrap{display:flex;align-items:center;gap:14px}
-.loader{width:32px;height:32px;border:4px solid #dce6f2;border-top:4px solid #145da0;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:600px){header{padding:16px}main{margin:18px auto}.card{padding:17px}}
+body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:#26364a}
+header{background:var(--navy);color:white;padding:20px 5%;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+header h1{margin:0;font-size:23px}
+header p{margin:5px 0 0;color:#d2ddeb;font-size:13px}
+button{border:0;border-radius:7px;padding:12px 16px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}
+.logout{background:white;color:var(--navy)}
+main{max-width:1000px;margin:25px auto;padding:0 15px}
+.panel{background:white;border-radius:12px;padding:22px;margin-bottom:20px;box-shadow:0 2px 12px #10243e0c}
+h2{margin-top:0}
+label{display:block;font-weight:bold;margin:14px 0 7px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #ccd5df;border-radius:7px;font:inherit;background:white}
+textarea{min-height:90px;resize:vertical}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 15px}
+.full{grid-column:1/-1}
+.submit{background:var(--blue);color:white;margin-top:18px;width:100%}
+.refresh{background:#e8eef7;color:var(--navy)}
+.progress-wrap{background:#e7edf4;height:13px;border-radius:20px;overflow:hidden;margin-top:12px}
+.progress-bar{height:100%;width:0;background:var(--green);transition:width .2s}
+.progress-text{font-size:13px;color:var(--muted);margin-top:8px}
+.message{padding:13px;border-radius:8px;margin:12px 0;background:#edf4fb;line-height:1.5;overflow-wrap:anywhere}
+.error{background:#fde5e5;color:#9b2525}
+.success{background:#e1f5e8;color:#126b39}
+.resource{padding:15px;border:1px solid #e1e7ee;border-radius:9px;margin:12px 0}
+.resource h3{margin:0 0 8px}
+.meta{font-size:13px;color:var(--muted);line-height:1.7}
+.small{font-size:12px;color:var(--muted)}
+.hidden{display:none}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+@media(max-width:600px){
+ .form-grid{grid-template-columns:1fr}
+ .full{grid-column:auto}
+ main{margin:15px auto}
+ .panel{padding:17px}
+}
 </style>
 </head>
 
 <body>
 
 <header>
-  <h2>MASTERBOOK</h2>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="library.html">Library</a>
-    <a href="student.html">Student Portal</a>
-    <a href="teacher.html">Teacher Portal</a>
-    <a href="contributor.html">Contributor Portal</a>
-    <a href="admin.html">Administration</a>
-  </nav>
+ <div>
+  <h1>MASTERBOOK Contributor Portal</h1>
+  <p>Learning Without Boundaries.</p>
+ </div>
+ <button class="logout" id="logoutBtn">Sign Out</button>
 </header>
 
 <main>
 
-<section id="loading" class="card">
-  <div class="loader-wrap">
-    <div class="loader"></div>
+ <section class="panel">
+  <h2>Contributor Workspace</h2>
+  <div id="identity" class="small">Checking your account...</div>
+  <div id="message" class="message">Connecting to MASTERBOOK...</div>
+ </section>
+
+ <section class="panel">
+  <h2>Submit Learning Resource</h2>
+  <p class="small">
+   Submit educational PDFs for administrator review.
+   Approved resources can be published in the MASTERBOOK Library.
+  </p>
+
+  <form id="uploadForm">
+
+   <div class="form-grid">
+
+    <div class="full">
+     <label for="title">Resource title</label>
+     <input id="title" required maxlength="200"
+      placeholder="e.g. Grade 12 Geography Learning Notes">
+    </div>
+
+    <div class="full">
+     <label for="description">Description</label>
+     <textarea id="description" maxlength="2000"
+      placeholder="Describe the learning content in this resource"></textarea>
+    </div>
+
     <div>
-      <strong>Connecting to MASTERBOOK</strong>
-      <p>Verifying your account and permissions...</p>
-    </div>
-  </div>
-</section>
-
-<section id="denied" class="card hidden">
-  <h2>Access unavailable</h2>
-  <p id="deniedMessage"></p>
-  <button onclick="logout()">Sign out</button>
-</section>
-
-<section id="portal" class="hidden">
-
-  <div class="card">
-    <h1>Contributor Portal</h1>
-    <p>Welcome, <strong id="contributorName">Contributor</strong>.</p>
-    <p>Submit educational materials, research and learning resources to MASTERBOOK.</p>
-    <button class="secondary" onclick="logout()">Sign out</button>
-  </div>
-
-  <div class="card">
-    <h2>Submit a learning resource</h2>
-
-    <label>Resource title</label>
-    <input id="title" maxlength="200" placeholder="Enter resource title">
-
-    <div class="grid">
-      <div>
-        <label>Education level</label>
-        <select id="level">
-          <option>Primary</option>
-          <option>Junior School</option>
-          <option>Senior School</option>
-          <option>University</option>
-          <option>Professional</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Subject or field</label>
-        <input id="subject" maxlength="100" placeholder="e.g. Geography">
-      </div>
-
-      <div>
-        <label>Resource type</label>
-        <select id="type">
-          <option>Notes</option>
-          <option>Revision Paper</option>
-          <option>Coursebook</option>
-          <option>Lesson Plan</option>
-          <option>Research</option>
-          <option>Video</option>
-          <option>Other</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Curriculum</label>
-        <select id="curriculum">
-          <option>Kenyan CBC</option>
-          <option>Kenyan 8-4-4</option>
-          <option>International</option>
-          <option>Other</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Proposed access tier</label>
-        <select id="tier">
-          <option>Free</option>
-          <option>Premium</option>
-        </select>
-      </div>
+     <label for="level">Education level</label>
+     <select id="level" required>
+      <option value="">Select level</option>
+      <option>Primary</option>
+      <option>Junior School</option>
+      <option>Senior School</option>
+      <option>University</option>
+      <option>Professional</option>
+     </select>
     </div>
 
-    <label>Description</label>
-    <textarea id="description" rows="4" placeholder="Describe the learning resource"></textarea>
-
-    <label>Select PDF file (maximum 50 MB)</label>
-    <input id="pdf" type="file" accept=".pdf,application/pdf">
-
-    <button id="submitButton" onclick="submitResource()">Submit for administrator review</button>
-
-    <div id="submitMessage" class="status">
-      All submissions are initially saved as Draft pending administrator review.
+    <div>
+     <label for="subject">Subject</label>
+     <input id="subject" required maxlength="100"
+      placeholder="e.g. Geography">
     </div>
-  </div>
 
-  <div class="card">
-    <h2>My submissions</h2>
-    <button class="secondary" id="refreshButton" onclick="loadSubmissions()">Refresh submissions</button>
-    <div id="submissionList">Your submissions will appear here.</div>
-  </div>
+    <div>
+     <label for="type">Resource type</label>
+     <select id="type" required>
+      <option value="">Select type</option>
+      <option>Notes</option>
+      <option>Revision Paper</option>
+      <option>Coursebook</option>
+      <option>Lesson Plan</option>
+      <option>Research</option>
+      <option>Video</option>
+      <option>Other</option>
+     </select>
+    </div>
 
-</section>
+    <div>
+     <label for="curriculum">Curriculum</label>
+     <select id="curriculum">
+      <option>Kenyan CBC</option>
+      <option>University</option>
+      <option>International</option>
+      <option>Other</option>
+     </select>
+    </div>
+
+    <div class="full">
+     <label for="file">Select PDF document</label>
+     <input id="file" type="file" accept=".pdf,application/pdf" required>
+     <p class="small">PDF only. Maximum file size: 50 MB.</p>
+    </div>
+
+   </div>
+
+   <div id="progressArea" class="hidden">
+    <p id="progressLabel">Preparing upload...</p>
+    <div class="progress-wrap">
+     <div id="progressBar" class="progress-bar"></div>
+    </div>
+    <div id="progressText" class="progress-text">0%</div>
+   </div>
+
+   <button type="submit" class="submit" id="submitBtn">
+    Upload and Submit for Review
+   </button>
+
+   <button type="button" class="refresh hidden" id="retryBtn"
+    style="width:100%;margin-top:10px">
+    Retry Saving Submission
+   </button>
+
+  </form>
+ </section>
+
+ <section class="panel">
+  <h2>My Submitted Resources</h2>
+  <button class="refresh" id="refreshBtn">Refresh submissions</button>
+  <div id="myResources">Loading your resources...</div>
+ </section>
+
 </main>
 
-<footer>
-  MASTERBOOK — Learning Without Boundaries.
-  <br>© 2026 G.O. Odhiambo
-</footer>
+<footer>MASTERBOOK | Contributor Learning Network</footer>
 
 <script>
+/* MASTERBOOK CONNECTION SETTINGS */
+
 const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+
+/*
+ Replace this placeholder with the EXACT publishable key
+ from your existing working contributor.html.
+
+ Never put a service-role or secret key here.
+*/
 
 const SUPABASE_KEY = "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
 
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const BUCKET = "masterbook-resources";
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
+const CHUNK_SIZE = 6 * 1024 * 1024;
+const PENDING_KEY = "masterbook_contributor_pending_submission";
+
+const db = window.supabase.createClient(
+ SUPABASE_URL,
+ SUPABASE_KEY
+);
 
 let currentUser = null;
+let currentProfile = null;
+let uploading = false;
+let pendingSubmission = null;
 
-function showMessage(id,text){
-  document.getElementById(id).textContent = text;
+const form = document.getElementById("uploadForm");
+const submitBtn = document.getElementById("submitBtn");
+const retryBtn = document.getElementById("retryBtn");
+const messageBox = document.getElementById("message");
+const progressArea = document.getElementById("progressArea");
+const progressBar = document.getElementById("progressBar");
+const progressText = document.getElementById("progressText");
+const progressLabel = document.getElementById("progressLabel");
+
+function showMessage(text,type="normal"){
+ messageBox.textContent = text;
+ messageBox.className = "message";
+
+ if(type==="error") messageBox.classList.add("error");
+ if(type==="success") messageBox.classList.add("success");
 }
 
-function denyAccess(text){
-  document.getElementById("loading").classList.add("hidden");
-  document.getElementById("portal").classList.add("hidden");
-  document.getElementById("denied").classList.remove("hidden");
-  showMessage("deniedMessage",text);
+function setProgress(percent,label){
+ progressArea.classList.remove("hidden");
+ progressBar.style.width = percent + "%";
+ progressText.textContent = percent + "%";
+ progressLabel.textContent = label;
 }
 
-async function startPortal(){
-  try{
-    const {data,error} = await db.auth.getSession();
-    if(error) throw error;
+function lockUpload(locked){
+ uploading = locked;
+ submitBtn.disabled = locked;
+ submitBtn.textContent = locked ? "Upload in progress..." :
+  "Upload and Submit for Review";
+}
 
-    if(!data.session){
-      location.replace("auth.html");
-      return;
-    }
+function safeFilename(name){
+ return name.replace(/[^a-zA-Z0-9._-]/g,"_").slice(-120);
+}
 
-    currentUser = data.session.user;
+function makeId(){
+ if(window.crypto && crypto.randomUUID){
+  return crypto.randomUUID();
+ }
+ return Date.now().toString(36) + Math.random().toString(36).slice(2);
+}
 
-    const {data:profile,error:profileError} = await db
-      .from("profiles")
-      .select("full_name,email,requested_role,approval_status,is_admin")
-      .eq("id",currentUser.id)
-      .single();
+function savePending(data){
+ pendingSubmission = data;
+ localStorage.setItem(PENDING_KEY,JSON.stringify(data));
+}
 
-    if(profileError) throw profileError;
+function restorePending(){
+ try{
+  const stored = localStorage.getItem(PENDING_KEY);
+  if(stored){
+   pendingSubmission = JSON.parse(stored);
+   document.getElementById("title").value = pendingSubmission.title || "";
+   document.getElementById("description").value = pendingSubmission.description || "";
+   document.getElementById("level").value = pendingSubmission.education_level || "";
+   document.getElementById("subject").value = pendingSubmission.subject || "";
+   document.getElementById("type").value = pendingSubmission.resource_type || "";
+   document.getElementById("curriculum").value = pendingSubmission.curriculum || "Kenyan CBC";
 
-    const admin = profile.is_admin === true;
-
-    const approvedContributor =
-      profile.requested_role === "contributor" &&
-      profile.approval_status === "approved";
-
-    if(!admin && !approvedContributor){
-      denyAccess(
-        profile.requested_role === "contributor"
-        ? "Your contributor application is awaiting administrator approval."
-        : "Access is restricted to approved contributors and administrators."
-      );
-      return;
-    }
-
-    document.getElementById("loading").classList.add("hidden");
-    document.getElementById("portal").classList.remove("hidden");
-
+   if(pendingSubmission.storage_path){
+    retryBtn.classList.remove("hidden");
     showMessage(
-      "contributorName",
-      profile.full_name || profile.email || "Contributor"
+     "A previous file upload was completed, but its database record may still need saving. Use Retry Saving Submission.",
+     "normal"
     );
-
-    loadSubmissions();
-
-  }catch(error){
-    console.error(error);
-    showMessage("loading","Unable to connect: " + error.message);
-  }
-}
-
-async function submitResource(){
-  const button = document.getElementById("submitButton");
-
-  const title = document.getElementById("title").value.trim();
-  const subject = document.getElementById("subject").value.trim();
-  const file = document.getElementById("pdf").files[0];
-
-  if(!title || !subject || !file){
-    showMessage("submitMessage","Please enter a title and subject and select a PDF.");
-    return;
-  }
-
-  if(file.type !== "application/pdf" &&
-     !file.name.toLowerCase().endsWith(".pdf")){
-    showMessage("submitMessage","Please select a PDF file.");
-    return;
-  }
-
-  if(file.size > 50 * 1024 * 1024){
-    showMessage("submitMessage","File exceeds the 50 MB limit.");
-    return;
-  }
-
-  button.disabled = true;
-  showMessage("submitMessage","Uploading your resource. Please wait...");
-
-  let uploadedPath = null;
-
-  try{
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
-
-    uploadedPath = currentUser.id + "/" +
-      crypto.randomUUID() + "-" + safeName;
-
-    const {error:uploadError} = await db.storage
-      .from("masterbook-resources")
-      .upload(uploadedPath,file,{
-        contentType:"application/pdf",
-        upsert:false
-      });
-
-    if(uploadError) throw uploadError;
-
-    const resource = {
-      title:title,
-      description:document.getElementById("description").value.trim(),
-      education_level:document.getElementById("level").value,
-      subject:subject,
-      resource_type:document.getElementById("type").value,
-      curriculum:document.getElementById("curriculum").value,
-      access_tier:document.getElementById("tier").value,
-      status:"Draft",
-      storage_path:uploadedPath,
-      created_by:currentUser.id
-    };
-
-    const {error:insertError} = await db
-      .from("resources")
-      .insert(resource);
-
-    if(insertError){
-      await db.storage.from("masterbook-resources").remove([uploadedPath]);
-      uploadedPath = null;
-      throw insertError;
-    }
-
+   }else{
     showMessage(
-      "submitMessage",
-      "Success! Your resource has been submitted as Draft for administrator review."
+     "An interrupted submission was saved. Select the same PDF again to resume its upload.",
+     "normal"
     );
-
-    document.getElementById("title").value = "";
-    document.getElementById("subject").value = "";
-    document.getElementById("description").value = "";
-    document.getElementById("pdf").value = "";
-
-    await loadSubmissions();
-
-  }catch(error){
-    console.error(error);
-    showMessage("submitMessage","Submission failed: " + error.message);
-  }finally{
-    button.disabled = false;
+   }
   }
+ }catch(error){
+  console.error("Could not restore pending submission:",error);
+ }
 }
 
-async function loadSubmissions(){
-  const list = document.getElementById("submissionList");
-  const button = document.getElementById("refreshButton");
+async function verifyAccount(){
+ if(SUPABASE_KEY.includes("PASTE_YOUR")){
+  showMessage("Add your existing Supabase publishable key before using this portal.","error");
+  return false;
+ }
 
-  list.textContent = "Loading submissions...";
-  button.disabled = true;
+ const {data:{session},error} = await db.auth.getSession();
+
+ if(error) throw error;
+
+ if(!session){
+  window.location.href = "auth.html";
+  return false;
+ }
+
+ currentUser = session.user;
+
+ const {data:profile,error:profileError} = await db
+  .from("profiles")
+  .select("full_name,email,requested_role,approval_status,is_admin")
+  .eq("id",currentUser.id)
+  .single();
+
+ if(profileError) throw profileError;
+
+ currentProfile = profile;
+
+ const role = String(profile.requested_role || "").toLowerCase();
+ const isAdmin = profile.is_admin === true;
+ const isContributor = role === "contributor" &&
+  profile.approval_status === "approved";
+
+ if(!isAdmin && !isContributor){
+  showMessage("Access denied. An approved contributor account or administrator account is required.","error");
+  return false;
+ }
+
+ document.getElementById("identity").textContent =
+  "Signed in as " + (profile.full_name || currentUser.email) +
+  " | " + (isAdmin ? "Administrator" : "Approved Contributor");
+
+ return true;
+}
+
+/*
+ RESUMABLE TUS UPLOAD
+ Files are transferred in chunks. If the connection is interrupted,
+ the same selected file can resume from its previous upload.
+*/
+
+function resumableUpload(file,objectPath){
+ return new Promise(async(resolve,reject)=>{
+
+  const {data:{session},error:sessionError} = await db.auth.getSession();
+
+  if(sessionError || !session){
+   reject(sessionError || new Error("Your login session has expired."));
+   return;
+  }
+
+  const upload = new tus.Upload(file,{
+   endpoint:SUPABASE_URL + "/storage/v1/upload/resumable",
+   retryDelays:[0,1000,3000,5000,10000,20000],
+   chunkSize:CHUNK_SIZE,
+   uploadDataDuringCreation:true,
+   removeFingerprintOnSuccess:true,
+   headers:{
+    authorization:"Bearer " + session.access_token,
+    apikey:SUPABASE_KEY,
+    "x-upsert":"false"
+   },
+   metadata:{
+    bucketName:BUCKET,
+    objectName:objectPath,
+    contentType:"application/pdf",
+    cacheControl:"3600"
+   },
+   onError(error){
+    reject(error);
+   },
+   onProgress(bytesUploaded,bytesTotal){
+    const percent = Math.min(
+     99,
+     Math.round((bytesUploaded/bytesTotal)*100)
+    );
+    setProgress(percent,"Uploading PDF document...");
+   },
+   onSuccess(){
+    setProgress(100,"File uploaded successfully. Saving submission...");
+    resolve();
+   }
+  });
 
   try{
-    const {data,error} = await db
-      .from("resources")
-      .select("id,title,subject,resource_type,status,created_at")
-      .eq("created_by",currentUser.id)
-      .order("created_at",{ascending:false});
+   const previous = await upload.findPreviousUploads();
 
-    if(error) throw error;
+   if(previous.length){
+    upload.resumeFromPreviousUpload(previous[0]);
+   }
 
-    list.replaceChildren();
-
-    if(!data || data.length === 0){
-      list.textContent = "You have not submitted any resources yet.";
-      return;
-    }
-
-    data.forEach(item=>{
-      const row = document.createElement("div");
-      row.className = "resource";
-
-      const heading = document.createElement("strong");
-      heading.textContent = item.title;
-
-      const detail = document.createElement("p");
-      detail.textContent = item.subject + " · " + item.resource_type;
-
-      const status = document.createElement("small");
-      status.textContent = "Publication status: " + item.status;
-
-      row.append(heading,detail,status);
-      list.appendChild(row);
-    });
+   upload.start();
 
   }catch(error){
-    console.error(error);
-    list.textContent = "Unable to load submissions: " + error.message;
-  }finally{
-    button.disabled = false;
+   reject(error);
   }
+ });
 }
 
-async function logout(){
-  const {error} = await db.auth.signOut();
-
-  if(error){
-    alert("Sign out failed: " + error.message);
-    return;
-  }
-
-  location.replace("auth.html");
+function readForm(){
+ return {
+  title:document.getElementById("title").value.trim(),
+  description:document.getElementById("description").value.trim(),
+  education_level:document.getElementById("level").value,
+  subject:document.getElementById("subject").value.trim(),
+  resource_type:document.getElementById("type").value,
+  curriculum:document.getElementById("curriculum").value
+ };
 }
 
-startPortal();
+function validate(file,data){
+ if(!data.title || !data.subject || !data.education_level || !data.resource_type){
+  throw new Error("Complete all required resource details.");
+ }
+
+ if(!file){
+  throw new Error("Select the PDF document first.");
+ }
+
+ if(file.type !== "application/pdf" &&
+    !file.name.toLowerCase().endsWith(".pdf")){
+  throw new Error("Only PDF documents are accepted.");
+ }
+
+ if(file.size === 0){
+  throw new Error("The selected PDF is empty.");
+ }
+
+ if(file.size > MAX_FILE_SIZE){
+  throw new Error("This PDF exceeds the 50 MB limit. Choose a smaller file.");
+ }
+}
+
+async function saveDatabaseRecord(data){
+ const {data:existing,error:lookupError} = await db
+  .from("resources")
+  .select("id")
+  .eq("storage_path",data.storage_path)
+  .maybeSingle();
+
+ if(lookupError) throw lookupError;
+
+ if(existing){
+  localStorage.removeItem(PENDING_KEY);
+  pendingSubmission = null;
+  retryBtn.classList.add("hidden");
+  showMessage("This resource is already registered. Duplicate record prevented.","success");
+  await loadMyResources();
+  return;
+ }
+
+ const record = {
+  title:data.title,
+  description:data.description,
+  education_level:data.education_level,
+  subject:data.subject,
+  resource_type:data.resource_type,
+  curriculum:data.curriculum,
+  access_tier:"Free",
+  status:"Draft",
+  storage_path:data.storage_path,
+  created_by:currentUser.id
+ };
+
+ const {error} = await db.from("resources").insert(record);
+
+ if(error) throw error;
+
+ localStorage.removeItem(PENDING_KEY);
+ pendingSubmission = null;
+ retryBtn.classList.add("hidden");
+
+ showMessage(
+  "Submission successful! Your resource has been saved as a draft and is awaiting administrator review.",
+  "success"
+ );
+
+ form.reset();
+ progressArea.classList.add("hidden");
+ progressBar.style.width = "0%";
+
+ await loadMyResources();
+}
+
+async function submitResource(event){
+ event.preventDefault();
+
+ if(uploading) return;
+
+ const file = document.getElementById("file").files[0];
+ const data = readForm();
+
+ try{
+  if(pendingSubmission){
+   throw new Error(
+    "You have an unfinished submission. Complete or retry that submission before starting another."
+   );
+  }
+
+  validate(file,data);
+
+  lockUpload(true);
+  retryBtn.classList.add("hidden");
+
+  const objectPath = currentUser.id + "/" +
+   makeId() + "-" + safeFilename(file.name);
+
+  const pending = {
+   ...data,
+   storage_path:null,
+   object_path:objectPath,
+   file_name:file.name,
+   file_size:file.size
+  };
+
+  savePending(pending);
+
+  setProgress(0,"Preparing secure PDF upload...");
+  showMessage("Your upload is starting. Keep this page open until it finishes.");
+
+  await resumableUpload(file,objectPath);
+
+  pending.storage_path = objectPath;
+  savePending(pending);
+
+  await saveDatabaseRecord(pending);
+
+ }catch(error){
+  console.error(error);
+
+  if(pendingSubmission){
+   retryBtn.classList.remove("hidden");
+   showMessage(
+    "Upload or saving was interrupted: " + error.message +
+    ". Your submission details have been retained. Retry or select the same PDF again if the upload was interrupted.",
+    "error"
+   );
+  }else{
+   showMessage(error.message || "Upload failed. Please try again.","error");
+  }
+
+ }finally{
+  lockUpload(false);
+ }
+}
+
+async function retrySave(){
+ if(uploading || !pendingSubmission) return;
+
+ lockUpload(true);
+
+ try{
+  const pending = pendingSubmission;
+
+  if(pending.storage_path){
+   setProgress(100,"Retrying database registration...");
+   await saveDatabaseRecord(pending);
+  }else{
+   const file = document.getElementById("file").files[0];
+
+   if(!file){
+    throw new Error("Select the same PDF file again so the interrupted upload can resume.");
+   }
+
+   if(file.size !== pending.file_size ||
+      file.name !== pending.file_name){
+    throw new Error("Select the original PDF file used for the interrupted submission.");
+   }
+
+   setProgress(0,"Resuming interrupted upload...");
+   await resumableUpload(file,pending.object_path);
+
+   pending.storage_path = pending.object_path;
+   savePending(pending);
+
+   await saveDatabaseRecord(pending);
+  }
+
+ }catch(error){
+  console.error(error);
+  retryBtn.classList.remove("hidden");
+  showMessage("Retry failed: " + error.message,"error");
+
+ }finally{
+  lockUpload(false);
+ }
+}
+
+async function loadMyResources(){
+ const target = document.getElementById("myResources");
+ target.textContent = "Loading your submissions...";
+
+ const {data,error} = await db
+  .from("resources")
+  .select("id,title,subject,education_level,status,created_at,rejection_reason")
+  .eq("created_by",currentUser.id)
+  .order("created_at",{ascending:false});
+
+ if(error){
+  target.textContent = error.message;
+  return;
+ }
+
+ if(!data || data.length===0){
+  target.innerHTML = "<p class='small'>You have not submitted any resources yet.</p>";
+  return;
+ }
+
+ target.innerHTML = data.map(item=>`
+  <article class="resource">
+   <h3>${escapeHTML(item.title)}</h3>
+   <div class="meta">
+    Subject: ${escapeHTML(item.subject)}<br>
+    Education level: ${escapeHTML(item.education_level)}<br>
+    Status: ${escapeHTML(item.status)}<br>
+    Submitted: ${item.created_at ? new Date(item.created_at).toLocaleString() : "Not recorded"}
+   </div>
+   ${item.rejection_reason ?
+    `<p class="meta"><strong>Administrator feedback:</strong> ${escapeHTML(item.rejection_reason)}</p>` : ""}
+  </article>
+ `).join("");
+}
+
+function escapeHTML(value){
+ return String(value ?? "").replace(/[&<>"']/g,char=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+ }[char]));
+}
+
+form.addEventListener("submit",submitResource);
+retryBtn.addEventListener("click",retrySave);
+document.getElementById("refreshBtn").addEventListener("click",loadMyResources);
+
+document.getElementById("logoutBtn").addEventListener("click",async()=>{
+ const {error} = await db.auth.signOut();
+
+ if(error){
+  showMessage(error.message,"error");
+  return;
+ }
+
+ window.location.href = "auth.html";
+});
+
+async function initialise(){
+ try{
+  const allowed = await verifyAccount();
+
+  if(!allowed) return;
+
+  restorePending();
+  await loadMyResources();
+
+ }catch(error){
+  console.error(error);
+  showMessage(
+   "Unable to initialise the contributor portal: " + error.message,
+   "error"
+  );
+ }
+}
+
+initialise();
 </script>
-
 </body>
 </html>
