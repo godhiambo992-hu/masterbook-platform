@@ -39,8 +39,8 @@ jobs:
 
           import requests
 
-          BASE = os.environ["SUPABASE_URL"].rstrip("/")
-          KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
+          BASE = os.environ.get("SUPABASE_URL", "").rstrip("/")
+          KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
           BUCKET = "masterbook-resources"
 
           if not BASE or not KEY:
@@ -66,16 +66,19 @@ jobs:
               response.raise_for_status()
 
           def is_linearized(path):
+              with open(path, "rb") as pdf:
+                  header = pdf.read(4096)
+
+              if b"/Linearized" not in header:
+                  return False
+
               result = subprocess.run(
-                  ["qpdf", "--show-linearization", str(path)],
+                  ["qpdf", "--check-linearization", str(path)],
                   capture_output=True,
                   text=True
               )
-              output = (result.stdout + result.stderr).lower()
-              return (
-                  "file is linearized" in output
-                  and "file is not linearized" not in output
-              )
+
+              return result.returncode == 0
 
           response = requests.get(
               f"{BASE}/rest/v1/resources",
@@ -91,19 +94,19 @@ jobs:
           response.raise_for_status()
 
           resources = response.json()
-
-          print(f"Found {len(resources)} PDFs awaiting optimization.")
+          print(f"Found {len(resources)} resources awaiting optimization.")
 
           for resource in resources:
               resource_id = resource["id"]
               title = resource.get("title", "Untitled")
-              path = resource.get("storage_path", "").strip()
+              path = (resource.get("storage_path") or "").strip()
 
               if not path or not path.lower().endswith(".pdf"):
                   print(f"Skipping non-PDF: {title}")
                   continue
 
               encoded_path = quote(path, safe="/")
+
               file_url = (
                   f"{BASE}/storage/v1/object/"
                   f"{BUCKET}/{encoded_path}"
@@ -143,10 +146,16 @@ jobs:
 
                       if result.returncode != 0:
                           raise RuntimeError(
-                              result.stderr or "qpdf optimization failed"
+                              result.stderr or
+                              "qpdf optimization failed."
                           )
 
-                      if not optimized.exists() or not is_linearized(optimized):
+                      if not optimized.exists():
+                          raise RuntimeError(
+                              "Optimized PDF was not created."
+                          )
+
+                      if not is_linearized(optimized):
                           raise RuntimeError(
                               "Optimized PDF failed verification."
                           )
