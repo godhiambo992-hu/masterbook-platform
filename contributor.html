@@ -1,78 +1,382 @@
 
--- MASTERBOOK CONTRIBUTOR PERMISSIONS
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#102b50">
+<title>MASTERBOOK | Contributor Portal</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
--- Allow approved teachers, approved contributors
--- and administrators to submit resources.
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6fb;color:#17243a}
+header{background:#102b50;color:white;padding:18px 5%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+header h2{margin:0}
+nav{display:flex;gap:13px;flex-wrap:wrap}
+nav a{color:white;text-decoration:none;font-size:14px}
+main{max-width:1050px;margin:28px auto;padding:0 16px}
+.card{background:white;border-radius:12px;padding:22px;margin-bottom:20px;box-shadow:0 3px 14px #0000000d}
+h1,h2{color:#15365e}
+input,select,textarea{width:100%;padding:12px;margin:8px 0 15px;border:1px solid #ccd5e0;border-radius:7px;font-size:15px}
+button{background:#145da0;color:white;border:0;border-radius:7px;padding:12px 18px;cursor:pointer;font-weight:bold}
+button:disabled{opacity:.6;cursor:not-allowed}
+.secondary{background:#52657c}
+.status{padding:12px;border-radius:7px;background:#edf3fa;margin:12px 0;overflow-wrap:anywhere}
+.resource{border-bottom:1px solid #e4e9ef;padding:14px 0}
+.resource:last-child{border:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
+.hidden{display:none!important}
+small{color:#64748b}
+footer{text-align:center;padding:20px;color:#64748b}
+.loader-wrap{display:flex;align-items:center;gap:14px}
+.loader{width:32px;height:32px;border:4px solid #dce6f2;border-top:4px solid #145da0;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:600px){header{padding:16px}main{margin:18px auto}.card{padding:17px}}
+</style>
+</head>
 
-DROP POLICY IF EXISTS
-"Approved teachers can insert resources"
-ON public.resources;
+<body>
 
-DROP POLICY IF EXISTS
-"Approved teachers and contributors can insert resources"
-ON public.resources;
+<header>
+  <h2>MASTERBOOK</h2>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="library.html">Library</a>
+    <a href="student.html">Student Portal</a>
+    <a href="teacher.html">Teacher Portal</a>
+    <a href="contributor.html">Contributor Portal</a>
+    <a href="admin.html">Administration</a>
+  </nav>
+</header>
 
-CREATE POLICY
-"Approved teachers and contributors can insert resources"
-ON public.resources
-FOR INSERT
-TO authenticated
-WITH CHECK (
-    created_by = auth.uid()
-    AND EXISTS (
-        SELECT 1
-        FROM public.profiles p
-        WHERE p.id = auth.uid()
-        AND (
-            p.is_admin = TRUE
-            OR (
-                p.requested_role = 'teacher'
-                AND p.approval_status = 'approved'
-            )
-            OR (
-                p.requested_role = 'contributor'
-                AND p.approval_status = 'approved'
-            )
-        )
-    )
-);
+<main>
 
--- Allow approved contributors to upload files.
+<section id="loading" class="card">
+  <div class="loader-wrap">
+    <div class="loader"></div>
+    <div>
+      <strong>Connecting to MASTERBOOK</strong>
+      <p>Verifying your account and permissions...</p>
+    </div>
+  </div>
+</section>
 
-DROP POLICY IF EXISTS
-"Approved teachers can upload MASTERBOOK files"
-ON storage.objects;
+<section id="denied" class="card hidden">
+  <h2>Access unavailable</h2>
+  <p id="deniedMessage"></p>
+  <button onclick="logout()">Sign out</button>
+</section>
 
-DROP POLICY IF EXISTS
-"Approved teachers and contributors can upload MASTERBOOK files"
-ON storage.objects;
+<section id="portal" class="hidden">
 
-CREATE POLICY
-"Approved teachers and contributors can upload MASTERBOOK files"
-ON storage.objects
-FOR INSERT
-TO authenticated
-WITH CHECK (
-    bucket_id = 'masterbook-resources'
-    AND name LIKE auth.uid()::text || '/%'
-    AND EXISTS (
-        SELECT 1
-        FROM public.profiles p
-        WHERE p.id = auth.uid()
-        AND (
-            p.is_admin = TRUE
-            OR (
-                p.requested_role = 'teacher'
-                AND p.approval_status = 'approved'
-            )
-            OR (
-                p.requested_role = 'contributor'
-                AND p.approval_status = 'approved'
-            )
-        )
-    )
-);
+  <div class="card">
+    <h1>Contributor Portal</h1>
+    <p>Welcome, <strong id="contributorName">Contributor</strong>.</p>
+    <p>Submit educational materials, research and learning resources to MASTERBOOK.</p>
+    <button class="secondary" onclick="logout()">Sign out</button>
+  </div>
 
-GRANT INSERT ON public.resources TO authenticated;
+  <div class="card">
+    <h2>Submit a learning resource</h2>
 
-NOTIFY pgrst, 'reload schema';
+    <label>Resource title</label>
+    <input id="title" maxlength="200" placeholder="Enter resource title">
+
+    <div class="grid">
+      <div>
+        <label>Education level</label>
+        <select id="level">
+          <option>Primary</option>
+          <option>Junior School</option>
+          <option>Senior School</option>
+          <option>University</option>
+          <option>Professional</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Subject or field</label>
+        <input id="subject" maxlength="100" placeholder="e.g. Geography">
+      </div>
+
+      <div>
+        <label>Resource type</label>
+        <select id="type">
+          <option>Notes</option>
+          <option>Revision Paper</option>
+          <option>Coursebook</option>
+          <option>Lesson Plan</option>
+          <option>Research</option>
+          <option>Video</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Curriculum</label>
+        <select id="curriculum">
+          <option>Kenyan CBC</option>
+          <option>Kenyan 8-4-4</option>
+          <option>International</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Proposed access tier</label>
+        <select id="tier">
+          <option>Free</option>
+          <option>Premium</option>
+        </select>
+      </div>
+    </div>
+
+    <label>Description</label>
+    <textarea id="description" rows="4" placeholder="Describe the learning resource"></textarea>
+
+    <label>Select PDF file (maximum 50 MB)</label>
+    <input id="pdf" type="file" accept=".pdf,application/pdf">
+
+    <button id="submitButton" onclick="submitResource()">Submit for administrator review</button>
+
+    <div id="submitMessage" class="status">
+      All submissions are initially saved as Draft pending administrator review.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>My submissions</h2>
+    <button class="secondary" id="refreshButton" onclick="loadSubmissions()">Refresh submissions</button>
+    <div id="submissionList">Your submissions will appear here.</div>
+  </div>
+
+</section>
+</main>
+
+<footer>
+  MASTERBOOK — Learning Without Boundaries.
+  <br>© 2026 G.O. Odhiambo
+</footer>
+
+<script>
+const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+
+const SUPABASE_KEY = "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+
+function showMessage(id,text){
+  document.getElementById(id).textContent = text;
+}
+
+function denyAccess(text){
+  document.getElementById("loading").classList.add("hidden");
+  document.getElementById("portal").classList.add("hidden");
+  document.getElementById("denied").classList.remove("hidden");
+  showMessage("deniedMessage",text);
+}
+
+async function startPortal(){
+  try{
+    const {data,error} = await db.auth.getSession();
+    if(error) throw error;
+
+    if(!data.session){
+      location.replace("auth.html");
+      return;
+    }
+
+    currentUser = data.session.user;
+
+    const {data:profile,error:profileError} = await db
+      .from("profiles")
+      .select("full_name,email,requested_role,approval_status,is_admin")
+      .eq("id",currentUser.id)
+      .single();
+
+    if(profileError) throw profileError;
+
+    const admin = profile.is_admin === true;
+
+    const approvedContributor =
+      profile.requested_role === "contributor" &&
+      profile.approval_status === "approved";
+
+    if(!admin && !approvedContributor){
+      denyAccess(
+        profile.requested_role === "contributor"
+        ? "Your contributor application is awaiting administrator approval."
+        : "Access is restricted to approved contributors and administrators."
+      );
+      return;
+    }
+
+    document.getElementById("loading").classList.add("hidden");
+    document.getElementById("portal").classList.remove("hidden");
+
+    showMessage(
+      "contributorName",
+      profile.full_name || profile.email || "Contributor"
+    );
+
+    loadSubmissions();
+
+  }catch(error){
+    console.error(error);
+    showMessage("loading","Unable to connect: " + error.message);
+  }
+}
+
+async function submitResource(){
+  const button = document.getElementById("submitButton");
+
+  const title = document.getElementById("title").value.trim();
+  const subject = document.getElementById("subject").value.trim();
+  const file = document.getElementById("pdf").files[0];
+
+  if(!title || !subject || !file){
+    showMessage("submitMessage","Please enter a title and subject and select a PDF.");
+    return;
+  }
+
+  if(file.type !== "application/pdf" &&
+     !file.name.toLowerCase().endsWith(".pdf")){
+    showMessage("submitMessage","Please select a PDF file.");
+    return;
+  }
+
+  if(file.size > 50 * 1024 * 1024){
+    showMessage("submitMessage","File exceeds the 50 MB limit.");
+    return;
+  }
+
+  button.disabled = true;
+  showMessage("submitMessage","Uploading your resource. Please wait...");
+
+  let uploadedPath = null;
+
+  try{
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+
+    uploadedPath = currentUser.id + "/" +
+      crypto.randomUUID() + "-" + safeName;
+
+    const {error:uploadError} = await db.storage
+      .from("masterbook-resources")
+      .upload(uploadedPath,file,{
+        contentType:"application/pdf",
+        upsert:false
+      });
+
+    if(uploadError) throw uploadError;
+
+    const resource = {
+      title:title,
+      description:document.getElementById("description").value.trim(),
+      education_level:document.getElementById("level").value,
+      subject:subject,
+      resource_type:document.getElementById("type").value,
+      curriculum:document.getElementById("curriculum").value,
+      access_tier:document.getElementById("tier").value,
+      status:"Draft",
+      storage_path:uploadedPath,
+      created_by:currentUser.id
+    };
+
+    const {error:insertError} = await db
+      .from("resources")
+      .insert(resource);
+
+    if(insertError){
+      await db.storage.from("masterbook-resources").remove([uploadedPath]);
+      uploadedPath = null;
+      throw insertError;
+    }
+
+    showMessage(
+      "submitMessage",
+      "Success! Your resource has been submitted as Draft for administrator review."
+    );
+
+    document.getElementById("title").value = "";
+    document.getElementById("subject").value = "";
+    document.getElementById("description").value = "";
+    document.getElementById("pdf").value = "";
+
+    await loadSubmissions();
+
+  }catch(error){
+    console.error(error);
+    showMessage("submitMessage","Submission failed: " + error.message);
+  }finally{
+    button.disabled = false;
+  }
+}
+
+async function loadSubmissions(){
+  const list = document.getElementById("submissionList");
+  const button = document.getElementById("refreshButton");
+
+  list.textContent = "Loading submissions...";
+  button.disabled = true;
+
+  try{
+    const {data,error} = await db
+      .from("resources")
+      .select("id,title,subject,resource_type,status,created_at")
+      .eq("created_by",currentUser.id)
+      .order("created_at",{ascending:false});
+
+    if(error) throw error;
+
+    list.replaceChildren();
+
+    if(!data || data.length === 0){
+      list.textContent = "You have not submitted any resources yet.";
+      return;
+    }
+
+    data.forEach(item=>{
+      const row = document.createElement("div");
+      row.className = "resource";
+
+      const heading = document.createElement("strong");
+      heading.textContent = item.title;
+
+      const detail = document.createElement("p");
+      detail.textContent = item.subject + " · " + item.resource_type;
+
+      const status = document.createElement("small");
+      status.textContent = "Publication status: " + item.status;
+
+      row.append(heading,detail,status);
+      list.appendChild(row);
+    });
+
+  }catch(error){
+    console.error(error);
+    list.textContent = "Unable to load submissions: " + error.message;
+  }finally{
+    button.disabled = false;
+  }
+}
+
+async function logout(){
+  const {error} = await db.auth.signOut();
+
+  if(error){
+    alert("Sign out failed: " + error.message);
+    return;
+  }
+
+  location.replace("auth.html");
+}
+
+startPortal();
+</script>
+
+</body>
+</html>
