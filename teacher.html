@@ -3,9 +3,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Teacher Portal | MASTERBOOK</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#f3f6fb;color:#17243a}
@@ -13,6 +14,7 @@ header{background:#102b50;color:white;padding:18px 5%;display:flex;justify-conte
 header h2{margin:0}
 nav{display:flex;gap:15px;flex-wrap:wrap}
 nav a{color:white;text-decoration:none}
+nav a:hover{text-decoration:underline}
 main{max-width:1050px;margin:28px auto;padding:0 16px}
 .card{background:white;border-radius:12px;padding:22px;margin-bottom:20px;box-shadow:0 3px 14px #0000000d}
 h1,h2{color:#15365e}
@@ -20,14 +22,16 @@ input,select,textarea{width:100%;padding:12px;margin:8px 0 15px;border:1px solid
 button{background:#145da0;color:white;border:0;border-radius:7px;padding:12px 18px;cursor:pointer;font-weight:bold}
 button:disabled{opacity:.6;cursor:not-allowed}
 .secondary{background:#52657c}
-.status{padding:12px;border-radius:7px;background:#edf3fa;margin:12px 0}
+.status{padding:12px;border-radius:7px;background:#edf3fa;margin:12px 0;overflow-wrap:anywhere}
 .resource{border-bottom:1px solid #e4e9ef;padding:14px 0}
 .resource:last-child{border:0}
 small{color:#64748b}
 .hidden{display:none}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
+footer{text-align:center;padding:20px;color:#64748b}
 </style>
 </head>
+
 <body>
 <header>
   <h2>MASTERBOOK</h2>
@@ -35,16 +39,19 @@ small{color:#64748b}
     <a href="index.html">Home</a>
     <a href="library.html">Library</a>
     <a href="student.html">Student Portal</a>
+    <a href="teacher.html">Teacher Portal</a>
     <a href="admin.html">Administration</a>
   </nav>
 </header>
 
 <main>
-  <section id="loading" class="card">Checking your account...</section>
+  <section id="loading" class="card">
+    Connecting to MASTERBOOK...
+  </section>
 
   <section id="denied" class="card hidden">
     <h2>Teacher access unavailable</h2>
-    <p id="deniedMessage">Your account does not currently have approved teacher access.</p>
+    <p id="deniedMessage"></p>
     <button onclick="logout()">Sign out</button>
   </section>
 
@@ -52,17 +59,17 @@ small{color:#64748b}
     <div class="card">
       <h1>Teacher Portal</h1>
       <p>Welcome, <strong id="teacherName">Teacher</strong>.</p>
-      <p>Upload and manage your teaching and learning materials.</p>
+      <p>Manage and share educational resources through MASTERBOOK.</p>
       <button class="secondary" onclick="logout()">Sign out</button>
     </div>
 
     <div class="card">
       <h2>Upload learning resource</h2>
+
+      <label>Resource title</label>
+      <input id="title" placeholder="Enter resource title">
+
       <div class="grid">
-        <div>
-          <label>Resource title</label>
-          <input id="title" placeholder="Enter resource title" required>
-        </div>
         <div>
           <label>Education level</label>
           <select id="level">
@@ -73,10 +80,12 @@ small{color:#64748b}
             <option>Professional</option>
           </select>
         </div>
+
         <div>
           <label>Subject</label>
-          <input id="subject" placeholder="e.g. Geography" required>
+          <input id="subject" placeholder="e.g. Geography">
         </div>
+
         <div>
           <label>Resource type</label>
           <select id="type">
@@ -85,9 +94,11 @@ small{color:#64748b}
             <option>Coursebook</option>
             <option>Lesson Plan</option>
             <option>Research</option>
+            <option>Video</option>
             <option>Other</option>
           </select>
         </div>
+
         <div>
           <label>Curriculum</label>
           <select id="curriculum">
@@ -97,6 +108,7 @@ small{color:#64748b}
             <option>Other</option>
           </select>
         </div>
+
         <div>
           <label>Access tier</label>
           <select id="tier">
@@ -107,47 +119,67 @@ small{color:#64748b}
       </div>
 
       <label>Description</label>
-      <textarea id="description" rows="3" placeholder="Describe this learning resource"></textarea>
+      <textarea id="description" rows="4"
+        placeholder="Describe this learning resource"></textarea>
 
       <label>Select PDF file (maximum 50 MB)</label>
-      <input id="pdf" type="file" accept="application/pdf,.pdf">
+      <input id="pdf" type="file" accept=".pdf,application/pdf">
 
-      <button id="uploadButton" onclick="uploadResource()">Upload resource</button>
-      <div id="uploadMessage" class="status" aria-live="polite">Your new resource will initially be saved as Draft for administrator review.</div>
+      <button id="uploadButton" onclick="uploadResource()">
+        Upload resource
+      </button>
+
+      <div id="uploadMessage" class="status" aria-live="polite">
+        Uploaded resources are initially saved as Draft for administrator review.
+      </div>
     </div>
 
     <div class="card">
       <h2>My uploaded resources</h2>
-      <button class="secondary" onclick="loadResources()">Refresh resources</button>
-      <div id="resourceList">Loading your resources...</div>
+      <button class="secondary" onclick="loadResources()">
+        Refresh resources
+      </button>
+      <div id="resourceList">Loading resources...</div>
     </div>
   </section>
 </main>
 
+<footer>
+  MASTERBOOK — Learning Without Boundaries.
+  <br>© 2026 G.O. Odhiambo
+</footer>
+
 <script>
-const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
-const SUPABASE_KEY = "sb_publishable_Hgg2m91Ht2OOwCUhH7sGrw_mC9yCj7S";
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL =
+  "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
 let currentUser = null;
 
-function message(id, text) {
-  document.getElementById(id).textContent = text;
+function setMessage(id,text){
+  document.getElementById(id).textContent=text;
 }
 
-async function startPortal() {
-  try {
-    const {data:{session},error} = await db.auth.getSession();
+async function startPortal(){
+  try{
+    const {data,error}=await db.auth.getSession();
     if(error) throw error;
 
-    if(!session) {
-      location.href = "auth.html";
+    if(!data.session){
+      location.href="auth.html";
       return;
     }
 
-    currentUser = session.user;
+    currentUser=data.session.user;
 
-    const {data:profile,error:profileError} = await db
+    const {data:profile,error:profileError}=await db
       .from("profiles")
       .select("full_name,email,requested_role,approval_status,is_admin")
       .eq("id",currentUser.id)
@@ -155,92 +187,112 @@ async function startPortal() {
 
     if(profileError) throw profileError;
 
-    const isAdmin = profile.is_admin === true;
-    const isApprovedTeacher =
-      profile.requested_role === "teacher" &&
-      profile.approval_status === "approved";
+    const isAdmin=profile.is_admin===true;
 
-    if(!isAdmin && !isApprovedTeacher) {
+    const approvedTeacher=
+      profile.requested_role==="teacher" &&
+      profile.approval_status==="approved";
+
+    if(!isAdmin && !approvedTeacher){
       document.getElementById("loading").classList.add("hidden");
       document.getElementById("denied").classList.remove("hidden");
-      message(
+
+      setMessage(
         "deniedMessage",
-        profile.requested_role === "teacher"
-          ? "Your teacher application is awaiting administrator approval."
-          : "This portal is available to approved teacher accounts and administrators."
+        profile.requested_role==="teacher"
+        ? "Your teacher application is awaiting administrator approval."
+        : "This portal is available to approved teachers and administrators."
       );
       return;
     }
 
     document.getElementById("loading").classList.add("hidden");
     document.getElementById("portal").classList.remove("hidden");
-    message("teacherName",profile.full_name || profile.email || "Teacher");
+
+    setMessage(
+      "teacherName",
+      profile.full_name || profile.email || "Teacher"
+    );
 
     await loadResources();
-  } catch(error) {
-    document.getElementById("loading").textContent =
-      "Unable to load the portal: " + error.message;
+
+  }catch(error){
+    setMessage(
+      "loading",
+      "Unable to load the portal: "+error.message
+    );
   }
 }
 
-async function uploadResource() {
-  const button = document.getElementById("uploadButton");
-  const title = document.getElementById("title").value.trim();
-  const subject = document.getElementById("subject").value.trim();
-  const file = document.getElementById("pdf").files[0];
+async function uploadResource(){
+  const button=document.getElementById("uploadButton");
 
-  if(!title || !subject || !file) {
-    message("uploadMessage","Enter the title and subject, then select a PDF file.");
+  const title=document.getElementById("title").value.trim();
+  const subject=document.getElementById("subject").value.trim();
+  const file=document.getElementById("pdf").files[0];
+
+  if(!title || !subject || !file){
+    setMessage("uploadMessage","Enter the title and subject, and select a PDF.");
     return;
   }
 
-  if(file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-    message("uploadMessage","Only PDF files are accepted.");
+  if(file.type!=="application/pdf" &&
+     !file.name.toLowerCase().endsWith(".pdf")){
+    setMessage("uploadMessage","Only PDF files are accepted.");
     return;
   }
 
-  if(file.size > 50 * 1024 * 1024) {
-    message("uploadMessage","The PDF exceeds the 50 MB limit.");
+  if(file.size>50*1024*1024){
+    setMessage("uploadMessage","The file exceeds the 50 MB limit.");
     return;
   }
 
-  button.disabled = true;
-  message("uploadMessage","Uploading your PDF...");
+  button.disabled=true;
+  setMessage("uploadMessage","Uploading PDF to MASTERBOOK...");
 
-  let uploadedPath = null;
+  let path=null;
 
-  try {
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
-    uploadedPath = currentUser.id + "/" + crypto.randomUUID() + "-" + safeName;
+  try{
+    const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
 
-    const {error:storageError} = await db.storage
+    path=currentUser.id+"/"+crypto.randomUUID()+"-"+safeName;
+
+    const {error:storageError}=await db.storage
       .from("masterbook-resources")
-      .upload(uploadedPath,file,{contentType:"application/pdf",upsert:false});
+      .upload(path,file,{
+        contentType:"application/pdf",
+        upsert:false
+      });
 
     if(storageError) throw storageError;
 
-    const record = {
-      title,
+    const resource={
+      title:title,
       description:document.getElementById("description").value.trim(),
       education_level:document.getElementById("level").value,
-      subject,
+      subject:subject,
       resource_type:document.getElementById("type").value,
       curriculum:document.getElementById("curriculum").value,
       access_tier:document.getElementById("tier").value,
       status:"Draft",
-      storage_path:uploadedPath,
+      storage_path:path,
       created_by:currentUser.id
     };
 
-    const {error:insertError} = await db.from("resources").insert(record);
+    const {error:insertError}=await db
+      .from("resources")
+      .insert(resource);
 
-    if(insertError) {
-      await db.storage.from("masterbook-resources").remove([uploadedPath]);
-      uploadedPath = null;
+    if(insertError){
+      await db.storage.from("masterbook-resources").remove([path]);
+      path=null;
       throw insertError;
     }
 
-    message("uploadMessage","Success! Your resource has been uploaded and saved as Draft for administrator review.");
+    setMessage(
+      "uploadMessage",
+      "SUCCESS! Your resource has been uploaded and saved as Draft for administrator review."
+    );
 
     document.getElementById("title").value="";
     document.getElementById("subject").value="";
@@ -249,59 +301,62 @@ async function uploadResource() {
 
     await loadResources();
 
-  } catch(error) {
-    message("uploadMessage","Upload failed: " + error.message);
-  } finally {
-    button.disabled = false;
+  }catch(error){
+    setMessage("uploadMessage","Upload failed: "+error.message);
+  }finally{
+    button.disabled=false;
   }
 }
 
-async function loadResources() {
-  const list = document.getElementById("resourceList");
-  list.textContent = "Loading your resources...";
+async function loadResources(){
+  const list=document.getElementById("resourceList");
+  list.textContent="Loading your resources...";
 
-  const {data,error} = await db.from("resources")
+  const {data,error}=await db
+    .from("resources")
     .select("id,title,subject,resource_type,status,created_at")
     .eq("created_by",currentUser.id)
     .order("created_at",{ascending:false});
 
-  if(error) {
-    list.textContent = "Could not load resources: " + error.message;
+  if(error){
+    list.textContent="Could not load resources: "+error.message;
     return;
   }
 
-  if(!data || data.length === 0) {
-    list.textContent = "You have not uploaded any resources yet.";
+  if(!data || data.length===0){
+    list.textContent="You have not uploaded any resources yet.";
     return;
   }
 
   list.replaceChildren();
 
-  data.forEach(item => {
-    const entry = document.createElement("div");
-    entry.className = "resource";
+  data.forEach(item=>{
+    const entry=document.createElement("div");
+    entry.className="resource";
 
-    const heading = document.createElement("strong");
-    heading.textContent = item.title;
+    const heading=document.createElement("strong");
+    heading.textContent=item.title;
 
-    const details = document.createElement("p");
-    details.textContent = item.subject + " · " + item.resource_type;
+    const details=document.createElement("p");
+    details.textContent=item.subject+" · "+item.resource_type;
 
-    const status = document.createElement("small");
-    status.textContent = "Publication status: " + item.status;
+    const status=document.createElement("small");
+    status.textContent="Publication status: "+item.status;
 
     entry.append(heading,details,status);
     list.appendChild(entry);
   });
 }
 
-async function logout() {
-  const {error} = await db.auth.signOut();
-  if(error) {
-    alert("Sign out failed: " + error.message);
+async function logout(){
+  const {error}=await db.auth.signOut();
+
+  if(error){
+    alert("Sign out failed: "+error.message);
     return;
   }
-  location.href = "auth.html";
+
+  location.href="auth.html";
 }
 
 startPortal();
