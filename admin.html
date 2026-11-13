@@ -7,32 +7,66 @@
 <title>MASTERBOOK | Administration</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
+
 <style>
-:root{--navy:#10243e;--blue:#1769aa;--bg:#f3f6fa;--green:#16834a;--red:#bd3434;--muted:#718096}
+:root{
+ --navy:#10243e;--blue:#1769aa;--bg:#f3f6fa;
+ --green:#16834a;--red:#bd3434;--muted:#718096;
+}
 *{box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:#26364a}
-header{background:var(--navy);color:white;padding:20px 5%;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+header{
+ background:var(--navy);color:white;padding:20px 5%;
+ display:flex;justify-content:space-between;align-items:center;
+ gap:12px;flex-wrap:wrap
+}
 header h1{margin:0;font-size:23px}
 header p{margin:5px 0 0;color:#d2ddeb;font-size:13px}
-button{border:0;border-radius:7px;padding:11px 14px;font-weight:bold;cursor:pointer}
-button:disabled{opacity:.55;cursor:not-allowed}
+button{
+ border:0;border-radius:7px;padding:11px 14px;
+ font-weight:bold;cursor:pointer
+}
+button:disabled{opacity:.45;cursor:not-allowed}
 .logout{background:white;color:var(--navy)}
 main{max-width:1200px;margin:25px auto;padding:0 15px}
-.panel,.stat{background:white;border-radius:12px;padding:20px;margin-bottom:18px;box-shadow:0 2px 12px #10243e0c}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;margin:18px 0}
+.panel,.stat{
+ background:white;border-radius:12px;padding:20px;
+ margin-bottom:18px;box-shadow:0 2px 12px #10243e0c
+}
+.stats{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
+ gap:12px;margin:18px 0
+}
 .stat strong{display:block;font-size:27px;color:var(--blue);margin-top:8px}
-.tabs,.actions,.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.tabs,.actions,.toolbar,.navigation{
+ display:flex;gap:8px;flex-wrap:wrap;margin:14px 0
+}
 .tabs button{background:#e3eaf2;color:var(--navy)}
 .tabs button.active{background:var(--navy);color:white}
-input,select,textarea{width:100%;padding:11px;border:1px solid #ccd5df;border-radius:7px;font:inherit;background:white}
+input,select,textarea{
+ width:100%;padding:11px;border:1px solid #ccd5df;
+ border-radius:7px;font:inherit;background:white
+}
 label{display:block;font-weight:bold;margin:13px 0 7px}
 .toolbar input{flex:1;min-width:180px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:0 15px}
 .full{grid-column:1/-1}
-.resource{background:white;border:1px solid #e1e7ee;border-radius:10px;padding:16px;margin:12px 0;overflow-wrap:anywhere}
+.resource{
+ background:white;border:1px solid #e1e7ee;border-radius:10px;
+ padding:16px;margin:12px 0;overflow-wrap:anywhere;
+ scroll-margin-top:20px
+}
 .resource h3{margin:0 0 8px}
+.resource.selected{
+ border:2px solid var(--blue);
+ box-shadow:0 0 0 3px #1769aa18
+}
 .meta,.small{font-size:13px;color:var(--muted);line-height:1.8}
-.status{display:inline-block;padding:5px 10px;border-radius:20px;font-size:12px;font-weight:bold;margin:8px 0;background:#edf1f5}
+.status{
+ display:inline-block;padding:5px 10px;border-radius:20px;
+ font-size:12px;font-weight:bold;margin:8px 0;background:#edf1f5
+}
 .pending{background:#fff3d7;color:#8b5b00}
 .published{background:#def5e7;color:#126b39}
 .rejected{background:#fde5e5;color:#a32626}
@@ -40,16 +74,40 @@ label{display:block;font-weight:bold;margin:13px 0 7px}
 .reject{background:var(--red);color:white}
 .edit{background:#e8eef7;color:var(--navy)}
 .primary{background:var(--blue);color:white}
-.message{padding:13px;border-radius:8px;background:#edf4fb;margin:12px 0;line-height:1.5;overflow-wrap:anywhere}
+.secondary{background:#e3eaf2;color:var(--navy)}
+.navigation{
+ background:#e9f0f7;padding:12px;border-radius:9px;
+ align-items:center
+}
+.navigation button{background:var(--navy);color:white}
+.navigation .home{background:var(--blue)}
+.navigation .section-btn{background:white;color:var(--navy)}
+.navigation .section-btn.active{background:var(--blue);color:white}
+.nav-info{font-size:13px;color:var(--muted);margin-left:auto}
+.message{
+ padding:13px;border-radius:8px;background:#edf4fb;
+ margin:12px 0;line-height:1.5;overflow-wrap:anywhere
+}
 .error{background:#fde5e5;color:#9b2525}
 .success{background:#e1f5e8;color:#126b39}
-.progress-wrap{height:13px;background:#e7edf4;border-radius:20px;overflow:hidden;margin-top:10px}
+.progress-wrap{
+ height:13px;background:#e7edf4;border-radius:20px;
+ overflow:hidden;margin-top:10px
+}
 .progress-bar{height:100%;width:0;background:var(--green);transition:width .2s}
-.hidden{display:none}
+.hidden{display:none!important}
 footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
-@media(max-width:600px){main{margin:15px auto}.panel{padding:16px}.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+@media(max-width:600px){
+ main{margin:15px auto}
+ .panel{padding:16px}
+ .grid{grid-template-columns:1fr}
+ .full{grid-column:auto}
+ .nav-info{width:100%;margin-left:0}
+ .navigation button{flex:1}
+}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -62,20 +120,31 @@ footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
 
 <main>
 
- <section class="panel">
+ <!-- MAIN NAVIGATION -->
+ <section class="navigation" aria-label="Dashboard navigation">
+  <button id="backBtn" type="button" disabled>← Back</button>
+  <button id="forwardBtn" type="button" disabled>Forward →</button>
+  <button id="homeBtn" class="home" type="button">Dashboard Home</button>
+  <button class="section-btn active" data-section="workspace" type="button">Overview</button>
+  <button class="section-btn" data-section="uploadPanel" type="button">Upload</button>
+  <button class="section-btn" data-section="resourcePanel" type="button">Resources</button>
+  <span id="navigationInfo" class="nav-info">Dashboard Home</span>
+ </section>
+
+ <section class="panel" id="workspace">
   <h2>Administrator Workspace</h2>
   <div id="identity" class="small">Verifying administrator access...</div>
   <div id="message" class="message">Connecting to MASTERBOOK...</div>
  </section>
 
- <section class="stats">
+ <section class="stats" id="dashboardStats">
   <div class="stat">Total resources<strong id="totalCount">—</strong></div>
   <div class="stat">Awaiting review<strong id="pendingCount">—</strong></div>
   <div class="stat">Published<strong id="publishedCount">—</strong></div>
   <div class="stat">Rejected<strong id="rejectedCount">—</strong></div>
  </section>
 
- <section class="panel">
+ <section class="panel" id="uploadPanel">
   <h2>Upload a Resource</h2>
   <p class="small">Administrator uploads are saved as drafts for review and publication.</p>
 
@@ -85,10 +154,12 @@ footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
      <label for="uploadTitle">Resource title</label>
      <input id="uploadTitle" maxlength="200" required>
     </div>
+
     <div class="full">
      <label for="uploadDescription">Description</label>
      <textarea id="uploadDescription" maxlength="2000"></textarea>
     </div>
+
     <div>
      <label for="uploadLevel">Education level</label>
      <select id="uploadLevel" required>
@@ -100,10 +171,12 @@ footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
       <option>Professional</option>
      </select>
     </div>
+
     <div>
      <label for="uploadSubject">Subject</label>
      <input id="uploadSubject" required maxlength="100">
     </div>
+
     <div>
      <label for="uploadType">Resource type</label>
      <select id="uploadType" required>
@@ -117,6 +190,7 @@ footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
       <option>Other</option>
      </select>
     </div>
+
     <div>
      <label for="uploadCurriculum">Curriculum</label>
      <select id="uploadCurriculum">
@@ -126,6 +200,7 @@ footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
       <option>Other</option>
      </select>
     </div>
+
     <div>
      <label for="uploadTier">Access tier</label>
      <select id="uploadTier">
@@ -133,6 +208,7 @@ footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
       <option>Premium</option>
      </select>
     </div>
+
     <div class="full">
      <label for="uploadFile">PDF document</label>
      <input id="uploadFile" type="file" accept=".pdf,application/pdf" required>
@@ -142,7 +218,9 @@ footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
 
    <div id="uploadProgress" class="hidden">
     <p id="progressLabel" class="small">Preparing upload...</p>
-    <div class="progress-wrap"><div id="progressBar" class="progress-bar"></div></div>
+    <div class="progress-wrap">
+     <div id="progressBar" class="progress-bar"></div>
+    </div>
     <p id="progressText" class="small">0%</p>
    </div>
 
@@ -151,22 +229,33 @@ footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
   </form>
  </section>
 
- <section class="panel">
+ <section class="panel" id="resourcePanel">
   <h2>Resource Management</h2>
+
   <div class="tabs">
-   <button class="active" data-tab="pending">Submissions</button>
-   <button data-tab="published">Published</button>
-   <button data-tab="rejected">Rejected</button>
-   <button data-tab="all">All Resources</button>
+   <button class="active" data-tab="pending" type="button">Submissions</button>
+   <button data-tab="published" type="button">Published</button>
+   <button data-tab="rejected" type="button">Rejected</button>
+   <button data-tab="all" type="button">All Resources</button>
   </div>
 
   <h3 id="sectionTitle">Submissions Awaiting Review</h3>
+
   <div class="toolbar">
    <input id="searchBox" placeholder="Search title, subject or education level">
-   <button class="primary" id="refreshButton">Refresh</button>
+   <button class="primary" id="refreshButton" type="button">Refresh</button>
   </div>
+
+  <!-- RESOURCE RECORD NAVIGATION -->
+  <div class="navigation">
+   <button id="previousResourceBtn" type="button" disabled>← Previous Resource</button>
+   <button id="nextResourceBtn" type="button" disabled>Next Resource →</button>
+   <span id="resourcePosition" class="nav-info">No resources selected</span>
+  </div>
+
   <div id="resourceList">Loading resources...</div>
  </section>
+
 </main>
 
 <footer>MASTERBOOK Administration | G.O. Odhiambo</footer>
@@ -174,8 +263,7 @@ footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
 <script>
 const SUPABASE_URL="https://bxsrhvcqjjtdnflhoplu.supabase.co";
 
-/* Insert the exact existing MASTERBOOK publishable key here.
-   Never use a service-role or secret key in this file. */
+/* Existing MASTERBOOK publishable key */
 const SUPABASE_KEY="sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
 
 const BUCKET="masterbook-resources";
@@ -190,6 +278,13 @@ let resources=[];
 let activeTab="pending";
 let busy=false;
 let pendingUpload=null;
+
+/* Navigation state */
+let visibleResources=[];
+let currentResourceIndex=0;
+let navigationHistory=[];
+let navigationForward=[];
+let applyingNavigation=false;
 
 const $=id=>document.getElementById(id);
 
@@ -219,12 +314,147 @@ function showProgress(percent,label){
  $("progressLabel").textContent=label;
 }
 
-async function initialise(){
- if(SUPABASE_KEY.includes("PASTE_YOUR")){
-  notify("Add your existing Supabase publishable key to admin.html.","error");
-  return;
+/* ---------------- DASHBOARD NAVIGATION ---------------- */
+
+function getNavigationState(){
+ const section=document.querySelector(".section-btn.active");
+ return {
+  section:section?section.dataset.section:"workspace",
+  tab:activeTab
+ };
+}
+
+function sameNavigationState(a,b){
+ return a.section===b.section&&a.tab===b.tab;
+}
+
+function saveNavigationState(){
+ if(applyingNavigation) return;
+
+ const state=getNavigationState();
+ const last=navigationHistory[navigationHistory.length-1];
+
+ if(last&&sameNavigationState(last,state)) return;
+
+ navigationHistory.push(state);
+ if(navigationHistory.length>50) navigationHistory.shift();
+
+ navigationForward=[];
+ updateNavigationButtons();
+}
+
+function updateNavigationButtons(){
+ $("backBtn").disabled=navigationHistory.length<=1;
+ $("forwardBtn").disabled=navigationForward.length===0;
+}
+
+function applyNavigationState(state){
+ applyingNavigation=true;
+
+ const section=state.section||"workspace";
+ const tab=state.tab||"pending";
+
+ document.querySelectorAll(".section-btn").forEach(button=>{
+  button.classList.toggle("active",button.dataset.section===section);
+ });
+
+ document.querySelectorAll(".tabs button").forEach(button=>{
+  button.classList.toggle("active",button.dataset.tab===tab);
+ });
+
+ activeTab=tab;
+ currentResourceIndex=0;
+ renderResources();
+
+ const target=$(section);
+ if(target){
+  target.scrollIntoView({behavior:"smooth",block:"start"});
  }
 
+ updateNavigationInfo();
+ applyingNavigation=false;
+ updateNavigationButtons();
+}
+
+function updateNavigationInfo(){
+ const section=document.querySelector(".section-btn.active");
+ const names={
+  workspace:"Dashboard Overview",
+  uploadPanel:"Resource Upload",
+  resourcePanel:"Resource Management"
+ };
+
+ const sectionName=section?names[section.dataset.section]:"Dashboard";
+ const tabNames={
+  pending:"Submissions",
+  published:"Published",
+  rejected:"Rejected",
+  all:"All Resources"
+ };
+
+ $("navigationInfo").textContent=sectionName+" | "+tabNames[activeTab];
+}
+
+function goBack(){
+ if(navigationHistory.length<=1) return;
+
+ const current=navigationHistory.pop();
+ navigationForward.push(current);
+
+ applyNavigationState(navigationHistory[navigationHistory.length-1]);
+}
+
+function goForward(){
+ if(!navigationForward.length) return;
+
+ const next=navigationForward.pop();
+ navigationHistory.push(next);
+
+ applyNavigationState(next);
+}
+
+function goHome(){
+ const homeState={section:"workspace",tab:"pending"};
+
+ if(!sameNavigationState(getNavigationState(),homeState)){
+  saveNavigationState();
+  navigationHistory.push(homeState);
+  navigationForward=[];
+ }
+
+ applyNavigationState(homeState);
+ $("workspace").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function goToSection(sectionId){
+ const target=$(sectionId);
+ if(!target) return;
+
+ if(getNavigationState().section!==sectionId){
+  saveNavigationState();
+  document.querySelectorAll(".section-btn").forEach(button=>{
+   button.classList.toggle("active",button.dataset.section===sectionId);
+  });
+ }
+
+ target.scrollIntoView({behavior:"smooth",block:"start"});
+ updateNavigationInfo();
+ updateNavigationButtons();
+}
+
+$("backBtn").addEventListener("click",goBack);
+$("forwardBtn").addEventListener("click",goForward);
+$("homeBtn").addEventListener("click",goHome);
+
+document.querySelectorAll(".section-btn").forEach(button=>{
+ button.addEventListener("click",()=>{
+  goToSection(button.dataset.section);
+ });
+});
+
+/* ---------------- ADMINISTRATOR ACCESS ---------------- */
+
+async function initialise(){
  try{
   const {data:{session},error}=await db.auth.getSession();
   if(error) throw error;
@@ -245,14 +475,24 @@ async function initialise(){
   }
 
   $("identity").textContent="Administrator access verified: "+currentUser.email;
+
   restorePendingUpload();
   await loadResources();
+
+  navigationHistory=[getNavigationState()];
+  navigationForward=[];
+  updateNavigationButtons();
+  updateNavigationInfo();
+
+  notify("Administrator access verified. Dashboard is ready.","success");
 
  }catch(error){
   console.error(error);
   notify("Administrator verification failed: "+error.message,"error");
  }
 }
+
+/* ---------------- RESOURCE MANAGEMENT ---------------- */
 
 async function loadResources(){
  $("resourceList").textContent="Loading resources...";
@@ -268,9 +508,9 @@ async function loadResources(){
  }
 
  resources=data||[];
+ currentResourceIndex=0;
  updateStats();
  renderResources();
- notify("MASTERBOOK resources loaded successfully.","success");
 }
 
 function updateStats(){
@@ -280,9 +520,73 @@ function updateStats(){
  $("rejectedCount").textContent=resources.filter(r=>!!r.rejection_reason).length;
 }
 
-function renderResources(){
+function getFilteredResources(){
  const term=$("searchBox").value.toLowerCase().trim();
 
+ return resources.filter(r=>{
+  const searchable=[
+   r.title,r.subject,r.education_level,r.resource_type,r.curriculum
+  ].join(" ").toLowerCase();
+
+  if(term&&!searchable.includes(term)) return false;
+
+  if(activeTab==="pending") return r.status==="Draft"&&!r.rejection_reason;
+  if(activeTab==="published") return r.status==="Published";
+  if(activeTab==="rejected") return !!r.rejection_reason;
+  return true;
+ });
+}
+
+function updateResourceNavigation(){
+ const total=visibleResources.length;
+
+ $("previousResourceBtn").disabled=total===0||currentResourceIndex<=0;
+ $("nextResourceBtn").disabled=total===0||currentResourceIndex>=total-1;
+
+ $("resourcePosition").textContent=total
+  ? "Resource "+(currentResourceIndex+1)+" of "+total
+  : "No resources available";
+}
+
+function navigateResource(direction){
+ if(!visibleResources.length) return;
+
+ const nextIndex=currentResourceIndex+direction;
+
+ if(nextIndex<0||nextIndex>=visibleResources.length) return;
+
+ currentResourceIndex=nextIndex;
+ highlightCurrentResource();
+ updateResourceNavigation();
+}
+
+function highlightCurrentResource(){
+ document.querySelectorAll(".resource").forEach(card=>{
+  card.classList.remove("selected");
+ });
+
+ const resource=visibleResources[currentResourceIndex];
+ if(!resource) return;
+
+ const card=document.querySelector(
+  `.resource[data-resource-id="${CSS.escape(resource.id)}"]`
+ );
+
+ if(card){
+  card.classList.add("selected");
+  card.scrollIntoView({behavior:"smooth",block:"center"});
+ }
+}
+
+$("previousResourceBtn").addEventListener("click",()=>{
+ navigateResource(-1);
+});
+
+$("nextResourceBtn").addEventListener("click",()=>{
+ navigateResource(1);
+});
+
+function renderResources(){
  const headings={
   pending:"Submissions Awaiting Review",
   published:"Published Resources",
@@ -292,32 +596,31 @@ function renderResources(){
 
  $("sectionTitle").textContent=headings[activeTab];
 
- const filtered=resources.filter(r=>{
-  const searchable=[r.title,r.subject,r.education_level,r.resource_type,r.curriculum]
-   .join(" ").toLowerCase();
+ visibleResources=getFilteredResources();
 
-  if(term&&!searchable.includes(term)) return false;
+ if(currentResourceIndex>=visibleResources.length){
+  currentResourceIndex=Math.max(0,visibleResources.length-1);
+ }
 
-  if(activeTab==="pending") return r.status==="Draft"&&!r.rejection_reason;
-  if(activeTab==="published") return r.status==="Published";
-  if(activeTab==="rejected") return !!r.rejection_reason;
-  return true;
- });
-
- if(!filtered.length){
+ if(!visibleResources.length){
   $("resourceList").innerHTML="<p class='small'>No resources found in this section.</p>";
+  updateResourceNavigation();
+  updateNavigationInfo();
   return;
  }
 
- $("resourceList").innerHTML=filtered.map(r=>{
+ $("resourceList").innerHTML=visibleResources.map((r,index)=>{
   const rejected=!!r.rejection_reason;
   const published=r.status==="Published";
   const label=rejected?"Rejected":published?"Published":"Pending review";
   const statusClass=rejected?"rejected":published?"published":"pending";
 
   return `
-   <article class="resource">
+   <article class="resource ${index===currentResourceIndex?"selected":""}"
+    data-resource-id="${escapeHTML(r.id)}">
+
     <h3>${escapeHTML(r.title)}</h3>
+
     <div class="meta">
      <strong>Subject:</strong> ${escapeHTML(r.subject)}<br>
      <strong>Education level:</strong> ${escapeHTML(r.education_level)}<br>
@@ -327,25 +630,39 @@ function renderResources(){
      <strong>Created:</strong> ${r.created_at?new Date(r.created_at).toLocaleString():"Not recorded"}<br>
      <strong>Creator ID:</strong> ${escapeHTML(r.created_by||"Not recorded")}
     </div>
+
     <span class="status ${statusClass}">${label}</span>
+
     ${r.description?`<p>${escapeHTML(r.description)}</p>`:""}
+
     ${rejected?`<p class="meta"><strong>Rejection reason:</strong> ${escapeHTML(r.rejection_reason)}</p>`:""}
+
     ${r.reviewed_at?`<p class="meta"><strong>Reviewed:</strong> ${new Date(r.reviewed_at).toLocaleString()}</p>`:""}
+
     ${r.reviewed_by?`<p class="meta"><strong>Reviewed by:</strong> ${escapeHTML(r.reviewed_by)}</p>`:""}
+
     <div class="actions">
-     <button class="approve" data-action="approve" data-id="${r.id}" ${busy?"disabled":""}>
+     <button class="approve" data-action="approve" data-id="${escapeHTML(r.id)}">
       ${published?"Publish again":"Approve and Publish"}
      </button>
-     <button class="reject" data-action="reject" data-id="${r.id}" ${busy?"disabled":""}>Reject</button>
-     <button class="edit" data-action="edit" data-id="${r.id}" ${busy?"disabled":""}>Edit Details</button>
+
+     <button class="reject" data-action="reject" data-id="${escapeHTML(r.id)}">
+      Reject
+     </button>
+
+     <button class="edit" data-action="edit" data-id="${escapeHTML(r.id)}">
+      Edit Details
+     </button>
     </div>
    </article>
   `;
  }).join("");
+
+ updateResourceNavigation();
+ updateNavigationInfo();
 }
 
-/* All review decisions are checked against the database response.
-   A green success message is never shown merely because a button was clicked. */
+/* ---------------- APPROVAL AND REJECTION ---------------- */
 
 async function updateReview(id,decision,reason=""){
  if(busy) return;
@@ -364,7 +681,10 @@ async function updateReview(id,decision,reason=""){
   updated_at:new Date().toISOString()
  };
 
- const button=document.querySelector(`[data-id="${id}"][data-action="${decision}"]`);
+ const button=document.querySelector(
+  `[data-id="${CSS.escape(id)}"][data-action="${decision}"]`
+ );
+
  if(button) button.disabled=true;
 
  try{
@@ -418,6 +738,7 @@ async function rejectResource(id){
 
 async function editResource(id){
  if(busy) return;
+
  const r=resources.find(item=>item.id===id);
  if(!r) return;
 
@@ -472,7 +793,7 @@ async function editResource(id){
  }
 }
 
-/* Resumable administrator PDF uploads */
+/* ---------------- RESUMABLE PDF UPLOADS ---------------- */
 
 function safeName(name){
  return name.replace(/[^a-zA-Z0-9._-]/g,"_").slice(-120);
@@ -506,6 +827,7 @@ function restorePendingUpload(){
   if(!saved) return;
 
   pendingUpload=JSON.parse(saved);
+
   $("uploadTitle").value=pendingUpload.title||"";
   $("uploadDescription").value=pendingUpload.description||"";
   $("uploadLevel").value=pendingUpload.education_level||"";
@@ -517,6 +839,7 @@ function restorePendingUpload(){
   $("retryUploadButton").classList.remove("hidden");
 
   notify("An unfinished administrator upload was recovered. Retry saving or select the original PDF to resume.","normal");
+
  }catch(error){
   console.error("Pending upload recovery failed:",error);
  }
@@ -525,6 +848,7 @@ function restorePendingUpload(){
 function uploadPDF(file,path){
  return new Promise(async(resolve,reject)=>{
   const {data:{session},error:sessionError}=await db.auth.getSession();
+
   if(sessionError||!session){
    reject(sessionError||new Error("Login session expired."));
    return;
@@ -536,22 +860,27 @@ function uploadPDF(file,path){
    chunkSize:CHUNK_SIZE,
    uploadDataDuringCreation:true,
    removeFingerprintOnSuccess:true,
+
    headers:{
     authorization:"Bearer "+session.access_token,
     apikey:SUPABASE_KEY,
     "x-upsert":"false"
    },
+
    metadata:{
     bucketName:BUCKET,
     objectName:path,
     contentType:"application/pdf",
     cacheControl:"3600"
    },
+
    onProgress(sent,total){
     const percent=Math.min(99,Math.round(sent/total*100));
     showProgress(percent,"Uploading PDF...");
    },
+
    onError:reject,
+
    onSuccess(){
     showProgress(100,"PDF uploaded. Saving resource record...");
     resolve();
@@ -580,7 +909,9 @@ async function saveResourceRecord(data){
   localStorage.removeItem(PENDING_KEY);
   pendingUpload=null;
   $("retryUploadButton").classList.add("hidden");
+
   notify("This file already has a database record. Duplicate insertion prevented.","success");
+
   $("uploadForm").reset();
   await loadResources();
   return;
@@ -609,6 +940,7 @@ async function saveResourceRecord(data){
 
  localStorage.removeItem(PENDING_KEY);
  pendingUpload=null;
+
  $("retryUploadButton").classList.add("hidden");
  $("uploadForm").reset();
  $("uploadProgress").classList.add("hidden");
@@ -652,6 +984,7 @@ async function handleUpload(event){
  setBusy(true);
 
  const path=currentUser.id+"/"+makeId()+"-"+safeName(file.name);
+
  const pending={
   ...data,
   storage_path:null,
@@ -675,9 +1008,15 @@ async function handleUpload(event){
 
  }catch(error){
   console.error("Administrator upload failed:",error);
+
   $("retryUploadButton").classList.remove("hidden");
-  notify("Upload or record saving failed: "+error.message+
-   ". Your details have been retained. Retry the operation.","error");
+
+  notify(
+   "Upload or record saving failed: "+error.message+
+   ". Your details have been retained. Retry the operation.",
+   "error"
+  );
+
  }finally{
   setBusy(false);
  }
@@ -685,36 +1024,44 @@ async function handleUpload(event){
 
 async function retryUpload(){
  if(busy||!pendingUpload) return;
+
  setBusy(true);
 
  try{
   if(pendingUpload.storage_path){
    showProgress(100,"Retrying database record...");
    await saveResourceRecord(pendingUpload);
+
   }else{
    const file=$("uploadFile").files[0];
 
-   if(!file) throw new Error("Select the original PDF again to resume the upload.");
+   if(!file){
+    throw new Error("Select the original PDF again to resume the upload.");
+   }
 
    if(file.name!==pendingUpload.file_name||file.size!==pendingUpload.file_size){
     throw new Error("Select the original PDF used in the interrupted upload.");
    }
 
    await uploadPDF(file,pendingUpload.object_path);
+
    pendingUpload.storage_path=pendingUpload.object_path;
    savePendingUpload(pendingUpload);
+
    await saveResourceRecord(pendingUpload);
   }
+
  }catch(error){
   console.error(error);
   $("retryUploadButton").classList.remove("hidden");
   notify("Retry failed: "+error.message,"error");
+
  }finally{
   setBusy(false);
  }
 }
 
-/* Event handlers */
+/* ---------------- EVENT HANDLERS ---------------- */
 
 $("resourceList").addEventListener("click",event=>{
  const button=event.target.closest("button[data-action]");
@@ -730,24 +1077,41 @@ $("resourceList").addEventListener("click",event=>{
 
 document.querySelectorAll(".tabs button").forEach(button=>{
  button.addEventListener("click",()=>{
-  document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+  saveNavigationState();
+
+  document.querySelectorAll(".tabs button").forEach(b=>{
+   b.classList.remove("active");
+  });
+
   button.classList.add("active");
   activeTab=button.dataset.tab;
+  currentResourceIndex=0;
+
   renderResources();
+  updateNavigationInfo();
+
+  $("resourcePanel").scrollIntoView({behavior:"smooth",block:"start"});
  });
 });
 
-$("searchBox").addEventListener("input",renderResources);
+$("searchBox").addEventListener("input",()=>{
+ currentResourceIndex=0;
+ renderResources();
+});
+
 $("refreshButton").addEventListener("click",loadResources);
+
 $("uploadForm").addEventListener("submit",handleUpload);
 $("retryUploadButton").addEventListener("click",retryUpload);
 
 $("logoutBtn").addEventListener("click",async()=>{
  const {error}=await db.auth.signOut();
+
  if(error){
   notify("Sign out failed: "+error.message,"error");
   return;
  }
+
  location.href="auth.html";
 });
 
