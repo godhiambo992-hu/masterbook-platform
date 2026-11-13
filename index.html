@@ -36,18 +36,12 @@ nav{
   gap:15px
 }
 
-.logo{
-  font-size:25px;
-  font-weight:bold;
-  letter-spacing:1px
-}
-
+.logo{font-size:25px;font-weight:bold;letter-spacing:1px}
 .logo span{color:#e5ad42}
 
 .navlinks{
   display:flex;
   flex-wrap:wrap;
-  align-items:center;
   gap:16px
 }
 
@@ -66,11 +60,6 @@ nav a:hover{color:#e5ad42}
   flex-wrap:wrap
 }
 
-.account a{
-  color:white;
-  text-decoration:none
-}
-
 #userEmail{
   font-size:12px;
   color:#dbeafe;
@@ -87,10 +76,7 @@ button{
   cursor:pointer
 }
 
-button:disabled{
-  opacity:.6;
-  cursor:not-allowed
-}
+button:disabled{opacity:.6;cursor:not-allowed}
 
 .hero{
   background:linear-gradient(120deg,#123b58,#176b63);
@@ -255,9 +241,7 @@ footer p{margin:5px}
   <div class="account">
     <a id="loginLink" href="auth.html">Login / Register</a>
     <span id="userEmail" class="hidden"></span>
-    <button id="logoutButton" class="hidden" type="button">
-      Sign Out
-    </button>
+    <button id="logoutButton" class="hidden" type="button">Sign Out</button>
   </div>
 
 </nav>
@@ -276,26 +260,18 @@ footer p{margin:5px}
 
 <div id="status" role="status" aria-live="polite"></div>
 
-<!-- PERSONALIZED ACCOUNT INFORMATION -->
-
 <section class="welcome">
   <h2 id="welcomeTitle">Welcome to MASTERBOOK</h2>
-
   <p id="welcomeText">
     Discover quality educational resources and learning
     materials across different levels of education.
   </p>
-
   <p id="roleText" class="hidden"></p>
 </section>
 
-<!-- ROLE-BASED WORKSPACE -->
-
 <section id="workspace" class="workspace hidden">
 
-  <span id="roleBadge" class="role-label">
-    My Workspace
-  </span>
+  <span id="roleBadge" class="role-label">My Workspace</span>
 
   <h2 id="workspaceTitle">Your Workspace</h2>
 
@@ -308,8 +284,6 @@ footer p{margin:5px}
   </a>
 
 </section>
-
-<!-- EDUCATION SECTIONS -->
 
 <section class="section" id="education">
 
@@ -353,16 +327,11 @@ footer p{margin:5px}
   </div>
 </section>
 
-<!-- ALL FOUR PORTALS -->
-
 <section class="section" id="portals">
 
   <div class="section-title">
     <h2>MASTERBOOK Portals</h2>
-    <p>
-      One platform connecting learners, teachers,
-      contributors and administrators.
-    </p>
+    <p>One platform connecting learners, teachers, contributors and administrators.</p>
   </div>
 
   <div class="grid">
@@ -394,8 +363,6 @@ footer p{margin:5px}
   </div>
 </section>
 
-<!-- ABOUT -->
-
 <section class="info" id="about">
   <h2>About MASTERBOOK</h2>
   <p>
@@ -418,11 +385,12 @@ footer p{margin:5px}
 
 <script>
 
-/* SUPABASE CONNECTION */
+/* MASTERBOOK SUPABASE CONFIGURATION */
 
 const SUPABASE_URL =
   "https://bxsrhvcqjjtdnflhoplu.supabase.co";
 
+/* Same publishable key used in the working Teacher Portal */
 const SUPABASE_KEY =
   "sb_publishable_Hgg2m91Ht2OOWCUH7sGrw_mC9yCj7S";
 
@@ -451,7 +419,7 @@ const statusBox = document.getElementById("status");
 const AUTH_URL =
   "https://godhiambo992-hu.github.io/masterbook-platform/auth.html";
 
-/* DISPLAY STATUS */
+/* STATUS MESSAGE */
 
 function showStatus(message,isError=false){
 
@@ -465,7 +433,7 @@ function showStatus(message,isError=false){
     isError ? "#991b1b" : "#166534";
 }
 
-/* CLEAR ACCOUNT DISPLAY */
+/* RESET ACCOUNT DISPLAY */
 
 function clearAccount(){
 
@@ -483,7 +451,7 @@ function clearAccount(){
 
 }
 
-/* DETERMINE USER ROLE */
+/* IDENTIFY ACCOUNT ROLE */
 
 function getRole(profile){
 
@@ -519,7 +487,7 @@ function getRole(profile){
         name:"Teacher — Pending Approval",
         title:"Teacher Application",
         description:
-          "Your teacher account is awaiting administrator approval. You can continue exploring the public library.",
+          "Your teacher account is awaiting administrator approval.",
         url:"library.html"
       };
 
@@ -543,7 +511,7 @@ function getRole(profile){
         name:"Contributor — Pending Approval",
         title:"Contributor Application",
         description:
-          "Your contributor account is awaiting administrator approval. You can continue exploring the public library.",
+          "Your contributor account is awaiting administrator approval.",
         url:"library.html"
       };
 
@@ -569,7 +537,7 @@ function getRole(profile){
 
 }
 
-/* LOAD SIGNED-IN USER PROFILE */
+/* LOAD SIGNED-IN USER */
 
 let latestRequest = 0;
 
@@ -646,17 +614,17 @@ async function loadAccount(session){
 
   }catch(error){
 
-    console.error("Profile loading error:",error);
+    console.error("MASTERBOOK profile error:",error);
 
     if(request !== latestRequest) return;
 
     welcomeTitle.textContent = "Welcome to MASTERBOOK";
 
     welcomeText.textContent =
-      "You are signed in, but your profile information could not be retrieved.";
+      "You are signed in, but your profile could not be loaded.";
 
     showStatus(
-      "Profile loading error: " + error.message,
+      "Profile error: " + error.message,
       true
     );
 
@@ -664,7 +632,7 @@ async function loadAccount(session){
 
 }
 
-/* CHECK EXISTING SESSION */
+/* CHECK SESSION */
 
 async function checkSession(){
 
@@ -679,7 +647,7 @@ async function checkSession(){
   }catch(error){
 
     showStatus(
-      "Unable to check your account: " + error.message,
+      "Connection error: " + error.message,
       true
     );
 
@@ -687,7 +655,7 @@ async function checkSession(){
 
 }
 
-/* SECURE SIGN OUT */
+/* SIGN OUT */
 
 logoutButton.addEventListener("click",async function(){
 
@@ -720,7 +688,7 @@ logoutButton.addEventListener("click",async function(){
 
 });
 
-/* KEEP HOMEPAGE UPDATED WHEN AUTH CHANGES */
+/* UPDATE WHEN AUTHENTICATION CHANGES */
 
 db.auth.onAuthStateChange(function(event,session){
 
@@ -732,7 +700,7 @@ db.auth.onAuthStateChange(function(event,session){
 
 });
 
-/* INITIALIZE HOMEPAGE */
+/* INITIAL LOAD */
 
 checkSession();
 
