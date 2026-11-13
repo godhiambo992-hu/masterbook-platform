@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MASTERBOOK | Administrator Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6fb;color:#17243a;font-family:Arial,sans-serif}
+header{background:#102b50;color:white;padding:22px 5%;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+header h1{margin:0;font-size:24px}
+header p{margin:5px 0 0;color:#cbd8e8}
+button{border:0;border-radius:7px;padding:11px 15px;cursor:pointer;font-weight:bold}
+.logout{background:#fff;color:#102b50}
+main{max-width:1100px;margin:30px auto;padding:0 18px}
+.notice{padding:14px;border-radius:8px;background:#fff4d9;color:#765000;margin-bottom:20px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:15px;margin-bottom:28px}
+.card{background:white;padding:20px;border-radius:12px;box-shadow:0 3px 12px #142b4b12}
+.card span{font-size:14px;color:#64748b}
+.card strong{display:block;font-size:30px;margin-top:10px}
+.panel{background:white;border-radius:12px;padding:20px;margin-bottom:22px;box-shadow:0 3px 12px #142b4b12}
+.panel h2{margin-top:0}
+.application{border:1px solid #e1e7ef;padding:16px;border-radius:9px;margin:12px 0}
+.application p{margin:7px 0;color:#526176}
+.approve{background:#16794b;color:white;margin-right:7px}
+.reject{background:#b42318;color:white}
+.refresh{background:#e5edf8;color:#102b50}
+#message{padding:12px;border-radius:7px;margin:15px 0;display:none;overflow-wrap:anywhere}
+footer{text-align:center;padding:25px;color:#64748b}
+</style>
+</head>
+<body>
+<header>
+<div>
+<h1>MASTERBOOK</h1>
+<p>Administrator Control Centre</p>
+</div>
+<button class="logout" id="logoutBtn">Logout</button>
+</header>
+
+<main>
+<div id="message"></div>
+<div class="notice">
+<strong>Administrator access:</strong>
+Manage teacher and contributor applications securely.
+</div>
+
+<section class="cards">
+<div class="card"><span>Pending applications</span><strong id="pendingCount">—</strong></div>
+<div class="card"><span>Teachers awaiting approval</span><strong id="teacherCount">—</strong></div>
+<div class="card"><span>Contributors awaiting approval</span><strong id="contributorCount">—</strong></div>
+</section>
+
+<section class="panel">
+<h2>Application Management</h2>
+<p>Review teacher and contributor registration requests.</p>
+<button class="refresh" id="refreshBtn">Refresh applications</button>
+<div id="applications">
+<p>Checking administrator access...</p>
+</div>
+</section>
+</main>
+
+<footer>MASTERBOOK · Learning Without Boundaries.</footer>
+
+<script>
+const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+const SUPABASE_KEY = "PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE";
+
+const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const messageBox = document.getElementById("message");
+const applicationsBox = document.getElementById("applications");
+
+function showMessage(message, error=false){
+ messageBox.style.display="block";
+ messageBox.style.background=error?"#fee4e2":"#dcfce7";
+ messageBox.style.color=error?"#991b1b":"#166534";
+ messageBox.textContent=message;
+}
+
+async function protectDashboard(){
+ const {data,error}=await db.auth.getSession();
+ if(error || !data.session){
+  location.replace("auth.html");
+  return false;
+ }
+
+ const {data:isAdmin,error:adminError}=await db.rpc("masterbook_admin_is_admin");
+
+ if(adminError || isAdmin !== true){
+  applicationsBox.textContent="Administrator access denied. Sign in with the authorised administrator account.";
+  showMessage("Your account could not be verified as an administrator.",true);
+  return false;
+ }
+
+ showMessage("Administrator access verified.");
+ await loadApplications();
+ return true;
+}
+
+async function loadApplications(){
+ applicationsBox.textContent="Loading applications...";
+
+ const {data,error}=await db.rpc("masterbook_admin_pending_applications");
+
+ if(error){
+  applicationsBox.textContent="Could not load applications: "+error.message;
+  showMessage(error.message,true);
+  return;
+ }
+
+ const applications=data || [];
+ document.getElementById("pendingCount").textContent=applications.length;
+ document.getElementById("teacherCount").textContent=applications.filter(x=>x.requested_role==="teacher").length;
+ document.getElementById("contributorCount").textContent=applications.filter(x=>x.requested_role==="contributor").length;
+
+ if(applications.length===0){
+  applicationsBox.textContent="No pending applications at the moment.";
+  return;
+ }
+
+ applicationsBox.innerHTML="";
+
+ applications.forEach(app=>{
+  const item=document.createElement("div");
+  item.className="application";
+
+  const name=document.createElement("h3");
+  name.textContent=app.full_name || "Name not provided";
+
+  const email=document.createElement("p");
+  email.textContent="Email: "+app.email;
+
+  const role=document.createElement("p");
+  role.textContent="Requested role: "+app.requested_role;
+
+  const status=document.createElement("p");
+  status.textContent="Status: "+app.approval_status;
+
+  const approve=document.createElement("button");
+  approve.className="approve";
+  approve.textContent="Approve";
+  approve.onclick=()=>reviewApplication(app.user_id,"approved");
+
+  const reject=document.createElement("button");
+  reject.className="reject";
+  reject.textContent="Reject";
+  reject.onclick=()=>reviewApplication(app.user_id,"rejected");
+
+  item.append(name,email,role,status,approve,reject);
+  applicationsBox.appendChild(item);
+ });
+}
+
+async function reviewApplication(userId,decision){
+ const confirmed=confirm("Are you sure you want to "+decision+" this application?");
+ if(!confirmed)return;
+
+ const {error}=await db.rpc("masterbook_admin_review_application",{
+  p_user_id:userId,
+  p_decision:decision
+ });
+
+ if(error){
+  showMessage("Review failed: "+error.message,true);
+  return;
+ }
+
+ showMessage("Application "+decision+" successfully.");
+ await loadApplications();
+}
+
+document.getElementById("refreshBtn").addEventListener("click",loadApplications);
+
+document.getElementById("logoutBtn").addEventListener("click",async()=>{
+ const {error}=await db.auth.signOut();
+ if(error){
+  showMessage("Logout failed: "+error.message,true);
+  return;
+ }
+ location.replace("auth.html");
+});
+
+protectDashboard();
+</script>
+</body>
+</html>
