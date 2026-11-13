@@ -1,0 +1,298 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Student Dashboard | MASTERBOOK</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6fb;color:#202b3c}
+header{background:#102b50;color:white;padding:20px}
+header h1{margin:0;font-size:25px}
+header p{margin:7px 0 0;color:#d9e5f5}
+nav{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+button{border:0;border-radius:7px;padding:11px 15px;cursor:pointer;font-weight:bold}
+nav button{background:#24476e;color:white}
+main{max-width:1100px;margin:25px auto;padding:0 15px}
+.panel{background:white;padding:20px;border-radius:12px;margin-bottom:20px;box-shadow:0 2px 9px #0000000c}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
+.stat{background:#edf3fa;padding:18px;border-radius:10px}
+.stat strong{display:block;font-size:27px;margin-top:8px;color:#14518a}
+input{width:100%;padding:12px;border:1px solid #ccd5e0;border-radius:7px;margin:8px 0 15px}
+.resource{border:1px solid #e1e6ed;border-radius:10px;padding:17px;margin:12px 0}
+.resource h3{margin:0 0 8px}
+.primary{background:#14518a;color:white}
+.secondary{background:#e7edf5;color:#173a60;margin-left:5px}
+.success{color:#168348}
+.muted{color:#687789;font-size:14px}
+#message{padding:12px;border-radius:7px;margin-bottom:15px}
+.hidden{display:none}
+footer{text-align:center;padding:25px;color:#667}
+</style>
+</head>
+<body>
+
+<header>
+<h1>MASTERBOOK</h1>
+<p>Learning Without Boundaries.</p>
+<nav>
+<button onclick="showSection('overview')">Dashboard</button>
+<button onclick="showSection('resources')">Learning Resources</button>
+<button onclick="showSection('progress')">My Progress</button>
+<button onclick="logout()">Logout</button>
+</nav>
+</header>
+
+<main>
+<div id="message">Connecting to MASTERBOOK...</div>
+
+<section id="overview" class="panel">
+<h2>Welcome, <span id="studentName">Student</span>!</h2>
+<p class="muted">Your personal learning environment.</p>
+<div class="grid">
+<div class="stat">Enrolled resources<strong id="enrollmentCount">0</strong></div>
+<div class="stat">Completed resources<strong id="completedCount">0</strong></div>
+<div class="stat">Available resources<strong id="resourceCount">0</strong></div>
+</div>
+</section>
+
+<section id="resources" class="panel hidden">
+<h2>Learning Resources</h2>
+<p class="muted">Explore published free learning materials.</p>
+<input id="search" placeholder="Search by title or subject..." oninput="renderResources()">
+<div id="resourceList">Loading resources...</div>
+</section>
+
+<section id="progress" class="panel hidden">
+<h2>My Learning Progress</h2>
+<div id="progressList">Loading progress...</div>
+</section>
+</main>
+
+<footer>MASTERBOOK | Learning Without Boundaries.</footer>
+
+<script>
+const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+const SUPABASE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let resources = [];
+let enrollments = [];
+let progressRecords = [];
+
+function message(text, error=false){
+ const box=document.getElementById("message");
+ box.textContent=text;
+ box.style.background=error?"#fde8e8":"#e6f5eb";
+ box.style.color=error?"#a32222":"#17653a";
+}
+
+function escapeHTML(value){
+ return String(value ?? "").replace(/[&<>"']/g, c => ({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+
+function showSection(id){
+ ["overview","resources","progress"].forEach(section=>{
+  document.getElementById(section).classList.toggle("hidden",section!==id);
+ });
+}
+
+async function initialize(){
+ try{
+  if(SUPABASE_KEY==="YOUR_SUPABASE_PUBLISHABLE_KEY"){
+   throw new Error("Add your existing Supabase publishable key to student.html.");
+  }
+
+  const {data:{session},error}=await db.auth.getSession();
+  if(error) throw error;
+
+  if(!session){
+   window.location.href="auth.html";
+   return;
+  }
+
+  currentUser=session.user;
+
+  const {data:profile,error:profileError}=await db
+   .from("profiles")
+   .select("full_name,email,requested_role,approval_status,is_admin")
+   .eq("id",currentUser.id)
+   .maybeSingle();
+
+  if(profileError) throw profileError;
+  if(!profile) throw new Error("Your MASTERBOOK profile could not be found.");
+
+  if(profile.approval_status!=="approved"){
+   throw new Error("Your account is awaiting approval.");
+  }
+
+  if(profile.requested_role!=="student" && profile.is_admin!==true){
+   throw new Error("This dashboard is available to student accounts.");
+  }
+
+  document.getElementById("studentName").textContent=
+   profile.full_name || currentUser.email;
+
+  await loadData();
+  message("Welcome to your MASTERBOOK student dashboard.");
+
+ }catch(error){
+  message(error.message || "Unable to load the student dashboard.",true);
+ }
+}
+
+async function loadData(){
+ const [resourceResult,enrollmentResult,progressResult]=await Promise.all([
+  db.from("resources")
+   .select("id,title,description,education_level,subject,resource_type,storage_path")
+   .eq("status","Published")
+   .eq("access_tier","Free")
+   .order("created_at",{ascending:false}),
+
+  db.from("student_enrollments")
+   .select("*")
+   .eq("student_id",currentUser.id),
+
+  db.from("student_progress")
+   .select("*")
+   .eq("student_id",currentUser.id)
+ ]);
+
+ if(resourceResult.error) throw resourceResult.error;
+ if(enrollmentResult.error) throw enrollmentResult.error;
+ if(progressResult.error) throw progressResult.error;
+
+ resources=resourceResult.data || [];
+ enrollments=enrollmentResult.data || [];
+ progressRecords=progressResult.data || [];
+
+ document.getElementById("resourceCount").textContent=resources.length;
+ document.getElementById("enrollmentCount").textContent=enrollments.length;
+ document.getElementById("completedCount").textContent=
+  progressRecords.filter(p=>p.completed).length;
+
+ renderResources();
+ renderProgress();
+}
+
+function renderResources(){
+ const query=(document.getElementById("search").value || "").toLowerCase();
+ const list=document.getElementById("resourceList");
+
+ const filtered=resources.filter(r=>
+  (r.title+" "+r.subject+" "+r.education_level).toLowerCase().includes(query)
+ );
+
+ if(!filtered.length){
+  list.textContent="No matching published resources found.";
+  return;
+ }
+
+ list.innerHTML=filtered.map(r=>{
+  const enrolled=enrollments.some(e=>e.course_title===r.title);
+  return `
+   <div class="resource">
+    <h3>${escapeHTML(r.title)}</h3>
+    <p>${escapeHTML(r.description || "")}</p>
+    <p class="muted">${escapeHTML(r.education_level)} | ${escapeHTML(r.subject)} | ${escapeHTML(r.resource_type)}</p>
+    <button class="primary" onclick="enroll('${r.id}')">
+     ${enrolled?"Enrolled":"Enroll"}
+    </button>
+    <button class="secondary" onclick="openPDF('${r.id}')">View PDF</button>
+    <button class="secondary" onclick="completeResource('${r.id}')">Mark completed</button>
+   </div>`;
+ }).join("");
+}
+
+async function enroll(id){
+ const resource=resources.find(r=>r.id===id);
+ if(!resource) return;
+
+ const {error}=await db.from("student_enrollments").upsert({
+  student_id:currentUser.id,
+  course_title:resource.title,
+  subject:resource.subject,
+  education_level:resource.education_level
+ },{onConflict:"student_id,course_title",ignoreDuplicates:true});
+
+ if(error){message(error.message,true);return;}
+
+ await loadData();
+ message("Successfully enrolled in "+resource.title);
+}
+
+async function openPDF(id){
+ const resource=resources.find(r=>r.id===id);
+ if(!resource || !resource.storage_path){
+  message("PDF file is not available.",true);
+  return;
+ }
+
+ const {data,error}=await db.storage
+  .from("masterbook-resources")
+  .createSignedUrl(resource.storage_path,3600);
+
+ if(error){message(error.message,true);return;}
+
+ window.open(data.signedUrl,"_blank","noopener");
+}
+
+async function completeResource(id){
+ const resource=resources.find(r=>r.id===id);
+ if(!resource) return;
+
+ const {error}=await db.from("student_progress").upsert({
+  student_id:currentUser.id,
+  resource_id:resource.id,
+  progress_percentage:100,
+  completed:true,
+  updated_at:new Date().toISOString()
+ },{onConflict:"student_id,resource_id"});
+
+ if(error){message(error.message,true);return;}
+
+ await loadData();
+ message("Resource marked as completed.");
+}
+
+function renderProgress(){
+ const list=document.getElementById("progressList");
+
+ if(!progressRecords.length){
+  list.textContent="You have not recorded any learning progress yet.";
+  return;
+ }
+
+ list.innerHTML=progressRecords.map(p=>{
+  const resource=resources.find(r=>r.id===p.resource_id);
+  return `
+   <div class="resource">
+    <strong>${escapeHTML(resource?.title || "Learning resource")}</strong>
+    <p>${p.progress_percentage}% complete</p>
+    <p class="success">${p.completed?"Completed":"In progress"}</p>
+   </div>`;
+ }).join("");
+}
+
+async function logout(){
+ const {error}=await db.auth.signOut();
+ if(error){message(error.message,true);return;}
+ window.location.href="auth.html";
+}
+
+db.auth.onAuthStateChange((event,session)=>{
+ if(event==="SIGNED_OUT"){
+  window.location.href="auth.html";
+ }
+});
+
+initialize();
+</script>
+</body>
+</html>
