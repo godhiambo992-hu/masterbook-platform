@@ -3,411 +3,374 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MASTERBOOK | Admin Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MASTERBOOK | Administration</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+:root{--navy:#10243e;--blue:#1769aa;--gold:#e6ad38;--bg:#f3f6fa;--white:#fff;--text:#243247;--muted:#718096;--green:#16834a;--red:#bd3434}
 *{box-sizing:border-box}
-body{margin:0;background:#f2f5fa;color:#17243a;font-family:Arial,sans-serif}
-header{background:#102b50;color:white;padding:20px 5%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-header h1{margin:0}
-header p{margin:5px 0;color:#cbd8e8}
-button{border:0;padding:11px 15px;border-radius:7px;cursor:pointer;font-weight:bold}
-.logout{background:white;color:#102b50}
-main{max-width:1150px;margin:25px auto;padding:0 15px}
-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-nav button{background:#dfe8f4;color:#102b50}
-nav button.active{background:#102b50;color:white}
-.panel,.card{background:white;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 3px 12px #142b4b12}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
-.card span{color:#64748b;font-size:14px}
-.card strong{display:block;font-size:30px;margin-top:9px}
-input,select,textarea{width:100%;padding:12px;margin:7px 0 15px;border:1px solid #cbd5e1;border-radius:7px;font:inherit}
-textarea{min-height:80px}
-label{font-weight:bold;font-size:14px}
-.primary{background:#126bba;color:white}
-.approve{background:#16794b;color:white;margin:5px}
-.reject{background:#b42318;color:white;margin:5px}
-.secondary{background:#e5edf8;color:#102b50}
-.resource{border:1px solid #e1e7ef;border-radius:9px;padding:15px;margin:12px 0;overflow-wrap:anywhere}
-.resource h3{margin-top:0}
-.resource p{color:#526176}
-.badge{display:inline-block;background:#e5edf8;padding:5px 9px;border-radius:15px;font-size:12px;margin:3px}
-#message{display:none;padding:13px;border-radius:8px;margin-bottom:18px;overflow-wrap:anywhere}
-.section{display:none}
-.section.active{display:block}
-small{color:#64748b}
-footer{text-align:center;padding:25px;color:#64748b}
+body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--text)}
+header{background:var(--navy);color:white;padding:22px 5%;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+header h1{margin:0;font-size:23px}
+header p{margin:5px 0 0;color:#cbd7e5;font-size:13px}
+button{border:0;border-radius:7px;padding:10px 14px;cursor:pointer;font-weight:600}
+.logout{background:#fff;color:var(--navy)}
+main{max-width:1200px;margin:25px auto;padding:0 16px}
+.welcome,.panel,.stat{background:white;border-radius:12px;padding:20px;box-shadow:0 2px 12px #10243e0c}
+.welcome{margin-bottom:18px}
+.welcome h2{margin:0 0 6px}
+.muted{color:var(--muted);font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:18px 0}
+.stat strong{display:block;font-size:28px;color:var(--blue);margin-top:8px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
+.tabs button{background:#e3eaf2;color:var(--navy)}
+.tabs button.active{background:var(--navy);color:white}
+.panel{margin-bottom:20px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+input,select,textarea{padding:11px;border:1px solid #ccd5df;border-radius:7px;font:inherit;min-width:0}
+.toolbar input{flex:1;min-width:180px}
+.resource{border:1px solid #e1e7ee;border-radius:10px;padding:16px;margin:12px 0;background:#fff}
+.resource h3{margin:0 0 8px}
+.meta{font-size:13px;color:var(--muted);line-height:1.8}
+.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:12px;font-weight:bold;background:#edf1f5;margin:8px 0}
+.pending{background:#fff3d7;color:#8b5b00}
+.published{background:#def5e7;color:#126b39}
+.rejected{background:#fde5e5;color:#a32626}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.approve{background:var(--green);color:white}
+.reject{background:var(--red);color:white}
+.edit{background:#e8eef7;color:var(--navy)}
+.refresh{background:var(--blue);color:white}
+.message{padding:12px;border-radius:8px;margin:12px 0;background:#edf4fb}
+.hidden{display:none}
+footer{text-align:center;padding:25px;color:var(--muted);font-size:12px}
+@media(max-width:600px){header{padding:18px}main{margin:16px auto}.resource{padding:13px}}
 </style>
 </head>
 <body>
+
 <header>
-<div><h1>MASTERBOOK</h1><p>Administrator Control Centre</p></div>
-<button class="logout" id="logoutBtn">Logout</button>
+ <div>
+  <h1>MASTERBOOK Administration</h1>
+  <p>Learning Without Boundaries.</p>
+ </div>
+ <button class="logout" id="logoutBtn">Log out</button>
 </header>
 
 <main>
-<div id="message"></div>
-<nav>
-<button class="active" data-tab="overview">Overview</button>
-<button data-tab="applications">Applications</button>
-<button data-tab="resources">Resources</button>
-</nav>
+ <section class="welcome">
+  <h2>Administration Dashboard</h2>
+  <div class="muted" id="adminIdentity">Verifying administrator access...</div>
+  <div id="notice" class="message">Connecting to MASTERBOOK database...</div>
+ </section>
 
-<section id="overview" class="section active">
-<h2>Dashboard Overview</h2>
-<div class="cards">
-<div class="card"><span>Pending applications</span><strong id="pendingCount">—</strong></div>
-<div class="card"><span>Teachers awaiting approval</span><strong id="teacherCount">—</strong></div>
-<div class="card"><span>Contributors awaiting approval</span><strong id="contributorCount">—</strong></div>
-<div class="card"><span>Total resources</span><strong id="resourceCount">—</strong></div>
-</div>
-<div class="panel">
-<h2>Welcome to MASTERBOOK Administration</h2>
-<p>Manage users, approve educational contributors and publish learning materials.</p>
-</div>
-</section>
+ <section class="stats">
+  <div class="stat">Total resources<strong id="totalCount">—</strong></div>
+  <div class="stat">Awaiting review<strong id="pendingCount">—</strong></div>
+  <div class="stat">Published<strong id="publishedCount">—</strong></div>
+  <div class="stat">Rejected<strong id="rejectedCount">—</strong></div>
+ </section>
 
-<section id="applications" class="section">
-<div class="panel">
-<h2>Teacher and Contributor Applications</h2>
-<button class="secondary" id="refreshApplications">Refresh applications</button>
-<div id="applicationList">Loading applications...</div>
-</div>
-</section>
+ <nav class="tabs">
+  <button class="active" data-tab="pending">Submissions</button>
+  <button data-tab="published">Published</button>
+  <button data-tab="rejected">Rejected</button>
+  <button data-tab="all">All Resources</button>
+ </nav>
 
-<section id="resources" class="section">
-<div class="panel">
-<h2>Upload Learning Resource</h2>
-<p>Upload a PDF and enter its details. Resources are initially saved as Draft.</p>
-<form id="resourceForm">
-<label>Resource title</label>
-<input id="resourceTitle" required maxlength="200" placeholder="Enter resource title">
-
-<label>Description</label>
-<textarea id="resourceDescription" placeholder="Describe this learning resource"></textarea>
-
-<label>Education level</label>
-<select id="educationLevel" required>
-<option value="">Select education level</option>
-<option>Primary</option>
-<option>Junior School</option>
-<option>Senior School</option>
-<option>University</option>
-<option>Professional</option>
-</select>
-
-<label>Subject</label>
-<input id="subject" required placeholder="e.g. Geography, Mathematics">
-
-<label>Resource type</label>
-<select id="resourceType" required>
-<option value="">Select resource type</option>
-<option>Notes</option>
-<option>Revision Paper</option>
-<option>Coursebook</option>
-<option>Lesson Plan</option>
-<option>Research</option>
-<option>Video</option>
-<option>Other</option>
-</select>
-
-<label>Curriculum</label>
-<select id="curriculum">
-<option>Kenyan CBC</option>
-<option>Kenyan 8-4-4</option>
-<option>International</option>
-<option>Other</option>
-</select>
-
-<label>Access tier</label>
-<select id="accessTier">
-<option>Free</option>
-<option>Premium</option>
-</select>
-
-<label>PDF file</label>
-<input id="resourceFile" type="file" accept="application/pdf,.pdf" required>
-<small>PDF only. Maximum file size: 50 MB.</small><br><br>
-<button class="primary" type="submit" id="uploadBtn">Upload resource as Draft</button>
-</form>
-</div>
-
-<div class="panel">
-<h2>Resource Library Management</h2>
-<button class="secondary" id="refreshResources">Refresh resources</button>
-<div id="resourceList">Loading resources...</div>
-</div>
-</section>
+ <section class="panel">
+  <h2 id="sectionTitle">Submissions Awaiting Review</h2>
+  <p class="muted">Review resources submitted through the teacher and contributor portals.</p>
+  <div class="toolbar">
+   <input id="searchBox" placeholder="Search title, subject or education level...">
+   <button class="refresh" id="refreshBtn">Refresh resources</button>
+  </div>
+  <div id="resourceList">Loading resources...</div>
+ </section>
 </main>
 
-<footer>MASTERBOOK · Learning Without Boundaries.</footer>
+<footer>MASTERBOOK Administration System | G.O. Odhiambo</footer>
 
 <script>
-const SUPABASE_URL="https://bxsrhvcqjjtdnflhoplu.supabase.co";
-const SUPABASE_KEY="sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
-const BUCKET="masterbook-resources";
-const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
 
-const messageBox=document.getElementById("message");
-const applicationList=document.getElementById("applicationList");
-const resourceList=document.getElementById("resourceList");
+/*
+ IMPORTANT:
+ Replace the text below with the exact publishable key
+ already working in your existing MASTERBOOK admin.html.
+ Do not use a service-role or secret key here.
+*/
+const SUPABASE_KEY = "PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE";
 
-function showMessage(message,error=false){
- messageBox.style.display="block";
- messageBox.style.background=error?"#fee4e2":"#dcfce7";
- messageBox.style.color=error?"#991b1b":"#166534";
- messageBox.textContent=message;
- window.scrollTo({top:0,behavior:"smooth"});
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let allResources = [];
+let activeTab = "pending";
+
+const notice = document.getElementById("notice");
+const list = document.getElementById("resourceList");
+
+function message(text, error=false){
+ notice.textContent = text;
+ notice.style.background = error ? "#fde5e5" : "#edf4fb";
+ notice.style.color = error ? "#a32626" : "#243247";
 }
 
-function switchTab(tab){
- document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
- document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
- document.getElementById(tab).classList.add("active");
- document.querySelector('[data-tab="'+tab+'"]').classList.add("active");
- if(tab==="resources")loadResources();
- if(tab==="applications")loadApplications();
+function escapeHTML(value){
+ return String(value ?? "").replace(/[&<>"']/g, char => ({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+ }[char]));
 }
 
-document.querySelectorAll("nav button").forEach(button=>{
- button.addEventListener("click",()=>switchTab(button.dataset.tab));
-});
+function showError(error){
+ console.error(error);
+ message(error.message || "An unexpected error occurred.", true);
+}
 
-async function protectDashboard(){
- const {data,error}=await db.auth.getSession();
- if(error||!data.session){
-  location.replace("auth.html");
+async function start(){
+ if(SUPABASE_KEY.includes("PASTE_YOUR")){
+  message("Add your existing Supabase publishable key to admin.html before using the dashboard.", true);
   return;
  }
 
- const {data:isAdmin,error:adminError}=await db.rpc("masterbook_admin_is_admin");
+ const {data:{session},error} = await db.auth.getSession();
+ if(error) return showError(error);
 
- if(adminError||isAdmin!==true){
-  document.querySelector("main").innerHTML=
-   "<div class='panel'><h2>Administrator access denied</h2><p>Please sign in using your authorised administrator account.</p></div>";
+ if(!session){
+  window.location.href = "auth.html";
   return;
  }
 
- showMessage("Administrator access verified.");
- await loadApplications();
+ currentUser = session.user;
+
+ const {data:isAdmin,error:adminError} =
+  await db.rpc("masterbook_admin_is_admin");
+
+ if(adminError) return showError(adminError);
+
+ if(isAdmin !== true){
+  message("Access denied. This account is not an authorised administrator.", true);
+  return;
+ }
+
+ document.getElementById("adminIdentity").textContent =
+  "Administrator access verified: " + (currentUser.email || "");
+
  await loadResources();
-}
-
-async function loadApplications(){
- applicationList.textContent="Loading applications...";
-
- const {data,error}=await db.rpc("masterbook_admin_pending_applications");
- if(error){
-  applicationList.textContent="Error: "+error.message;
-  showMessage(error.message,true);
-  return;
- }
-
- const apps=data||[];
- document.getElementById("pendingCount").textContent=apps.length;
- document.getElementById("teacherCount").textContent=apps.filter(x=>x.requested_role==="teacher").length;
- document.getElementById("contributorCount").textContent=apps.filter(x=>x.requested_role==="contributor").length;
-
- applicationList.innerHTML="";
- if(!apps.length){
-  applicationList.textContent="No pending applications.";
-  return;
- }
-
- apps.forEach(app=>{
-  const item=document.createElement("div");
-  item.className="resource";
-
-  const heading=document.createElement("h3");
-  heading.textContent=app.full_name||"Name not provided";
-
-  const details=document.createElement("p");
-  details.textContent="Email: "+app.email+" | Role: "+app.requested_role;
-
-  const approve=document.createElement("button");
-  approve.className="approve";
-  approve.textContent="Approve";
-  approve.onclick=()=>reviewApplication(app.user_id,"approved");
-
-  const reject=document.createElement("button");
-  reject.className="reject";
-  reject.textContent="Reject";
-  reject.onclick=()=>reviewApplication(app.user_id,"rejected");
-
-  item.append(heading,details,approve,reject);
-  applicationList.appendChild(item);
- });
-}
-
-async function reviewApplication(userId,decision){
- if(!confirm("Confirm that you want to "+decision+" this application?"))return;
-
- const {error}=await db.rpc("masterbook_admin_review_application",{
-  p_user_id:userId,
-  p_decision:decision
- });
-
- if(error){
-  showMessage("Application review failed: "+error.message,true);
-  return;
- }
-
- showMessage("Application "+decision+" successfully.");
- await loadApplications();
 }
 
 async function loadResources(){
- resourceList.textContent="Loading resources...";
+ list.textContent = "Loading resources...";
 
- const {data,error}=await db.from("resources")
-  .select("id,title,description,education_level,subject,resource_type,curriculum,access_tier,status,storage_path,created_at")
+ const {data,error} = await db
+  .from("resources")
+  .select("*")
   .order("created_at",{ascending:false});
 
- if(error){
-  resourceList.textContent="Could not load resources: "+error.message;
-  return;
- }
+ if(error) return showError(error);
 
- const resources=data||[];
- document.getElementById("resourceCount").textContent=resources.length;
- resourceList.innerHTML="";
+ allResources = data || [];
+ updateStats();
+ renderResources();
 
- if(!resources.length){
-  resourceList.textContent="No resources found.";
-  return;
- }
-
- resources.forEach(resource=>{
-  const item=document.createElement("div");
-  item.className="resource";
-
-  const title=document.createElement("h3");
-  title.textContent=resource.title;
-
-  const details=document.createElement("p");
-  details.textContent=resource.subject+" | "+resource.education_level+" | "+resource.resource_type;
-
-  const status=document.createElement("span");
-  status.className="badge";
-  status.textContent=resource.status+" · "+resource.access_tier;
-
-  const description=document.createElement("p");
-  description.textContent=resource.description||"No description provided.";
-
-  const select=document.createElement("select");
-  ["Draft","Published","Archived"].forEach(value=>{
-   const option=document.createElement("option");
-   option.value=value;
-   option.textContent=value;
-   if(value===resource.status)option.selected=true;
-   select.appendChild(option);
-  });
-
-  const update=document.createElement("button");
-  update.className="primary";
-  update.textContent="Update status";
-  update.onclick=()=>updateResourceStatus(resource.id,select.value);
-
-  item.append(title,details,status,description,select,update);
-  resourceList.appendChild(item);
- });
+ message("Resources successfully retrieved from the MASTERBOOK database.");
 }
 
-async function updateResourceStatus(id,status){
- const {error}=await db.from("resources")
-  .update({status:status,updated_at:new Date().toISOString()})
-  .eq("id",id);
+function updateStats(){
+ const pending = allResources.filter(r =>
+  r.status === "Draft" && !r.rejection_reason
+ ).length;
 
- if(error){
-  showMessage("Status update failed: "+error.message,true);
+ const published = allResources.filter(r =>
+  r.status === "Published"
+ ).length;
+
+ const rejected = allResources.filter(r =>
+  !!r.rejection_reason
+ ).length;
+
+ document.getElementById("totalCount").textContent = allResources.length;
+ document.getElementById("pendingCount").textContent = pending;
+ document.getElementById("publishedCount").textContent = published;
+ document.getElementById("rejectedCount").textContent = rejected;
+}
+
+function renderResources(){
+ const search = document.getElementById("searchBox").value.toLowerCase().trim();
+
+ let resources = allResources.filter(r => {
+  const text = [r.title,r.subject,r.education_level,r.resource_type]
+   .join(" ").toLowerCase();
+
+  if(search && !text.includes(search)) return false;
+
+  if(activeTab === "pending")
+   return r.status === "Draft" && !r.rejection_reason;
+
+  if(activeTab === "published")
+   return r.status === "Published";
+
+  if(activeTab === "rejected")
+   return !!r.rejection_reason;
+
+  return true;
+ });
+
+ const titles = {
+  pending:"Submissions Awaiting Review",
+  published:"Published Resources",
+  rejected:"Rejected Submissions",
+  all:"All MASTERBOOK Resources"
+ };
+
+ document.getElementById("sectionTitle").textContent = titles[activeTab];
+
+ if(!resources.length){
+  list.innerHTML = "<p class='muted'>No resources found in this section.</p>";
   return;
  }
 
- showMessage("Resource status updated to "+status+".");
+ list.innerHTML = resources.map(r => {
+  const isPublished = r.status === "Published";
+  const isRejected = !!r.rejection_reason;
+
+  const statusLabel = isPublished ? "Published" :
+   isRejected ? "Rejected" : "Pending review";
+
+  const statusClass = isPublished ? "published" :
+   isRejected ? "rejected" : "pending";
+
+  return `
+   <article class="resource">
+    <h3>${escapeHTML(r.title)}</h3>
+    <div class="meta">
+     <strong>Subject:</strong> ${escapeHTML(r.subject)}<br>
+     <strong>Education level:</strong> ${escapeHTML(r.education_level)}<br>
+     <strong>Type:</strong> ${escapeHTML(r.resource_type)}<br>
+     <strong>Curriculum:</strong> ${escapeHTML(r.curriculum || "Not specified")}<br>
+     <strong>Access:</strong> ${escapeHTML(r.access_tier || "Free")}<br>
+     <strong>Submitted:</strong> ${r.created_at ? new Date(r.created_at).toLocaleString() : "Not recorded"}<br>
+     <strong>Creator ID:</strong> ${escapeHTML(r.created_by || "Not recorded")}
+    </div>
+    <span class="status ${statusClass}">${statusLabel}</span>
+    ${r.description ? `<p>${escapeHTML(r.description)}</p>` : ""}
+    ${isRejected ? `<p class="meta"><strong>Rejection reason:</strong> ${escapeHTML(r.rejection_reason)}</p>` : ""}
+    ${r.reviewed_at ? `<p class="meta"><strong>Reviewed:</strong> ${new Date(r.reviewed_at).toLocaleString()}</p>` : ""}
+    <div class="actions">
+     ${!isPublished ? `<button class="approve" onclick="approveResource('${r.id}')">Approve and publish</button>` : ""}
+     ${!isRejected ? `<button class="reject" onclick="rejectResource('${r.id}')">Reject</button>` : ""}
+     <button class="edit" onclick="editResource('${r.id}')">Edit details</button>
+    </div>
+   </article>
+  `;
+ }).join("");
+}
+
+async function approveResource(id){
+ const resource = allResources.find(r => r.id === id);
+ if(!resource) return;
+
+ if(!confirm("Approve and publish this resource in the MASTERBOOK Library?")) return;
+
+ const {error} = await db.from("resources").update({
+  status:"Published",
+  reviewed_by:currentUser.id,
+  reviewed_at:new Date().toISOString(),
+  rejection_reason:null
+ }).eq("id",id);
+
+ if(error) return showError(error);
+
+ message("Resource approved and published successfully.");
  await loadResources();
 }
 
-document.getElementById("resourceForm").addEventListener("submit",async event=>{
- event.preventDefault();
+async function rejectResource(id){
+ const reason = prompt("Enter the reason for rejecting this resource:");
+ if(reason === null) return;
 
- const file=document.getElementById("resourceFile").files[0];
- if(!file){
-  showMessage("Please select a PDF file.",true);
+ if(!reason.trim()){
+  alert("Please enter a rejection reason.");
   return;
  }
 
- if(file.type!=="application/pdf"&&!file.name.toLowerCase().endsWith(".pdf")){
-  showMessage("Only PDF files are accepted.",true);
+ const {error} = await db.from("resources").update({
+  status:"Draft",
+  reviewed_by:currentUser.id,
+  reviewed_at:new Date().toISOString(),
+  rejection_reason:reason.trim()
+ }).eq("id",id);
+
+ if(error) return showError(error);
+
+ message("Rejection recorded successfully.");
+ await loadResources();
+}
+
+async function editResource(id){
+ const resource = allResources.find(r => r.id === id);
+ if(!resource) return;
+
+ const title = prompt("Resource title:",resource.title || "");
+ if(title === null) return;
+
+ const description = prompt("Resource description:",resource.description || "");
+ if(description === null) return;
+
+ const subject = prompt("Subject:",resource.subject || "");
+ if(subject === null) return;
+
+ const educationLevel = prompt("Education level:",resource.education_level || "");
+ if(educationLevel === null) return;
+
+ const accessTier = prompt("Access tier: Free or Premium",resource.access_tier || "Free");
+ if(accessTier === null) return;
+
+ if(!title.trim() || !subject.trim() || !educationLevel.trim()){
+  alert("Title, subject and education level cannot be empty.");
   return;
  }
 
- if(file.size>50*1024*1024){
-  showMessage("The file exceeds the 50 MB limit.",true);
+ if(!["Free","Premium"].includes(accessTier.trim())){
+  alert("Access tier must be Free or Premium.");
   return;
  }
 
- const button=document.getElementById("uploadBtn");
- button.disabled=true;
- button.textContent="Uploading...";
+ const {error} = await db.from("resources").update({
+  title:title.trim(),
+  description:description.trim(),
+  subject:subject.trim(),
+  education_level:educationLevel.trim(),
+  access_tier:accessTier.trim(),
+  updated_at:new Date().toISOString()
+ }).eq("id",id);
 
- try{
-  const {data:sessionData,error:sessionError}=await db.auth.getSession();
-  if(sessionError||!sessionData.session)throw new Error("Your login session has expired.");
+ if(error) return showError(error);
 
-  const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
-  const storagePath=crypto.randomUUID()+"_"+safeName;
+ message("Resource details updated successfully.");
+ await loadResources();
+}
 
-  const {error:uploadError}=await db.storage.from(BUCKET)
-   .upload(storagePath,file,{contentType:"application/pdf",upsert:false});
-
-  if(uploadError)throw uploadError;
-
-  const record={
-   title:document.getElementById("resourceTitle").value.trim(),
-   description:document.getElementById("resourceDescription").value.trim(),
-   education_level:document.getElementById("educationLevel").value,
-   subject:document.getElementById("subject").value.trim(),
-   resource_type:document.getElementById("resourceType").value,
-   curriculum:document.getElementById("curriculum").value,
-   access_tier:document.getElementById("accessTier").value,
-   status:"Draft",
-   storage_path:storagePath,
-   created_by:sessionData.session.user.id
-  };
-
-  const {error:insertError}=await db.from("resources").insert(record);
-
-  if(insertError){
-   await db.storage.from(BUCKET).remove([storagePath]);
-   throw insertError;
-  }
-
-  document.getElementById("resourceForm").reset();
-  showMessage("Resource uploaded successfully and saved as Draft.");
-  await loadResources();
-
- }catch(error){
-  showMessage("Upload failed: "+error.message,true);
- }finally{
-  button.disabled=false;
-  button.textContent="Upload resource as Draft";
- }
+document.querySelectorAll(".tabs button").forEach(button => {
+ button.addEventListener("click",()=>{
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+  button.classList.add("active");
+  activeTab = button.dataset.tab;
+  renderResources();
+ });
 });
 
-document.getElementById("refreshApplications").addEventListener("click",loadApplications);
-document.getElementById("refreshResources").addEventListener("click",loadResources);
+document.getElementById("searchBox").addEventListener("input",renderResources);
+document.getElementById("refreshBtn").addEventListener("click",loadResources);
 
 document.getElementById("logoutBtn").addEventListener("click",async()=>{
- const {error}=await db.auth.signOut();
- if(error){
-  showMessage("Logout failed: "+error.message,true);
-  return;
- }
- location.replace("auth.html");
+ const {error} = await db.auth.signOut();
+ if(error) return showError(error);
+ window.location.href = "auth.html";
 });
 
-protectDashboard();
+start();
 </script>
 </body>
 </html>
