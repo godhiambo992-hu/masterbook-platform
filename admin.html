@@ -3,48 +3,51 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MASTERBOOK | Administration</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
 <style>
-:root{--navy:#10243e;--blue:#1769aa;--gold:#e6ad38;--bg:#f3f6fa;--white:#fff;--text:#243247;--muted:#718096;--green:#16834a;--red:#bd3434}
+:root{--navy:#10243e;--blue:#1769aa;--bg:#f3f6fa;--green:#16834a;--red:#bd3434;--muted:#718096}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--text)}
-header{background:var(--navy);color:white;padding:22px 5%;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:#26364a}
+header{background:var(--navy);color:white;padding:20px 5%;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 header h1{margin:0;font-size:23px}
-header p{margin:5px 0 0;color:#cbd7e5;font-size:13px}
-button{border:0;border-radius:7px;padding:10px 14px;cursor:pointer;font-weight:600}
-.logout{background:#fff;color:var(--navy)}
-main{max-width:1200px;margin:25px auto;padding:0 16px}
-.welcome,.panel,.stat{background:white;border-radius:12px;padding:20px;box-shadow:0 2px 12px #10243e0c}
-.welcome{margin-bottom:18px}
-.welcome h2{margin:0 0 6px}
-.muted{color:var(--muted);font-size:13px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:18px 0}
-.stat strong{display:block;font-size:28px;color:var(--blue);margin-top:8px}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
+header p{margin:5px 0 0;color:#d2ddeb;font-size:13px}
+button{border:0;border-radius:7px;padding:11px 14px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}
+.logout{background:white;color:var(--navy)}
+main{max-width:1200px;margin:25px auto;padding:0 15px}
+.panel,.stat{background:white;border-radius:12px;padding:20px;margin-bottom:18px;box-shadow:0 2px 12px #10243e0c}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;margin:18px 0}
+.stat strong{display:block;font-size:27px;color:var(--blue);margin-top:8px}
+.tabs,.actions,.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
 .tabs button{background:#e3eaf2;color:var(--navy)}
 .tabs button.active{background:var(--navy);color:white}
-.panel{margin-bottom:20px}
-.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
-input,select,textarea{padding:11px;border:1px solid #ccd5df;border-radius:7px;font:inherit;min-width:0}
+input,select,textarea{width:100%;padding:11px;border:1px solid #ccd5df;border-radius:7px;font:inherit;background:white}
+label{display:block;font-weight:bold;margin:13px 0 7px}
 .toolbar input{flex:1;min-width:180px}
-.resource{border:1px solid #e1e7ee;border-radius:10px;padding:16px;margin:12px 0;background:#fff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 15px}
+.full{grid-column:1/-1}
+.resource{background:white;border:1px solid #e1e7ee;border-radius:10px;padding:16px;margin:12px 0;overflow-wrap:anywhere}
 .resource h3{margin:0 0 8px}
-.meta{font-size:13px;color:var(--muted);line-height:1.8}
-.status{display:inline-block;padding:5px 9px;border-radius:20px;font-size:12px;font-weight:bold;background:#edf1f5;margin:8px 0}
+.meta,.small{font-size:13px;color:var(--muted);line-height:1.8}
+.status{display:inline-block;padding:5px 10px;border-radius:20px;font-size:12px;font-weight:bold;margin:8px 0;background:#edf1f5}
 .pending{background:#fff3d7;color:#8b5b00}
 .published{background:#def5e7;color:#126b39}
 .rejected{background:#fde5e5;color:#a32626}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .approve{background:var(--green);color:white}
 .reject{background:var(--red);color:white}
 .edit{background:#e8eef7;color:var(--navy)}
-.refresh{background:var(--blue);color:white}
-.message{padding:12px;border-radius:8px;margin:12px 0;background:#edf4fb}
+.primary{background:var(--blue);color:white}
+.message{padding:13px;border-radius:8px;background:#edf4fb;margin:12px 0;line-height:1.5;overflow-wrap:anywhere}
+.error{background:#fde5e5;color:#9b2525}
+.success{background:#e1f5e8;color:#126b39}
+.progress-wrap{height:13px;background:#e7edf4;border-radius:20px;overflow:hidden;margin-top:10px}
+.progress-bar{height:100%;width:0;background:var(--green);transition:width .2s}
 .hidden{display:none}
-footer{text-align:center;padding:25px;color:var(--muted);font-size:12px}
-@media(max-width:600px){header{padding:18px}main{margin:16px auto}.resource{padding:13px}}
+footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
+@media(max-width:600px){main{margin:15px auto}.panel{padding:16px}.grid{grid-template-columns:1fr}.full{grid-column:auto}}
 </style>
 </head>
 <body>
@@ -54,14 +57,15 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:12px}
   <h1>MASTERBOOK Administration</h1>
   <p>Learning Without Boundaries.</p>
  </div>
- <button class="logout" id="logoutBtn">Log out</button>
+ <button class="logout" id="logoutBtn">Sign Out</button>
 </header>
 
 <main>
- <section class="welcome">
-  <h2>Administration Dashboard</h2>
-  <div class="muted" id="adminIdentity">Verifying administrator access...</div>
-  <div id="notice" class="message">Connecting to MASTERBOOK database...</div>
+
+ <section class="panel">
+  <h2>Administrator Workspace</h2>
+  <div id="identity" class="small">Verifying administrator access...</div>
+  <div id="message" class="message">Connecting to MASTERBOOK...</div>
  </section>
 
  <section class="stats">
@@ -71,175 +75,245 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:12px}
   <div class="stat">Rejected<strong id="rejectedCount">—</strong></div>
  </section>
 
- <nav class="tabs">
-  <button class="active" data-tab="pending">Submissions</button>
-  <button data-tab="published">Published</button>
-  <button data-tab="rejected">Rejected</button>
-  <button data-tab="all">All Resources</button>
- </nav>
+ <section class="panel">
+  <h2>Upload a Resource</h2>
+  <p class="small">Administrator uploads are saved as drafts for review and publication.</p>
+
+  <form id="uploadForm">
+   <div class="grid">
+    <div class="full">
+     <label for="uploadTitle">Resource title</label>
+     <input id="uploadTitle" maxlength="200" required>
+    </div>
+    <div class="full">
+     <label for="uploadDescription">Description</label>
+     <textarea id="uploadDescription" maxlength="2000"></textarea>
+    </div>
+    <div>
+     <label for="uploadLevel">Education level</label>
+     <select id="uploadLevel" required>
+      <option value="">Select level</option>
+      <option>Primary</option>
+      <option>Junior School</option>
+      <option>Senior School</option>
+      <option>University</option>
+      <option>Professional</option>
+     </select>
+    </div>
+    <div>
+     <label for="uploadSubject">Subject</label>
+     <input id="uploadSubject" required maxlength="100">
+    </div>
+    <div>
+     <label for="uploadType">Resource type</label>
+     <select id="uploadType" required>
+      <option value="">Select type</option>
+      <option>Notes</option>
+      <option>Revision Paper</option>
+      <option>Coursebook</option>
+      <option>Lesson Plan</option>
+      <option>Research</option>
+      <option>Video</option>
+      <option>Other</option>
+     </select>
+    </div>
+    <div>
+     <label for="uploadCurriculum">Curriculum</label>
+     <select id="uploadCurriculum">
+      <option>Kenyan CBC</option>
+      <option>University</option>
+      <option>International</option>
+      <option>Other</option>
+     </select>
+    </div>
+    <div>
+     <label for="uploadTier">Access tier</label>
+     <select id="uploadTier">
+      <option>Free</option>
+      <option>Premium</option>
+     </select>
+    </div>
+    <div class="full">
+     <label for="uploadFile">PDF document</label>
+     <input id="uploadFile" type="file" accept=".pdf,application/pdf" required>
+     <p class="small">PDF only. Maximum 50 MB.</p>
+    </div>
+   </div>
+
+   <div id="uploadProgress" class="hidden">
+    <p id="progressLabel" class="small">Preparing upload...</p>
+    <div class="progress-wrap"><div id="progressBar" class="progress-bar"></div></div>
+    <p id="progressText" class="small">0%</p>
+   </div>
+
+   <button class="primary" id="uploadButton" type="submit">Upload Resource</button>
+   <button class="edit hidden" id="retryUploadButton" type="button">Retry Saving Resource Record</button>
+  </form>
+ </section>
 
  <section class="panel">
-  <h2 id="sectionTitle">Submissions Awaiting Review</h2>
-  <p class="muted">Review resources submitted through the teacher and contributor portals.</p>
+  <h2>Resource Management</h2>
+  <div class="tabs">
+   <button class="active" data-tab="pending">Submissions</button>
+   <button data-tab="published">Published</button>
+   <button data-tab="rejected">Rejected</button>
+   <button data-tab="all">All Resources</button>
+  </div>
+
+  <h3 id="sectionTitle">Submissions Awaiting Review</h3>
   <div class="toolbar">
-   <input id="searchBox" placeholder="Search title, subject or education level...">
-   <button class="refresh" id="refreshBtn">Refresh resources</button>
+   <input id="searchBox" placeholder="Search title, subject or education level">
+   <button class="primary" id="refreshButton">Refresh</button>
   </div>
   <div id="resourceList">Loading resources...</div>
  </section>
 </main>
 
-<footer>MASTERBOOK Administration System | G.O. Odhiambo</footer>
+<footer>MASTERBOOK Administration | G.O. Odhiambo</footer>
 
 <script>
-const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+const SUPABASE_URL="https://bxsrhvcqjjtdnflhoplu.supabase.co";
 
-/*
- IMPORTANT:
- Replace the text below with the exact publishable key
- already working in your existing MASTERBOOK admin.html.
- Do not use a service-role or secret key here.
-*/
-const SUPABASE_KEY = "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+/* Insert the exact existing MASTERBOOK publishable key here.
+   Never use a service-role or secret key in this file. */
+const SUPABASE_KEY="PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE";
 
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const BUCKET="masterbook-resources";
+const MAX_SIZE=50*1024*1024;
+const CHUNK_SIZE=6*1024*1024;
+const PENDING_KEY="masterbook_admin_pending_upload";
 
-let currentUser = null;
-let allResources = [];
-let activeTab = "pending";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const notice = document.getElementById("notice");
-const list = document.getElementById("resourceList");
+let currentUser=null;
+let resources=[];
+let activeTab="pending";
+let busy=false;
+let pendingUpload=null;
 
-function message(text, error=false){
- notice.textContent = text;
- notice.style.background = error ? "#fde5e5" : "#edf4fb";
- notice.style.color = error ? "#a32626" : "#243247";
+const $=id=>document.getElementById(id);
+
+function notify(text,type="normal"){
+ $("message").textContent=text;
+ $("message").className="message";
+ if(type==="error") $("message").classList.add("error");
+ if(type==="success") $("message").classList.add("success");
 }
 
 function escapeHTML(value){
- return String(value ?? "").replace(/[&<>"']/g, char => ({
+ return String(value??"").replace(/[&<>"']/g,c=>({
   "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
- }[char]));
+ }[c]));
 }
 
-function showError(error){
- console.error(error);
- message(error.message || "An unexpected error occurred.", true);
+function setBusy(value){
+ busy=value;
+ $("uploadButton").disabled=value;
+ $("uploadButton").textContent=value?"Upload in progress...":"Upload Resource";
 }
 
-async function start(){
+function showProgress(percent,label){
+ $("uploadProgress").classList.remove("hidden");
+ $("progressBar").style.width=percent+"%";
+ $("progressText").textContent=percent+"%";
+ $("progressLabel").textContent=label;
+}
+
+async function initialise(){
  if(SUPABASE_KEY.includes("PASTE_YOUR")){
-  message("Add your existing Supabase publishable key to admin.html before using the dashboard.", true);
+  notify("Add your existing Supabase publishable key to admin.html.","error");
   return;
  }
 
- const {data:{session},error} = await db.auth.getSession();
- if(error) return showError(error);
+ try{
+  const {data:{session},error}=await db.auth.getSession();
+  if(error) throw error;
 
- if(!session){
-  window.location.href = "auth.html";
-  return;
+  if(!session){
+   location.href="auth.html";
+   return;
+  }
+
+  currentUser=session.user;
+
+  const {data:isAdmin,error:adminError}=await db.rpc("masterbook_admin_is_admin");
+  if(adminError) throw adminError;
+
+  if(isAdmin!==true){
+   notify("Access denied. Administrator privileges are required.","error");
+   return;
+  }
+
+  $("identity").textContent="Administrator access verified: "+currentUser.email;
+  restorePendingUpload();
+  await loadResources();
+
+ }catch(error){
+  console.error(error);
+  notify("Administrator verification failed: "+error.message,"error");
  }
-
- currentUser = session.user;
-
- const {data:isAdmin,error:adminError} =
-  await db.rpc("masterbook_admin_is_admin");
-
- if(adminError) return showError(adminError);
-
- if(isAdmin !== true){
-  message("Access denied. This account is not an authorised administrator.", true);
-  return;
- }
-
- document.getElementById("adminIdentity").textContent =
-  "Administrator access verified: " + (currentUser.email || "");
-
- await loadResources();
 }
 
 async function loadResources(){
- list.textContent = "Loading resources...";
+ $("resourceList").textContent="Loading resources...";
 
- const {data,error} = await db
-  .from("resources")
+ const {data,error}=await db.from("resources")
   .select("*")
   .order("created_at",{ascending:false});
 
- if(error) return showError(error);
+ if(error){
+  $("resourceList").textContent="Could not load resources.";
+  notify("Resource loading failed: "+error.message,"error");
+  return;
+ }
 
- allResources = data || [];
+ resources=data||[];
  updateStats();
  renderResources();
-
- message("Resources successfully retrieved from the MASTERBOOK database.");
+ notify("MASTERBOOK resources loaded successfully.","success");
 }
 
 function updateStats(){
- const pending = allResources.filter(r =>
-  r.status === "Draft" && !r.rejection_reason
- ).length;
-
- const published = allResources.filter(r =>
-  r.status === "Published"
- ).length;
-
- const rejected = allResources.filter(r =>
-  !!r.rejection_reason
- ).length;
-
- document.getElementById("totalCount").textContent = allResources.length;
- document.getElementById("pendingCount").textContent = pending;
- document.getElementById("publishedCount").textContent = published;
- document.getElementById("rejectedCount").textContent = rejected;
+ $("totalCount").textContent=resources.length;
+ $("pendingCount").textContent=resources.filter(r=>r.status==="Draft"&&!r.rejection_reason).length;
+ $("publishedCount").textContent=resources.filter(r=>r.status==="Published").length;
+ $("rejectedCount").textContent=resources.filter(r=>!!r.rejection_reason).length;
 }
 
 function renderResources(){
- const search = document.getElementById("searchBox").value.toLowerCase().trim();
+ const term=$("searchBox").value.toLowerCase().trim();
 
- let resources = allResources.filter(r => {
-  const text = [r.title,r.subject,r.education_level,r.resource_type]
-   .join(" ").toLowerCase();
-
-  if(search && !text.includes(search)) return false;
-
-  if(activeTab === "pending")
-   return r.status === "Draft" && !r.rejection_reason;
-
-  if(activeTab === "published")
-   return r.status === "Published";
-
-  if(activeTab === "rejected")
-   return !!r.rejection_reason;
-
-  return true;
- });
-
- const titles = {
+ const headings={
   pending:"Submissions Awaiting Review",
   published:"Published Resources",
   rejected:"Rejected Submissions",
   all:"All MASTERBOOK Resources"
  };
 
- document.getElementById("sectionTitle").textContent = titles[activeTab];
+ $("sectionTitle").textContent=headings[activeTab];
 
- if(!resources.length){
-  list.innerHTML = "<p class='muted'>No resources found in this section.</p>";
+ const filtered=resources.filter(r=>{
+  const searchable=[r.title,r.subject,r.education_level,r.resource_type,r.curriculum]
+   .join(" ").toLowerCase();
+
+  if(term&&!searchable.includes(term)) return false;
+
+  if(activeTab==="pending") return r.status==="Draft"&&!r.rejection_reason;
+  if(activeTab==="published") return r.status==="Published";
+  if(activeTab==="rejected") return !!r.rejection_reason;
+  return true;
+ });
+
+ if(!filtered.length){
+  $("resourceList").innerHTML="<p class='small'>No resources found in this section.</p>";
   return;
  }
 
- list.innerHTML = resources.map(r => {
-  const isPublished = r.status === "Published";
-  const isRejected = !!r.rejection_reason;
-
-  const statusLabel = isPublished ? "Published" :
-   isRejected ? "Rejected" : "Pending review";
-
-  const statusClass = isPublished ? "published" :
-   isRejected ? "rejected" : "pending";
+ $("resourceList").innerHTML=filtered.map(r=>{
+  const rejected=!!r.rejection_reason;
+  const published=r.status==="Published";
+  const label=rejected?"Rejected":published?"Published":"Pending review";
+  const statusClass=rejected?"rejected":published?"published":"pending";
 
   return `
    <article class="resource">
@@ -247,130 +321,437 @@ function renderResources(){
     <div class="meta">
      <strong>Subject:</strong> ${escapeHTML(r.subject)}<br>
      <strong>Education level:</strong> ${escapeHTML(r.education_level)}<br>
-     <strong>Type:</strong> ${escapeHTML(r.resource_type)}<br>
-     <strong>Curriculum:</strong> ${escapeHTML(r.curriculum || "Not specified")}<br>
-     <strong>Access:</strong> ${escapeHTML(r.access_tier || "Free")}<br>
-     <strong>Submitted:</strong> ${r.created_at ? new Date(r.created_at).toLocaleString() : "Not recorded"}<br>
-     <strong>Creator ID:</strong> ${escapeHTML(r.created_by || "Not recorded")}
+     <strong>Resource type:</strong> ${escapeHTML(r.resource_type)}<br>
+     <strong>Curriculum:</strong> ${escapeHTML(r.curriculum||"Not specified")}<br>
+     <strong>Access:</strong> ${escapeHTML(r.access_tier||"Free")}<br>
+     <strong>Created:</strong> ${r.created_at?new Date(r.created_at).toLocaleString():"Not recorded"}<br>
+     <strong>Creator ID:</strong> ${escapeHTML(r.created_by||"Not recorded")}
     </div>
-    <span class="status ${statusClass}">${statusLabel}</span>
-    ${r.description ? `<p>${escapeHTML(r.description)}</p>` : ""}
-    ${isRejected ? `<p class="meta"><strong>Rejection reason:</strong> ${escapeHTML(r.rejection_reason)}</p>` : ""}
-    ${r.reviewed_at ? `<p class="meta"><strong>Reviewed:</strong> ${new Date(r.reviewed_at).toLocaleString()}</p>` : ""}
+    <span class="status ${statusClass}">${label}</span>
+    ${r.description?`<p>${escapeHTML(r.description)}</p>`:""}
+    ${rejected?`<p class="meta"><strong>Rejection reason:</strong> ${escapeHTML(r.rejection_reason)}</p>`:""}
+    ${r.reviewed_at?`<p class="meta"><strong>Reviewed:</strong> ${new Date(r.reviewed_at).toLocaleString()}</p>`:""}
+    ${r.reviewed_by?`<p class="meta"><strong>Reviewed by:</strong> ${escapeHTML(r.reviewed_by)}</p>`:""}
     <div class="actions">
-     ${!isPublished ? `<button class="approve" onclick="approveResource('${r.id}')">Approve and publish</button>` : ""}
-     ${!isRejected ? `<button class="reject" onclick="rejectResource('${r.id}')">Reject</button>` : ""}
-     <button class="edit" onclick="editResource('${r.id}')">Edit details</button>
+     <button class="approve" data-action="approve" data-id="${r.id}" ${busy?"disabled":""}>
+      ${published?"Publish again":"Approve and Publish"}
+     </button>
+     <button class="reject" data-action="reject" data-id="${r.id}" ${busy?"disabled":""}>Reject</button>
+     <button class="edit" data-action="edit" data-id="${r.id}" ${busy?"disabled":""}>Edit Details</button>
     </div>
    </article>
   `;
  }).join("");
 }
 
-async function approveResource(id){
- const resource = allResources.find(r => r.id === id);
- if(!resource) return;
+/* All review decisions are checked against the database response.
+   A green success message is never shown merely because a button was clicked. */
 
- if(!confirm("Approve and publish this resource in the MASTERBOOK Library?")) return;
+async function updateReview(id,decision,reason=""){
+ if(busy) return;
 
- const {error} = await db.from("resources").update({
-  status:"Published",
+ const resource=resources.find(r=>r.id===id);
+ if(!resource){
+  notify("Resource not found. Refresh the dashboard and try again.","error");
+  return;
+ }
+
+ const update={
+  status:decision==="approve"?"Published":"Draft",
   reviewed_by:currentUser.id,
   reviewed_at:new Date().toISOString(),
-  rejection_reason:null
- }).eq("id",id);
+  rejection_reason:decision==="reject"?reason:null,
+  updated_at:new Date().toISOString()
+ };
 
- if(error) return showError(error);
+ const button=document.querySelector(`[data-id="${id}"][data-action="${decision}"]`);
+ if(button) button.disabled=true;
 
- message("Resource approved and published successfully.");
- await loadResources();
+ try{
+  const {data,error}=await db.from("resources")
+   .update(update)
+   .eq("id",id)
+   .select("id,status,rejection_reason,reviewed_at")
+   .maybeSingle();
+
+  if(error) throw error;
+
+  if(!data){
+   throw new Error("No resource was updated. Check administrator UPDATE permissions and resource access.");
+  }
+
+  notify(
+   decision==="approve"
+    ?"Resource approved and published successfully."
+    :"Rejection saved successfully. The resource is now in the Rejected section.",
+   "success"
+  );
+
+  await loadResources();
+
+ }catch(error){
+  console.error("Review action failed:",error);
+  notify("The review action was NOT confirmed: "+error.message,"error");
+  if(button) button.disabled=false;
+ }
+}
+
+async function approveResource(id){
+ if(!confirm("Approve and publish this resource in the MASTERBOOK Library?")) return;
+ await updateReview(id,"approve");
 }
 
 async function rejectResource(id){
- const reason = prompt("Enter the reason for rejecting this resource:");
- if(reason === null) return;
+ const reason=prompt("Enter a clear reason for rejecting this resource:");
+
+ if(reason===null) return;
 
  if(!reason.trim()){
-  alert("Please enter a rejection reason.");
+  alert("A rejection reason is required.");
   return;
  }
 
- const {error} = await db.from("resources").update({
-  status:"Draft",
-  reviewed_by:currentUser.id,
-  reviewed_at:new Date().toISOString(),
-  rejection_reason:reason.trim()
- }).eq("id",id);
+ if(!confirm("Confirm rejection? The resource will remain unpublished and the reason will be recorded.")) return;
 
- if(error) return showError(error);
-
- message("Rejection recorded successfully.");
- await loadResources();
+ await updateReview(id,"reject",reason.trim());
 }
 
 async function editResource(id){
- const resource = allResources.find(r => r.id === id);
- if(!resource) return;
+ if(busy) return;
+ const r=resources.find(item=>item.id===id);
+ if(!r) return;
 
- const title = prompt("Resource title:",resource.title || "");
- if(title === null) return;
+ const title=prompt("Resource title:",r.title||"");
+ if(title===null) return;
 
- const description = prompt("Resource description:",resource.description || "");
- if(description === null) return;
+ const description=prompt("Description:",r.description||"");
+ if(description===null) return;
 
- const subject = prompt("Subject:",resource.subject || "");
- if(subject === null) return;
+ const subject=prompt("Subject:",r.subject||"");
+ if(subject===null) return;
 
- const educationLevel = prompt("Education level:",resource.education_level || "");
- if(educationLevel === null) return;
+ const level=prompt("Education level:",r.education_level||"");
+ if(level===null) return;
 
- const accessTier = prompt("Access tier: Free or Premium",resource.access_tier || "Free");
- if(accessTier === null) return;
+ const tier=prompt("Access tier: Free or Premium",r.access_tier||"Free");
+ if(tier===null) return;
 
- if(!title.trim() || !subject.trim() || !educationLevel.trim()){
-  alert("Title, subject and education level cannot be empty.");
+ if(!title.trim()||!subject.trim()||!level.trim()){
+  alert("Title, subject and education level are required.");
   return;
  }
 
- if(!["Free","Premium"].includes(accessTier.trim())){
+ if(!["Free","Premium"].includes(tier.trim())){
   alert("Access tier must be Free or Premium.");
   return;
  }
 
- const {error} = await db.from("resources").update({
-  title:title.trim(),
-  description:description.trim(),
-  subject:subject.trim(),
-  education_level:educationLevel.trim(),
-  access_tier:accessTier.trim(),
-  updated_at:new Date().toISOString()
- }).eq("id",id);
+ try{
+  const {data,error}=await db.from("resources")
+   .update({
+    title:title.trim(),
+    description:description.trim(),
+    subject:subject.trim(),
+    education_level:level.trim(),
+    access_tier:tier.trim(),
+    updated_at:new Date().toISOString()
+   })
+   .eq("id",id)
+   .select("id")
+   .maybeSingle();
 
- if(error) return showError(error);
+  if(error) throw error;
+  if(!data) throw new Error("No resource was updated.");
 
- message("Resource details updated successfully.");
+  notify("Resource details updated successfully.","success");
+  await loadResources();
+
+ }catch(error){
+  console.error(error);
+  notify("Edit failed: "+error.message,"error");
+ }
+}
+
+/* Resumable administrator PDF uploads */
+
+function safeName(name){
+ return name.replace(/[^a-zA-Z0-9._-]/g,"_").slice(-120);
+}
+
+function makeId(){
+ return crypto.randomUUID?crypto.randomUUID():
+  Date.now().toString(36)+Math.random().toString(36).slice(2);
+}
+
+function readUploadForm(){
+ return {
+  title:$("uploadTitle").value.trim(),
+  description:$("uploadDescription").value.trim(),
+  education_level:$("uploadLevel").value,
+  subject:$("uploadSubject").value.trim(),
+  resource_type:$("uploadType").value,
+  curriculum:$("uploadCurriculum").value,
+  access_tier:$("uploadTier").value
+ };
+}
+
+function savePendingUpload(data){
+ pendingUpload=data;
+ localStorage.setItem(PENDING_KEY,JSON.stringify(data));
+}
+
+function restorePendingUpload(){
+ try{
+  const saved=localStorage.getItem(PENDING_KEY);
+  if(!saved) return;
+
+  pendingUpload=JSON.parse(saved);
+  $("uploadTitle").value=pendingUpload.title||"";
+  $("uploadDescription").value=pendingUpload.description||"";
+  $("uploadLevel").value=pendingUpload.education_level||"";
+  $("uploadSubject").value=pendingUpload.subject||"";
+  $("uploadType").value=pendingUpload.resource_type||"";
+  $("uploadCurriculum").value=pendingUpload.curriculum||"Kenyan CBC";
+  $("uploadTier").value=pendingUpload.access_tier||"Free";
+
+  $("retryUploadButton").classList.remove("hidden");
+
+  notify("An unfinished administrator upload was recovered. Retry saving or select the original PDF to resume.","normal");
+ }catch(error){
+  console.error("Pending upload recovery failed:",error);
+ }
+}
+
+function uploadPDF(file,path){
+ return new Promise(async(resolve,reject)=>{
+  const {data:{session},error:sessionError}=await db.auth.getSession();
+  if(sessionError||!session){
+   reject(sessionError||new Error("Login session expired."));
+   return;
+  }
+
+  const upload=new tus.Upload(file,{
+   endpoint:SUPABASE_URL+"/storage/v1/upload/resumable",
+   retryDelays:[0,1000,3000,5000,10000,20000],
+   chunkSize:CHUNK_SIZE,
+   uploadDataDuringCreation:true,
+   removeFingerprintOnSuccess:true,
+   headers:{
+    authorization:"Bearer "+session.access_token,
+    apikey:SUPABASE_KEY,
+    "x-upsert":"false"
+   },
+   metadata:{
+    bucketName:BUCKET,
+    objectName:path,
+    contentType:"application/pdf",
+    cacheControl:"3600"
+   },
+   onProgress(sent,total){
+    const percent=Math.min(99,Math.round(sent/total*100));
+    showProgress(percent,"Uploading PDF...");
+   },
+   onError:reject,
+   onSuccess(){
+    showProgress(100,"PDF uploaded. Saving resource record...");
+    resolve();
+   }
+  });
+
+  try{
+   const previous=await upload.findPreviousUploads();
+   if(previous.length) upload.resumeFromPreviousUpload(previous[0]);
+   upload.start();
+  }catch(error){
+   reject(error);
+  }
+ });
+}
+
+async function saveResourceRecord(data){
+ const {data:existing,error:lookupError}=await db.from("resources")
+  .select("id")
+  .eq("storage_path",data.storage_path)
+  .maybeSingle();
+
+ if(lookupError) throw lookupError;
+
+ if(existing){
+  localStorage.removeItem(PENDING_KEY);
+  pendingUpload=null;
+  $("retryUploadButton").classList.add("hidden");
+  notify("This file already has a database record. Duplicate insertion prevented.","success");
+  $("uploadForm").reset();
+  await loadResources();
+  return;
+ }
+
+ const record={
+  title:data.title,
+  description:data.description,
+  education_level:data.education_level,
+  subject:data.subject,
+  resource_type:data.resource_type,
+  curriculum:data.curriculum,
+  access_tier:data.access_tier,
+  status:"Draft",
+  storage_path:data.storage_path,
+  created_by:currentUser.id
+ };
+
+ const {data:inserted,error}=await db.from("resources")
+  .insert(record)
+  .select("id")
+  .single();
+
+ if(error) throw error;
+ if(!inserted) throw new Error("The resource record was not confirmed.");
+
+ localStorage.removeItem(PENDING_KEY);
+ pendingUpload=null;
+ $("retryUploadButton").classList.add("hidden");
+ $("uploadForm").reset();
+ $("uploadProgress").classList.add("hidden");
+
+ notify("Administrator resource uploaded and registered successfully as a draft.","success");
  await loadResources();
 }
 
-document.querySelectorAll(".tabs button").forEach(button => {
+async function handleUpload(event){
+ event.preventDefault();
+ if(busy) return;
+
+ if(pendingUpload){
+  notify("Finish or retry the existing upload before starting another.","error");
+  return;
+ }
+
+ const file=$("uploadFile").files[0];
+ const data=readUploadForm();
+
+ if(!data.title||!data.subject||!data.education_level||!data.resource_type){
+  notify("Complete all required resource details.","error");
+  return;
+ }
+
+ if(!file){
+  notify("Select a PDF document.","error");
+  return;
+ }
+
+ if(file.type!=="application/pdf"&&!file.name.toLowerCase().endsWith(".pdf")){
+  notify("Only PDF documents are accepted.","error");
+  return;
+ }
+
+ if(file.size===0||file.size>MAX_SIZE){
+  notify("The PDF must be larger than zero and no bigger than 50 MB.","error");
+  return;
+ }
+
+ setBusy(true);
+
+ const path=currentUser.id+"/"+makeId()+"-"+safeName(file.name);
+ const pending={
+  ...data,
+  storage_path:null,
+  object_path:path,
+  file_name:file.name,
+  file_size:file.size
+ };
+
+ savePendingUpload(pending);
+
+ try{
+  showProgress(0,"Preparing secure upload...");
+  notify("Upload started. Keep this page open until it finishes.");
+
+  await uploadPDF(file,path);
+
+  pending.storage_path=path;
+  savePendingUpload(pending);
+
+  await saveResourceRecord(pending);
+
+ }catch(error){
+  console.error("Administrator upload failed:",error);
+  $("retryUploadButton").classList.remove("hidden");
+  notify("Upload or record saving failed: "+error.message+
+   ". Your details have been retained. Retry the operation.","error");
+ }finally{
+  setBusy(false);
+ }
+}
+
+async function retryUpload(){
+ if(busy||!pendingUpload) return;
+ setBusy(true);
+
+ try{
+  if(pendingUpload.storage_path){
+   showProgress(100,"Retrying database record...");
+   await saveResourceRecord(pendingUpload);
+  }else{
+   const file=$("uploadFile").files[0];
+
+   if(!file) throw new Error("Select the original PDF again to resume the upload.");
+
+   if(file.name!==pendingUpload.file_name||file.size!==pendingUpload.file_size){
+    throw new Error("Select the original PDF used in the interrupted upload.");
+   }
+
+   await uploadPDF(file,pendingUpload.object_path);
+   pendingUpload.storage_path=pendingUpload.object_path;
+   savePendingUpload(pendingUpload);
+   await saveResourceRecord(pendingUpload);
+  }
+ }catch(error){
+  console.error(error);
+  $("retryUploadButton").classList.remove("hidden");
+  notify("Retry failed: "+error.message,"error");
+ }finally{
+  setBusy(false);
+ }
+}
+
+/* Event handlers */
+
+$("resourceList").addEventListener("click",event=>{
+ const button=event.target.closest("button[data-action]");
+ if(!button||button.disabled) return;
+
+ const id=button.dataset.id;
+ const action=button.dataset.action;
+
+ if(action==="approve") approveResource(id);
+ if(action==="reject") rejectResource(id);
+ if(action==="edit") editResource(id);
+});
+
+document.querySelectorAll(".tabs button").forEach(button=>{
  button.addEventListener("click",()=>{
   document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
   button.classList.add("active");
-  activeTab = button.dataset.tab;
+  activeTab=button.dataset.tab;
   renderResources();
  });
 });
 
-document.getElementById("searchBox").addEventListener("input",renderResources);
-document.getElementById("refreshBtn").addEventListener("click",loadResources);
+$("searchBox").addEventListener("input",renderResources);
+$("refreshButton").addEventListener("click",loadResources);
+$("uploadForm").addEventListener("submit",handleUpload);
+$("retryUploadButton").addEventListener("click",retryUpload);
 
-document.getElementById("logoutBtn").addEventListener("click",async()=>{
- const {error} = await db.auth.signOut();
- if(error) return showError(error);
- window.location.href = "auth.html";
+$("logoutBtn").addEventListener("click",async()=>{
+ const {error}=await db.auth.signOut();
+ if(error){
+  notify("Sign out failed: "+error.message,"error");
+  return;
+ }
+ location.href="auth.html";
 });
 
-start();
+initialise();
 </script>
 </body>
 </html>
