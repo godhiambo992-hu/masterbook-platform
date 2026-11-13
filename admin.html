@@ -3,62 +3,140 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MASTERBOOK | Administrator Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MASTERBOOK | Admin Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f3f6fb;color:#17243a;font-family:Arial,sans-serif}
-header{background:#102b50;color:white;padding:22px 5%;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
-header h1{margin:0;font-size:24px}
-header p{margin:5px 0 0;color:#cbd8e8}
-button{border:0;border-radius:7px;padding:11px 15px;cursor:pointer;font-weight:bold}
-.logout{background:#fff;color:#102b50}
-main{max-width:1100px;margin:30px auto;padding:0 18px}
-.notice{padding:14px;border-radius:8px;background:#fff4d9;color:#765000;margin-bottom:20px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:15px;margin-bottom:28px}
-.card{background:white;padding:20px;border-radius:12px;box-shadow:0 3px 12px #142b4b12}
-.card span{font-size:14px;color:#64748b}
-.card strong{display:block;font-size:30px;margin-top:10px}
-.panel{background:white;border-radius:12px;padding:20px;margin-bottom:22px;box-shadow:0 3px 12px #142b4b12}
-.panel h2{margin-top:0}
-.application{border:1px solid #e1e7ef;padding:16px;border-radius:9px;margin:12px 0}
-.application p{margin:7px 0;color:#526176}
-.approve{background:#16794b;color:white;margin-right:7px}
-.reject{background:#b42318;color:white}
-.refresh{background:#e5edf8;color:#102b50}
-#message{padding:12px;border-radius:7px;margin:15px 0;display:none;overflow-wrap:anywhere}
+body{margin:0;background:#f2f5fa;color:#17243a;font-family:Arial,sans-serif}
+header{background:#102b50;color:white;padding:20px 5%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+header h1{margin:0}
+header p{margin:5px 0;color:#cbd8e8}
+button{border:0;padding:11px 15px;border-radius:7px;cursor:pointer;font-weight:bold}
+.logout{background:white;color:#102b50}
+main{max-width:1150px;margin:25px auto;padding:0 15px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+nav button{background:#dfe8f4;color:#102b50}
+nav button.active{background:#102b50;color:white}
+.panel,.card{background:white;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 3px 12px #142b4b12}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px}
+.card span{color:#64748b;font-size:14px}
+.card strong{display:block;font-size:30px;margin-top:9px}
+input,select,textarea{width:100%;padding:12px;margin:7px 0 15px;border:1px solid #cbd5e1;border-radius:7px;font:inherit}
+textarea{min-height:80px}
+label{font-weight:bold;font-size:14px}
+.primary{background:#126bba;color:white}
+.approve{background:#16794b;color:white;margin:5px}
+.reject{background:#b42318;color:white;margin:5px}
+.secondary{background:#e5edf8;color:#102b50}
+.resource{border:1px solid #e1e7ef;border-radius:9px;padding:15px;margin:12px 0;overflow-wrap:anywhere}
+.resource h3{margin-top:0}
+.resource p{color:#526176}
+.badge{display:inline-block;background:#e5edf8;padding:5px 9px;border-radius:15px;font-size:12px;margin:3px}
+#message{display:none;padding:13px;border-radius:8px;margin-bottom:18px;overflow-wrap:anywhere}
+.section{display:none}
+.section.active{display:block}
+small{color:#64748b}
 footer{text-align:center;padding:25px;color:#64748b}
 </style>
 </head>
 <body>
 <header>
-<div>
-<h1>MASTERBOOK</h1>
-<p>Administrator Control Centre</p>
-</div>
+<div><h1>MASTERBOOK</h1><p>Administrator Control Centre</p></div>
 <button class="logout" id="logoutBtn">Logout</button>
 </header>
 
 <main>
 <div id="message"></div>
-<div class="notice">
-<strong>Administrator access:</strong>
-Manage teacher and contributor applications securely.
-</div>
+<nav>
+<button class="active" data-tab="overview">Overview</button>
+<button data-tab="applications">Applications</button>
+<button data-tab="resources">Resources</button>
+</nav>
 
-<section class="cards">
+<section id="overview" class="section active">
+<h2>Dashboard Overview</h2>
+<div class="cards">
 <div class="card"><span>Pending applications</span><strong id="pendingCount">—</strong></div>
 <div class="card"><span>Teachers awaiting approval</span><strong id="teacherCount">—</strong></div>
 <div class="card"><span>Contributors awaiting approval</span><strong id="contributorCount">—</strong></div>
+<div class="card"><span>Total resources</span><strong id="resourceCount">—</strong></div>
+</div>
+<div class="panel">
+<h2>Welcome to MASTERBOOK Administration</h2>
+<p>Manage users, approve educational contributors and publish learning materials.</p>
+</div>
 </section>
 
-<section class="panel">
-<h2>Application Management</h2>
-<p>Review teacher and contributor registration requests.</p>
-<button class="refresh" id="refreshBtn">Refresh applications</button>
-<div id="applications">
-<p>Checking administrator access...</p>
+<section id="applications" class="section">
+<div class="panel">
+<h2>Teacher and Contributor Applications</h2>
+<button class="secondary" id="refreshApplications">Refresh applications</button>
+<div id="applicationList">Loading applications...</div>
+</div>
+</section>
+
+<section id="resources" class="section">
+<div class="panel">
+<h2>Upload Learning Resource</h2>
+<p>Upload a PDF and enter its details. Resources are initially saved as Draft.</p>
+<form id="resourceForm">
+<label>Resource title</label>
+<input id="resourceTitle" required maxlength="200" placeholder="Enter resource title">
+
+<label>Description</label>
+<textarea id="resourceDescription" placeholder="Describe this learning resource"></textarea>
+
+<label>Education level</label>
+<select id="educationLevel" required>
+<option value="">Select education level</option>
+<option>Primary</option>
+<option>Junior School</option>
+<option>Senior School</option>
+<option>University</option>
+<option>Professional</option>
+</select>
+
+<label>Subject</label>
+<input id="subject" required placeholder="e.g. Geography, Mathematics">
+
+<label>Resource type</label>
+<select id="resourceType" required>
+<option value="">Select resource type</option>
+<option>Notes</option>
+<option>Revision Paper</option>
+<option>Coursebook</option>
+<option>Lesson Plan</option>
+<option>Research</option>
+<option>Video</option>
+<option>Other</option>
+</select>
+
+<label>Curriculum</label>
+<select id="curriculum">
+<option>Kenyan CBC</option>
+<option>Kenyan 8-4-4</option>
+<option>International</option>
+<option>Other</option>
+</select>
+
+<label>Access tier</label>
+<select id="accessTier">
+<option>Free</option>
+<option>Premium</option>
+</select>
+
+<label>PDF file</label>
+<input id="resourceFile" type="file" accept="application/pdf,.pdf" required>
+<small>PDF only. Maximum file size: 50 MB.</small><br><br>
+<button class="primary" type="submit" id="uploadBtn">Upload resource as Draft</button>
+</form>
+</div>
+
+<div class="panel">
+<h2>Resource Library Management</h2>
+<button class="secondary" id="refreshResources">Refresh resources</button>
+<div id="resourceList">Loading resources...</div>
 </div>
 </section>
 </main>
@@ -66,79 +144,86 @@ Manage teacher and contributor applications securely.
 <footer>MASTERBOOK · Learning Without Boundaries.</footer>
 
 <script>
-const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
-const SUPABASE_KEY = "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+const SUPABASE_URL="https://bxsrhvcqjjtdnflhoplu.supabase.co";
+const SUPABASE_KEY="PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE";
+const BUCKET="masterbook-resources";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const messageBox=document.getElementById("message");
+const applicationList=document.getElementById("applicationList");
+const resourceList=document.getElementById("resourceList");
 
-const messageBox = document.getElementById("message");
-const applicationsBox = document.getElementById("applications");
-
-function showMessage(message, error=false){
+function showMessage(message,error=false){
  messageBox.style.display="block";
  messageBox.style.background=error?"#fee4e2":"#dcfce7";
  messageBox.style.color=error?"#991b1b":"#166534";
  messageBox.textContent=message;
+ window.scrollTo({top:0,behavior:"smooth"});
 }
+
+function switchTab(tab){
+ document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
+ document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+ document.getElementById(tab).classList.add("active");
+ document.querySelector('[data-tab="'+tab+'"]').classList.add("active");
+ if(tab==="resources")loadResources();
+ if(tab==="applications")loadApplications();
+}
+
+document.querySelectorAll("nav button").forEach(button=>{
+ button.addEventListener("click",()=>switchTab(button.dataset.tab));
+});
 
 async function protectDashboard(){
  const {data,error}=await db.auth.getSession();
- if(error || !data.session){
+ if(error||!data.session){
   location.replace("auth.html");
-  return false;
+  return;
  }
 
  const {data:isAdmin,error:adminError}=await db.rpc("masterbook_admin_is_admin");
 
- if(adminError || isAdmin !== true){
-  applicationsBox.textContent="Administrator access denied. Sign in with the authorised administrator account.";
-  showMessage("Your account could not be verified as an administrator.",true);
-  return false;
+ if(adminError||isAdmin!==true){
+  document.querySelector("main").innerHTML=
+   "<div class='panel'><h2>Administrator access denied</h2><p>Please sign in using your authorised administrator account.</p></div>";
+  return;
  }
 
  showMessage("Administrator access verified.");
  await loadApplications();
- return true;
+ await loadResources();
 }
 
 async function loadApplications(){
- applicationsBox.textContent="Loading applications...";
+ applicationList.textContent="Loading applications...";
 
  const {data,error}=await db.rpc("masterbook_admin_pending_applications");
-
  if(error){
-  applicationsBox.textContent="Could not load applications: "+error.message;
+  applicationList.textContent="Error: "+error.message;
   showMessage(error.message,true);
   return;
  }
 
- const applications=data || [];
- document.getElementById("pendingCount").textContent=applications.length;
- document.getElementById("teacherCount").textContent=applications.filter(x=>x.requested_role==="teacher").length;
- document.getElementById("contributorCount").textContent=applications.filter(x=>x.requested_role==="contributor").length;
+ const apps=data||[];
+ document.getElementById("pendingCount").textContent=apps.length;
+ document.getElementById("teacherCount").textContent=apps.filter(x=>x.requested_role==="teacher").length;
+ document.getElementById("contributorCount").textContent=apps.filter(x=>x.requested_role==="contributor").length;
 
- if(applications.length===0){
-  applicationsBox.textContent="No pending applications at the moment.";
+ applicationList.innerHTML="";
+ if(!apps.length){
+  applicationList.textContent="No pending applications.";
   return;
  }
 
- applicationsBox.innerHTML="";
-
- applications.forEach(app=>{
+ apps.forEach(app=>{
   const item=document.createElement("div");
-  item.className="application";
+  item.className="resource";
 
-  const name=document.createElement("h3");
-  name.textContent=app.full_name || "Name not provided";
+  const heading=document.createElement("h3");
+  heading.textContent=app.full_name||"Name not provided";
 
-  const email=document.createElement("p");
-  email.textContent="Email: "+app.email;
-
-  const role=document.createElement("p");
-  role.textContent="Requested role: "+app.requested_role;
-
-  const status=document.createElement("p");
-  status.textContent="Status: "+app.approval_status;
+  const details=document.createElement("p");
+  details.textContent="Email: "+app.email+" | Role: "+app.requested_role;
 
   const approve=document.createElement("button");
   approve.className="approve";
@@ -150,14 +235,13 @@ async function loadApplications(){
   reject.textContent="Reject";
   reject.onclick=()=>reviewApplication(app.user_id,"rejected");
 
-  item.append(name,email,role,status,approve,reject);
-  applicationsBox.appendChild(item);
+  item.append(heading,details,approve,reject);
+  applicationList.appendChild(item);
  });
 }
 
 async function reviewApplication(userId,decision){
- const confirmed=confirm("Are you sure you want to "+decision+" this application?");
- if(!confirmed)return;
+ if(!confirm("Confirm that you want to "+decision+" this application?"))return;
 
  const {error}=await db.rpc("masterbook_admin_review_application",{
   p_user_id:userId,
@@ -165,7 +249,7 @@ async function reviewApplication(userId,decision){
  });
 
  if(error){
-  showMessage("Review failed: "+error.message,true);
+  showMessage("Application review failed: "+error.message,true);
   return;
  }
 
@@ -173,7 +257,146 @@ async function reviewApplication(userId,decision){
  await loadApplications();
 }
 
-document.getElementById("refreshBtn").addEventListener("click",loadApplications);
+async function loadResources(){
+ resourceList.textContent="Loading resources...";
+
+ const {data,error}=await db.from("resources")
+  .select("id,title,description,education_level,subject,resource_type,curriculum,access_tier,status,storage_path,created_at")
+  .order("created_at",{ascending:false});
+
+ if(error){
+  resourceList.textContent="Could not load resources: "+error.message;
+  return;
+ }
+
+ const resources=data||[];
+ document.getElementById("resourceCount").textContent=resources.length;
+ resourceList.innerHTML="";
+
+ if(!resources.length){
+  resourceList.textContent="No resources found.";
+  return;
+ }
+
+ resources.forEach(resource=>{
+  const item=document.createElement("div");
+  item.className="resource";
+
+  const title=document.createElement("h3");
+  title.textContent=resource.title;
+
+  const details=document.createElement("p");
+  details.textContent=resource.subject+" | "+resource.education_level+" | "+resource.resource_type;
+
+  const status=document.createElement("span");
+  status.className="badge";
+  status.textContent=resource.status+" · "+resource.access_tier;
+
+  const description=document.createElement("p");
+  description.textContent=resource.description||"No description provided.";
+
+  const select=document.createElement("select");
+  ["Draft","Published","Archived"].forEach(value=>{
+   const option=document.createElement("option");
+   option.value=value;
+   option.textContent=value;
+   if(value===resource.status)option.selected=true;
+   select.appendChild(option);
+  });
+
+  const update=document.createElement("button");
+  update.className="primary";
+  update.textContent="Update status";
+  update.onclick=()=>updateResourceStatus(resource.id,select.value);
+
+  item.append(title,details,status,description,select,update);
+  resourceList.appendChild(item);
+ });
+}
+
+async function updateResourceStatus(id,status){
+ const {error}=await db.from("resources")
+  .update({status:status,updated_at:new Date().toISOString()})
+  .eq("id",id);
+
+ if(error){
+  showMessage("Status update failed: "+error.message,true);
+  return;
+ }
+
+ showMessage("Resource status updated to "+status+".");
+ await loadResources();
+}
+
+document.getElementById("resourceForm").addEventListener("submit",async event=>{
+ event.preventDefault();
+
+ const file=document.getElementById("resourceFile").files[0];
+ if(!file){
+  showMessage("Please select a PDF file.",true);
+  return;
+ }
+
+ if(file.type!=="application/pdf"&&!file.name.toLowerCase().endsWith(".pdf")){
+  showMessage("Only PDF files are accepted.",true);
+  return;
+ }
+
+ if(file.size>50*1024*1024){
+  showMessage("The file exceeds the 50 MB limit.",true);
+  return;
+ }
+
+ const button=document.getElementById("uploadBtn");
+ button.disabled=true;
+ button.textContent="Uploading...";
+
+ try{
+  const {data:sessionData,error:sessionError}=await db.auth.getSession();
+  if(sessionError||!sessionData.session)throw new Error("Your login session has expired.");
+
+  const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+  const storagePath=crypto.randomUUID()+"_"+safeName;
+
+  const {error:uploadError}=await db.storage.from(BUCKET)
+   .upload(storagePath,file,{contentType:"application/pdf",upsert:false});
+
+  if(uploadError)throw uploadError;
+
+  const record={
+   title:document.getElementById("resourceTitle").value.trim(),
+   description:document.getElementById("resourceDescription").value.trim(),
+   education_level:document.getElementById("educationLevel").value,
+   subject:document.getElementById("subject").value.trim(),
+   resource_type:document.getElementById("resourceType").value,
+   curriculum:document.getElementById("curriculum").value,
+   access_tier:document.getElementById("accessTier").value,
+   status:"Draft",
+   storage_path:storagePath,
+   created_by:sessionData.session.user.id
+  };
+
+  const {error:insertError}=await db.from("resources").insert(record);
+
+  if(insertError){
+   await db.storage.from(BUCKET).remove([storagePath]);
+   throw insertError;
+  }
+
+  document.getElementById("resourceForm").reset();
+  showMessage("Resource uploaded successfully and saved as Draft.");
+  await loadResources();
+
+ }catch(error){
+  showMessage("Upload failed: "+error.message,true);
+ }finally{
+  button.disabled=false;
+  button.textContent="Upload resource as Draft";
+ }
+});
+
+document.getElementById("refreshApplications").addEventListener("click",loadApplications);
+document.getElementById("refreshResources").addEventListener("click",loadResources);
 
 document.getElementById("logoutBtn").addEventListener("click",async()=>{
  const {error}=await db.auth.signOut();
