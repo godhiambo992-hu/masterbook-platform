@@ -4,7 +4,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>MASTERBOOK | Digital Library</title>
 
 <style>
@@ -18,9 +17,7 @@
     --muted: #64748b;
 }
 
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
@@ -48,9 +45,7 @@ header {
     text-decoration: none;
 }
 
-.logo span {
-    color: var(--gold);
-}
+.logo span { color: var(--gold); }
 
 header a {
     color: white;
@@ -70,10 +65,7 @@ main {
     text-align: center;
 }
 
-.hero h1 {
-    font-size: 32px;
-    margin-top: 0;
-}
+.hero h1 { font-size: 32px; margin-top: 0; }
 
 .hero p {
     color: #e4edf7;
@@ -108,11 +100,12 @@ input, select {
     background: #e8f1fb;
     color: var(--navy);
     font-size: 14px;
+    overflow-wrap: anywhere;
 }
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 18px;
 }
 
@@ -126,7 +119,8 @@ input, select {
 
 .card h3 {
     color: var(--navy);
-    margin-top: 0;
+    line-height: 1.4;
+    margin-top: 5px;
 }
 
 .card p {
@@ -147,14 +141,50 @@ input, select {
 .meta {
     font-size: 12px;
     color: var(--muted);
-    line-height: 1.6;
+    line-height: 1.7;
+    margin: 12px 0;
+}
+
+.resource-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.resource-actions button {
+    flex: 1;
+    min-width: 110px;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.view-button {
+    background: var(--blue);
+    color: white;
+}
+
+.download-button {
+    background: var(--navy);
+    color: white;
+}
+
+.resource-actions button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .empty {
     text-align: center;
-    padding: 30px;
+    padding: 35px;
     color: var(--muted);
     display: none;
+    background: white;
+    border-radius: 9px;
 }
 
 footer {
@@ -167,13 +197,8 @@ footer {
 }
 
 @media(max-width:600px) {
-    .hero h1 {
-        font-size: 25px;
-    }
-
-    main {
-        padding: 25px 5%;
-    }
+    .hero h1 { font-size: 25px; }
+    main { padding: 25px 5%; }
 }
 </style>
 </head>
@@ -184,210 +209,62 @@ footer {
     <a href="index.html" class="logo">
         MASTER<span>BOOK</span>
     </a>
-
     <a href="index.html">← Back to Home</a>
 </header>
 
 <main>
 
-    <section class="hero">
-        <h1>MASTERBOOK Digital Library</h1>
+<section class="hero">
+    <h1>MASTERBOOK Digital Library</h1>
+    <p>
+        Discover knowledge. Explore subjects.
+        Advance your learning.
+    </p>
+</section>
 
-        <p>
-            Discover knowledge. Explore subjects.
-            Advance your learning.
-        </p>
-    </section>
+<h2 class="heading">Explore Educational Resources</h2>
 
-    <h2 class="heading">Explore Educational Resources</h2>
+<div class="controls">
 
-    <div class="controls">
+    <input
+        id="search"
+        type="search"
+        placeholder="Search subjects or resources..."
+    >
 
-        <input
-            id="search"
-            type="search"
-            placeholder="Search subjects or resources..."
-        >
+    <select id="level">
+        <option value="">All Education Levels</option>
+        <option value="Primary">Primary</option>
+        <option value="Junior School">Junior School</option>
+        <option value="Senior School">Senior School</option>
+        <option value="University">University</option>
+        <option value="Professional">Professional</option>
+    </select>
 
-        <select id="level">
-            <option value="">All Education Levels</option>
-            <option value="Primary">Primary</option>
-            <option value="Junior School">Junior School</option>
-            <option value="Senior School">Senior School</option>
-            <option value="University">University</option>
-            <option value="Professional">Professional</option>
-        </select>
+    <select id="category">
+        <option value="">All Subjects</option>
+        <option value="Mathematics">Mathematics</option>
+        <option value="Geography">Geography</option>
+        <option value="Science">Science</option>
+        <option value="Languages">Languages</option>
+        <option value="Research">Research</option>
+        <option value="Technology">Technology</option>
+    </select>
 
-        <select id="category">
-            <option value="">All Subjects</option>
-            <option value="Mathematics">Mathematics</option>
-            <option value="Geography">Geography</option>
-            <option value="Science">Science</option>
-            <option value="Languages">Languages</option>
-            <option value="Research">Research</option>
-            <option value="Technology">Technology</option>
-        </select>
+</div>
 
-    </div>
+<div id="libraryStatus" class="status">
+    Connecting to MASTERBOOK Library...
+</div>
 
-    <div id="libraryStatus" class="status">
-        Connecting to MASTERBOOK Library...
-    </div>
+<h2 class="heading">Available Learning Resources</h2>
 
-    <h2 class="heading">Available Learning Collections</h2>
+<div class="grid" id="library"></div>
 
-    <div class="grid" id="library">
-
-        <article class="card"
-            data-level="Primary"
-            data-category="Mathematics">
-
-            <span class="tag">Primary</span>
-
-            <h3>Mathematics Foundations</h3>
-
-            <p>
-                Foundational mathematical concepts,
-                numeracy, calculations and problem-solving.
-            </p>
-
-            <div class="meta">
-                Mathematics · Primary Education
-            </div>
-        </article>
-
-        <article class="card"
-            data-level="Junior School"
-            data-category="Mathematics">
-
-            <span class="tag">Junior School</span>
-
-            <h3>Junior Mathematics</h3>
-
-            <p>
-                Mathematical reasoning, algebra,
-                geometry and practical applications.
-            </p>
-
-            <div class="meta">
-                Mathematics · CBC
-            </div>
-        </article>
-
-        <article class="card"
-            data-level="Senior School"
-            data-category="Geography">
-
-            <span class="tag">Senior School</span>
-
-            <h3>Senior School Geography</h3>
-
-            <p>
-                Physical geography, human geography,
-                environmental studies and investigations.
-            </p>
-
-            <div class="meta">
-                Geography · CBC
-            </div>
-        </article>
-
-        <article class="card"
-            data-level="Senior School"
-            data-category="Science">
-
-            <span class="tag">Senior School</span>
-
-            <h3>Science Learning</h3>
-
-            <p>
-                Scientific principles, investigations
-                and practical learning resources.
-            </p>
-
-            <div class="meta">
-                Science · Senior School
-            </div>
-        </article>
-
-        <article class="card"
-            data-level="University"
-            data-category="Research">
-
-            <span class="tag">University</span>
-
-            <h3>Academic Research</h3>
-
-            <p>
-                Research methodology, academic writing,
-                referencing and research design.
-            </p>
-
-            <div class="meta">
-                Research · University
-            </div>
-        </article>
-
-        <article class="card"
-            data-level="University"
-            data-category="Technology">
-
-            <span class="tag">University</span>
-
-            <h3>Information Technology</h3>
-
-            <p>
-                Computing, digital literacy, software
-                development and information systems.
-            </p>
-
-            <div class="meta">
-                Technology · University
-            </div>
-        </article>
-
-        <article class="card"
-            data-level="Professional"
-            data-category="Technology">
-
-            <span class="tag">Professional</span>
-
-            <h3>Digital Skills and AI</h3>
-
-            <p>
-                Artificial intelligence, digital
-                transformation and professional skills.
-            </p>
-
-            <div class="meta">
-                Technology · Professional
-            </div>
-        </article>
-
-        <article class="card"
-            data-level="Primary"
-            data-category="Languages">
-
-            <span class="tag">Primary</span>
-
-            <h3>Language Development</h3>
-
-            <p>
-                Reading, writing, grammar, comprehension
-                and communication skills.
-            </p>
-
-            <div class="meta">
-                Languages · Primary Education
-            </div>
-        </article>
-
-    </div>
-
-    <div class="empty" id="empty">
-        <h3>No matching resources found.</h3>
-        <p>Try another subject or education level.</p>
-    </div>
+<div class="empty" id="empty">
+    <h3>No matching resources found.</h3>
+    <p>Try another subject or education level.</p>
+</div>
 
 </main>
 
@@ -400,11 +277,13 @@ footer {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-
 const SUPABASE_URL =
     "https://bxsrhvcqjjtdnflhoplu.supabase.co";
 
-const SUPABASE_PUBLISHABLE_KEY ="sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+
+const BUCKET_NAME = "masterbook-resources";
 
 const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
@@ -418,68 +297,181 @@ const library = document.getElementById("library");
 const empty = document.getElementById("empty");
 const statusMessage = document.getElementById("libraryStatus");
 
-function escapeHTML(value) {
-    return String(value || "").replace(/[&<>"']/g, char => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-    })[char]);
+let resources = [];
+
+function createElement(tag, className, text) {
+    const element = document.createElement(tag);
+
+    if (className) element.className = className;
+    if (text !== undefined) element.textContent = text;
+
+    return element;
 }
 
 function filterLibrary() {
-
-    const cards = library.querySelectorAll(".card");
-
+    const cards = library.querySelectorAll(".database-resource");
     let visible = 0;
 
     cards.forEach(card => {
-
         const matchesText = card.innerText
             .toLowerCase()
             .includes(search.value.toLowerCase());
 
         const matchesLevel =
-            !level.value ||
-            card.dataset.level === level.value;
+            !level.value || card.dataset.level === level.value;
 
         const matchesCategory =
-            !category.value ||
-            card.dataset.category === category.value;
+            !category.value || card.dataset.category === category.value;
 
-        const show =
-            matchesText &&
-            matchesLevel &&
-            matchesCategory;
+        const show = matchesText && matchesLevel && matchesCategory;
 
         card.style.display = show ? "block" : "none";
 
-        if (show) {
-            visible++;
-        }
+        if (show) visible++;
     });
 
-    empty.style.display =
-        visible === 0 ? "block" : "none";
+    empty.style.display = visible === 0 ? "block" : "none";
+}
+
+async function openResource(resource, downloadFile, button) {
+    const path = resource.storage_path
+        ? resource.storage_path.trim()
+        : "";
+
+    if (!path) {
+        statusMessage.textContent =
+            "This resource does not have a storage file path.";
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Preparing PDF...";
+
+    try {
+        const options = downloadFile ? { download: true } : {};
+
+        const { data, error } = await supabaseClient
+            .storage
+            .from(BUCKET_NAME)
+            .createSignedUrl(path, 3600, options);
+
+        if (error) throw error;
+
+        if (!data || !data.signedUrl) {
+            throw new Error("Supabase did not return a PDF link.");
+        }
+
+        // Open the signed PDF link in the current browser tab.
+        window.location.assign(data.signedUrl);
+
+    } catch (error) {
+        console.error("MASTERBOOK PDF error:", error);
+
+        statusMessage.textContent =
+            "Unable to access this PDF: " + error.message;
+
+        button.disabled = false;
+        button.textContent = downloadFile
+            ? "Download PDF"
+            : "View PDF";
+    }
+}
+
+function createResourceCard(resource) {
+    const card = createElement(
+        "article",
+        "card database-resource"
+    );
+
+    card.dataset.level = resource.education_level || "";
+    card.dataset.category = resource.subject || "";
+
+    const tag = createElement(
+        "span",
+        "tag",
+        resource.education_level || "Education"
+    );
+
+    const title = createElement(
+        "h3",
+        "",
+        resource.title || "Untitled resource"
+    );
+
+    const description = createElement(
+        "p",
+        "",
+        resource.description || "Educational learning resource."
+    );
+
+    const meta = createElement(
+        "div",
+        "meta",
+        [
+            resource.subject,
+            resource.resource_type,
+            resource.curriculum
+        ].filter(Boolean).join(" · ")
+    );
+
+    const actions = createElement(
+        "div",
+        "resource-actions"
+    );
+
+    const viewButton = createElement(
+        "button",
+        "view-button",
+        "View PDF"
+    );
+
+    const downloadButton = createElement(
+        "button",
+        "download-button",
+        "Download PDF"
+    );
+
+    if (!resource.storage_path) {
+        viewButton.disabled = true;
+        downloadButton.disabled = true;
+    } else {
+        viewButton.addEventListener("click", () => {
+            openResource(resource, false, viewButton);
+        });
+
+        downloadButton.addEventListener("click", () => {
+            openResource(resource, true, downloadButton);
+        });
+    }
+
+    actions.appendChild(viewButton);
+    actions.appendChild(downloadButton);
+
+    card.appendChild(tag);
+    card.appendChild(title);
+    card.appendChild(description);
+    card.appendChild(meta);
+    card.appendChild(actions);
+
+    return card;
 }
 
 async function loadResources() {
-
     statusMessage.textContent =
         "Connecting to the MASTERBOOK database...";
+
+    library.innerHTML = "";
 
     const { data, error } = await supabaseClient
         .from("resources")
         .select(
-            "id,title,description,education_level,subject,resource_type,curriculum,storage_path"
+            "id,title,description,education_level,subject,resource_type,curriculum,storage_path,created_at"
         )
         .eq("status", "Published")
         .eq("access_tier", "Free")
         .order("created_at", { ascending: false });
 
     if (error) {
-
         console.error("MASTERBOOK database error:", error);
 
         statusMessage.textContent =
@@ -488,76 +480,43 @@ async function loadResources() {
         return;
     }
 
-    // Remove previously loaded database cards.
-    library.querySelectorAll(".database-resource")
-        .forEach(card => card.remove());
+    resources = data || [];
 
-    // Add subjects from the database to the filter if necessary.
-    data.forEach(resource => {
-
-        const subjectExists = Array.from(category.options)
-            .some(option => option.value === resource.subject);
-
-        if (resource.subject && !subjectExists) {
-
+    resources.forEach(resource => {
+        if (
+            resource.subject &&
+            !Array.from(category.options).some(
+                option => option.value === resource.subject
+            )
+        ) {
             const option = document.createElement("option");
-
             option.value = resource.subject;
             option.textContent = resource.subject;
-
             category.appendChild(option);
         }
 
-        const card = document.createElement("article");
-
-        card.className = "card database-resource";
-
-        card.dataset.level = resource.education_level;
-        card.dataset.category = resource.subject;
-
-        card.innerHTML = `
-            <span class="tag">
-                ${escapeHTML(resource.education_level)}
-            </span>
-
-            <h3>${escapeHTML(resource.title)}</h3>
-
-            <p>${escapeHTML(resource.description)}</p>
-
-            <div class="meta">
-                ${escapeHTML(resource.subject)}
-                ·
-                ${escapeHTML(resource.resource_type)}
-                ·
-                ${escapeHTML(resource.curriculum)}
-            </div>
-        `;
-
+        const card = createResourceCard(resource);
         library.appendChild(card);
-
     });
 
     statusMessage.textContent =
         "Database connected successfully. " +
-        data.length +
+        resources.length +
         " published free resources retrieved.";
+
+    filterLibrary();
 
     console.log(
         "MASTERBOOK resources retrieved:",
-        data.length
+        resources.length
     );
-
-    filterLibrary();
 }
 
 search.addEventListener("input", filterLibrary);
-
 level.addEventListener("change", filterLibrary);
-
 category.addEventListener("change", filterLibrary);
 
 loadResources();
-
 </script>
 
 </body>
