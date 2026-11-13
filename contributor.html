@@ -1,0 +1,78 @@
+
+-- MASTERBOOK CONTRIBUTOR PERMISSIONS
+
+-- Allow approved teachers, approved contributors
+-- and administrators to submit resources.
+
+DROP POLICY IF EXISTS
+"Approved teachers can insert resources"
+ON public.resources;
+
+DROP POLICY IF EXISTS
+"Approved teachers and contributors can insert resources"
+ON public.resources;
+
+CREATE POLICY
+"Approved teachers and contributors can insert resources"
+ON public.resources
+FOR INSERT
+TO authenticated
+WITH CHECK (
+    created_by = auth.uid()
+    AND EXISTS (
+        SELECT 1
+        FROM public.profiles p
+        WHERE p.id = auth.uid()
+        AND (
+            p.is_admin = TRUE
+            OR (
+                p.requested_role = 'teacher'
+                AND p.approval_status = 'approved'
+            )
+            OR (
+                p.requested_role = 'contributor'
+                AND p.approval_status = 'approved'
+            )
+        )
+    )
+);
+
+-- Allow approved contributors to upload files.
+
+DROP POLICY IF EXISTS
+"Approved teachers can upload MASTERBOOK files"
+ON storage.objects;
+
+DROP POLICY IF EXISTS
+"Approved teachers and contributors can upload MASTERBOOK files"
+ON storage.objects;
+
+CREATE POLICY
+"Approved teachers and contributors can upload MASTERBOOK files"
+ON storage.objects
+FOR INSERT
+TO authenticated
+WITH CHECK (
+    bucket_id = 'masterbook-resources'
+    AND name LIKE auth.uid()::text || '/%'
+    AND EXISTS (
+        SELECT 1
+        FROM public.profiles p
+        WHERE p.id = auth.uid()
+        AND (
+            p.is_admin = TRUE
+            OR (
+                p.requested_role = 'teacher'
+                AND p.approval_status = 'approved'
+            )
+            OR (
+                p.requested_role = 'contributor'
+                AND p.approval_status = 'approved'
+            )
+        )
+    )
+);
+
+GRANT INSERT ON public.resources TO authenticated;
+
+NOTIFY pgrst, 'reload schema';
