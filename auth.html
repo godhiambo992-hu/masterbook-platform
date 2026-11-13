@@ -1,0 +1,323 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MASTERBOOK | Account Access</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --navy:#10233f;
+  --blue:#1769d2;
+  --light:#f3f6fb;
+  --muted:#64748b;
+  --white:#fff;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:var(--light);
+  color:var(--navy);
+}
+header {
+  background:var(--navy);
+  color:white;
+  padding:20px 7%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.brand {font-size:24px;font-weight:800;letter-spacing:1px}
+.brand span {color:#60a5fa}
+header a {color:white;text-decoration:none}
+main {
+  min-height:85vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:35px 16px;
+}
+.container {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  max-width:950px;
+  width:100%;
+  background:white;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 12px 45px rgba(16,35,63,.12);
+}
+.welcome {
+  background:linear-gradient(145deg,#10233f,#1769d2);
+  color:white;
+  padding:55px 38px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.welcome h1 {font-size:36px;line-height:1.2}
+.welcome p {line-height:1.8;color:#e0eaff}
+.welcome ul {padding-left:20px;line-height:2.2}
+.form-area {padding:40px 35px}
+h2 {margin-top:0;font-size:27px}
+.subtitle {color:var(--muted);font-size:14px}
+.tabs {display:flex;gap:10px;margin:25px 0}
+.tabs button {
+  flex:1;padding:12px;border:1px solid #dbe3ef;
+  border-radius:8px;background:white;cursor:pointer;
+  font-weight:700;color:var(--navy)
+}
+.tabs button.active {background:var(--blue);color:white;border-color:var(--blue)}
+label {display:block;font-size:13px;font-weight:700;margin:15px 0 7px}
+input,select {
+  width:100%;padding:13px;border:1px solid #d5deea;
+  border-radius:8px;font-size:15px;background:white;
+}
+input:focus,select:focus {outline:2px solid #9ac5ff;border-color:var(--blue)}
+.primary {
+  width:100%;padding:14px;margin-top:22px;
+  border:0;border-radius:8px;background:var(--blue);
+  color:white;font-size:15px;font-weight:700;cursor:pointer;
+}
+.primary:disabled {opacity:.6;cursor:wait}
+.small-link {
+  display:block;text-align:center;margin-top:18px;
+  color:var(--blue);font-size:14px;cursor:pointer;
+}
+.message {
+  display:none;margin-top:17px;padding:12px;
+  border-radius:8px;font-size:13px;line-height:1.5;
+  overflow-wrap:anywhere;
+}
+.message.error {display:block;background:#feecec;color:#a32020}
+.message.success {display:block;background:#e8f7ed;color:#176536}
+.hidden {display:none!important}
+footer {text-align:center;padding:20px;color:var(--muted);font-size:13px}
+@media(max-width:700px) {
+  .container {grid-template-columns:1fr}
+  .welcome {padding:30px}
+  .welcome h1 {font-size:28px}
+  .form-area {padding:30px 22px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">MASTER<span>BOOK</span></div>
+  <a href="index.html">← Back to Home</a>
+</header>
+
+<main>
+<div class="container">
+
+<section class="welcome">
+  <h1>Learning Without Boundaries.</h1>
+  <p>Welcome to MASTERBOOK, your learning space for knowledge, discovery and academic growth.</p>
+  <ul>
+    <li>Access educational resources</li>
+    <li>Explore different learning levels</li>
+    <li>Connect with educational content</li>
+    <li>Grow your knowledge and skills</li>
+  </ul>
+  <p><strong>Learn. Discover. Achieve.</strong></p>
+</section>
+
+<section class="form-area">
+  <h2 id="formTitle">Welcome Back</h2>
+  <p class="subtitle" id="formSubtitle">Sign in to your MASTERBOOK account.</p>
+
+  <div class="tabs">
+    <button type="button" id="loginTab" class="active">Login</button>
+    <button type="button" id="signupTab">Register</button>
+  </div>
+
+  <form id="authForm">
+    <div id="nameField" class="hidden">
+      <label for="fullName">Full name</label>
+      <input id="fullName" type="text" placeholder="Enter your full name">
+    </div>
+
+    <div id="roleField" class="hidden">
+      <label for="accountRole">Account type</label>
+      <select id="accountRole">
+        <option value="student">Student</option>
+        <option value="teacher">Teacher — approval required</option>
+        <option value="contributor">Contributor — approval required</option>
+      </select>
+    </div>
+
+    <label for="email">Email address</label>
+    <input id="email" type="email" placeholder="you@example.com" required>
+
+    <label for="password">Password</label>
+    <input id="password" type="password" placeholder="Enter password" minlength="6" required>
+
+    <button type="submit" class="primary" id="submitButton">Sign In</button>
+  </form>
+
+  <span class="small-link" id="forgotPassword">Forgot your password?</span>
+
+  <div id="message" class="message" role="status" aria-live="polite"></div>
+</section>
+
+</div>
+</main>
+
+<footer>
+  © 2026 MASTERBOOK | Learning Without Boundaries.
+  <br>Educational resources for every learner.
+</footer>
+
+<script>
+const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+
+// Replace this placeholder with your actual Supabase publishable key.
+const SUPABASE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
+
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let mode = "login";
+
+const loginTab = document.getElementById("loginTab");
+const signupTab = document.getElementById("signupTab");
+const form = document.getElementById("authForm");
+const message = document.getElementById("message");
+const submitButton = document.getElementById("submitButton");
+
+function showMessage(text, type) {
+  message.textContent = text;
+  message.className = "message " + type;
+}
+
+function setMode(newMode) {
+  mode = newMode;
+  message.className = "message";
+
+  loginTab.classList.toggle("active", mode === "login");
+  signupTab.classList.toggle("active", mode === "signup");
+
+  document.getElementById("nameField").classList.toggle("hidden", mode !== "signup");
+  document.getElementById("roleField").classList.toggle("hidden", mode !== "signup");
+  document.getElementById("forgotPassword").classList.toggle("hidden", mode !== "login");
+
+  document.getElementById("formTitle").textContent =
+    mode === "login" ? "Welcome Back" : "Create Your Account";
+
+  document.getElementById("formSubtitle").textContent =
+    mode === "login"
+      ? "Sign in to your MASTERBOOK account."
+      : "Join the MASTERBOOK learning community.";
+
+  submitButton.textContent = mode === "login" ? "Sign In" : "Create Account";
+  document.getElementById("password").autocomplete =
+    mode === "login" ? "current-password" : "new-password";
+}
+
+loginTab.addEventListener("click", () => setMode("login"));
+signupTab.addEventListener("click", () => setMode("signup"));
+
+form.addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  if (SUPABASE_KEY === "YOUR_SUPABASE_PUBLISHABLE_KEY") {
+    showMessage("Setup required: add your Supabase publishable key to auth.html.", "error");
+    return;
+  }
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  submitButton.disabled = true;
+  submitButton.textContent = "Please wait...";
+
+  try {
+    if (mode === "signup") {
+      const fullName = document.getElementById("fullName").value.trim();
+      const requestedRole = document.getElementById("accountRole").value;
+
+      if (!fullName) {
+        throw new Error("Please enter your full name.");
+      }
+
+      const {data, error} = await client.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: window.location.origin + "/masterbook-platform/auth.html",
+          data: {
+            full_name: fullName,
+            requested_role: requestedRole
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.session) {
+        showMessage(
+          "Account created successfully. Your account is registered. Teacher and contributor access requires administrator approval.",
+          "success"
+        );
+      } else {
+        showMessage(
+          "Registration received! Check your email for the confirmation link. Teacher and contributor access requires administrator approval.",
+          "success"
+        );
+      }
+
+    } else {
+      const {data, error} = await client.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      showMessage("Login successful! Opening your MASTERBOOK account...", "success");
+
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 1200);
+    }
+
+  } catch (error) {
+    showMessage(error.message || "An unexpected error occurred.", "error");
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = mode === "login" ? "Sign In" : "Create Account";
+  }
+});
+
+document.getElementById("forgotPassword").addEventListener("click", async function() {
+  const email = document.getElementById("email").value.trim();
+
+  if (!email) {
+    showMessage("Enter your email address first, then select Forgot your password.", "error");
+    return;
+  }
+
+  if (SUPABASE_KEY === "YOUR_SUPABASE_PUBLISHABLE_KEY") {
+    showMessage("Please configure your Supabase publishable key first.", "error");
+    return;
+  }
+
+  try {
+    const {error} = await client.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + "/masterbook-platform/auth.html"
+    });
+
+    if (error) throw error;
+
+    showMessage("If this email belongs to an account, a password reset link will be sent.", "success");
+  } catch (error) {
+    showMessage(error.message, "error");
+  }
+});
+</script>
+</body>
+</html>
