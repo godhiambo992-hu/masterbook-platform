@@ -4,48 +4,150 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="MASTERBOOK — A comprehensive digital learning platform for every learner.">
+<meta name="theme-color" content="#10243e">
 <title>MASTERBOOK | Learning Without Boundaries</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+:root{
+  --navy:#10243e;
+  --blue:#1769aa;
+  --gold:#e5ad42;
+  --light:#f4f7fb;
+  --text:#243449;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;background:#f4f7fa;color:#183047;line-height:1.6}
-.hidden{display:none!important}
-
-header{background:#102b46;color:white;padding:18px 5%}
-nav{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
-.logo{font-size:25px;font-weight:bold;letter-spacing:1px}
-.navlinks{display:flex;gap:15px;align-items:center;flex-wrap:wrap}
+body{
+  font-family:Arial,sans-serif;
+  color:var(--text);
+  background:white;
+  line-height:1.6;
+}
+header{
+  background:var(--navy);
+  color:white;
+  padding:17px 6%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:15px;
+}
+.logo{font-size:25px;font-weight:800;letter-spacing:2px}
+.logo span{color:var(--gold)}
+nav{display:flex;gap:18px;flex-wrap:wrap;align-items:center}
 nav a{color:white;text-decoration:none;font-size:14px}
-nav a:hover{text-decoration:underline}
-#accountArea{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-#userEmail{color:#dbeafe;font-size:13px;overflow-wrap:anywhere}
-button{background:#d99b32;color:#102b46;border:0;border-radius:6px;padding:10px 16px;cursor:pointer;font-weight:bold}
-button:disabled{opacity:.6}
+nav a:hover{color:var(--gold)}
+.hero{
+  background:linear-gradient(120deg,#10243e,#1769aa);
+  color:white;
+  padding:75px 7%;
+  text-align:center;
+}
+.hero h1{
+  font-size:clamp(34px,6vw,55px);
+  line-height:1.15;
+  margin-bottom:20px;
+}
+.hero h1 span{color:var(--gold)}
+.hero p{max-width:680px;margin:0 auto 25px;color:#e4edf7}
+.btn{
+  display:inline-block;
+  background:var(--gold);
+  color:#10243e;
+  text-decoration:none;
+  padding:12px 23px;
+  border-radius:5px;
+  font-weight:bold;
+  margin:5px;
+}
+.btn-blue{background:var(--blue);color:white}
+section{padding:55px 7%}
+.section-title{text-align:center;margin-bottom:30px}
+.section-title h2{font-size:30px;color:var(--navy)}
+.section-title p{color:#64748b}
+.search{
+  display:block;
+  width:min(600px,100%);
+  margin:25px auto;
+  padding:15px;
+  border:1px solid #d5deea;
+  border-radius:7px;
+  font-size:16px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+}
+.card{
+  padding:25px;
+  background:var(--light);
+  border-radius:9px;
+  border:1px solid #e5eaf1;
+  transition:.2s;
+}
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 8px 22px #10243e16;
+}
+.card h3{color:var(--navy);margin-bottom:9px}
+.card p{font-size:14px;color:#64748b}
+.card a{
+  display:inline-block;
+  margin-top:15px;
+  color:var(--blue);
+  font-weight:bold;
+  text-decoration:none;
+}
+.feature{background:#edf3f9}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:20px;
+  text-align:center;
+}
+.stats strong{
+  display:block;
+  font-size:27px;
+  color:var(--blue);
+}
+.portal-card{
+  background:white;
+  border:1px solid #dce5ef;
+  border-radius:10px;
+  padding:25px;
+}
+.portal-card h3{color:var(--navy);margin-bottom:10px}
+.portal-card p{
+  font-size:14px;
+  color:#64748b;
+  margin-bottom:15px;
+}
+.portal-card a{
+  display:inline-block;
+  background:var(--blue);
+  color:white;
+  padding:10px 17px;
+  border-radius:5px;
+  text-decoration:none;
+  font-weight:bold;
+}
+.portal-card a:hover{background:var(--navy)}
+footer{
+  background:var(--navy);
+  color:white;
+  padding:35px 7%;
+  text-align:center;
+}
+footer p{font-size:13px;color:#cbd5e1;margin-top:8px}
+.hidden{display:none}
 
-.hero{background:linear-gradient(120deg,#123b58,#176b63);color:white;padding:75px 8%;text-align:center}
-.hero h1{font-size:clamp(32px,5vw,48px);margin-bottom:15px}
-.hero p{font-size:18px;max-width:700px;margin:auto}
-.hero a{display:inline-block;margin-top:25px;background:#e0a43b;color:#102b46;padding:13px 24px;text-decoration:none;border-radius:7px;font-weight:bold}
-
-main{max-width:1150px;margin:auto;padding:40px 20px}
-.welcome,.card,.info{background:white;border-radius:12px;padding:24px;box-shadow:0 3px 12px #0000000d}
-.welcome{margin-bottom:35px}
-.welcome h2,.card h3{color:#176b63;margin-bottom:10px}
-.section{margin-top:40px}
-.section-title{text-align:center;margin-bottom:25px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
-.card a{display:inline-block;margin-top:15px;color:#176b63;font-weight:bold;text-decoration:none}
-.card a:hover{text-decoration:underline}
-.info{margin-top:40px;background:#e6f1ef;text-align:center}
-#status{padding:10px;margin-bottom:15px;border-radius:6px;display:none}
-footer{background:#102b46;color:white;text-align:center;padding:25px;margin-top:40px;font-size:14px}
-
-@media(max-width:700px){
- nav{align-items:flex-start}
- .navlinks{width:100%;gap:12px}
- #accountArea{width:100%}
- .hero{padding:55px 20px}
+@media(max-width:600px){
+  header{padding:16px 5%}
+  nav{gap:12px}
+  .hero{padding:55px 6%}
+  section{padding:42px 6%}
 }
 </style>
 </head>
@@ -53,220 +155,240 @@ footer{background:#102b46;color:white;text-align:center;padding:25px;margin-top:
 <body>
 
 <header>
-<nav>
-  <div class="logo">MASTERBOOK</div>
+  <div class="logo">MASTER<span>BOOK</span></div>
 
-  <div class="navlinks">
+  <nav>
     <a href="index.html">Home</a>
     <a href="library.html">Library</a>
-    <a href="student.html">Student Portal</a>
-    <a href="teacher.html">Teacher Portal</a>
-    <a href="admin.html">Administration</a>
-  </div>
-
-  <div id="accountArea">
-    <a id="loginLink" href="auth.html">Login / Register</a>
-    <span id="userEmail" class="hidden"></span>
-    <button id="logoutButton" class="hidden" type="button">Logout</button>
-  </div>
-</nav>
+    <a href="#levels">Education</a>
+    <a href="#portals">Portals</a>
+    <a href="#about">About</a>
+    <a href="auth.html">Sign In / Register</a>
+  </nav>
 </header>
-
-<section class="hero">
-  <h1>Learning Without Boundaries</h1>
-  <p>
-    Welcome to MASTERBOOK, an educational platform designed
-    to make quality learning resources accessible to everyone.
-  </p>
-  <a href="library.html">Explore Learning Library</a>
-</section>
 
 <main>
 
-<div id="status" aria-live="polite"></div>
+<section class="hero" id="home">
+  <h1>Learning <span>Without Boundaries.</span></h1>
 
-<section class="welcome">
-  <h2 id="welcomeTitle">Welcome to MASTERBOOK</h2>
-  <p id="welcomeText">
-    Discover learning materials, educational resources,
-    revision notes and knowledge across different levels
-    of education.
+  <p>
+    A comprehensive digital learning ecosystem connecting learners,
+    educators, knowledge and technology across the world.
   </p>
+
+  <a href="library.html" class="btn">Explore Learning Resources</a>
+  <a href="#portals" class="btn">Access Your Portal</a>
 </section>
 
-<section class="section">
+<section id="library">
+
   <div class="section-title">
-    <h2>Explore Education</h2>
-    <p>Resources for every stage of learning.</p>
+    <h2>Explore the MASTERBOOK Library</h2>
+    <p>Discover educational resources for every stage of learning.</p>
+  </div>
+
+  <input
+    class="search"
+    id="search"
+    placeholder="Search educational resources..."
+    aria-label="Search resources"
+  >
+
+  <div class="grid" id="resources">
+
+    <article class="card">
+      <h3>Mathematics</h3>
+      <p>Mathematical concepts, worked examples, exercises and revision materials.</p>
+      <a href="library.html">Explore →</a>
+    </article>
+
+    <article class="card">
+      <h3>Geography</h3>
+      <p>Physical geography, human geography, maps and geographical investigations.</p>
+      <a href="library.html">Explore →</a>
+    </article>
+
+    <article class="card">
+      <h3>Sciences</h3>
+      <p>Scientific concepts, practical learning and assessment resources.</p>
+      <a href="library.html">Explore →</a>
+    </article>
+
+    <article class="card">
+      <h3>Languages</h3>
+      <p>Language learning, grammar, literature and communication.</p>
+      <a href="library.html">Explore →</a>
+    </article>
+
+    <article class="card">
+      <h3>Research</h3>
+      <p>Academic research, methodology, referencing and scholarly resources.</p>
+      <a href="library.html">Explore →</a>
+    </article>
+
+    <article class="card">
+      <h3>Technology & AI</h3>
+      <p>Digital literacy, computing, artificial intelligence and innovation.</p>
+      <a href="library.html">Explore →</a>
+    </article>
+
+  </div>
+</section>
+
+<section class="feature" id="levels">
+
+  <div class="section-title">
+    <h2>Education for Every Level</h2>
+    <p>One platform. Multiple educational pathways.</p>
   </div>
 
   <div class="grid">
-    <div class="card">
+
+    <article class="card">
       <h3>Primary Education</h3>
-      <p>Learning resources and revision materials for primary school learners.</p>
-      <a href="library.html">Explore Library →</a>
-    </div>
+      <p>Foundational learning, CBC resources and learner support.</p>
+    </article>
 
-    <div class="card">
-      <h3>Junior School</h3>
-      <p>Educational materials supporting competency-based learning.</p>
-      <a href="library.html">Explore Library →</a>
-    </div>
+    <article class="card">
+      <h3>Secondary Education</h3>
+      <p>Junior and senior school learning materials and assessments.</p>
+    </article>
 
-    <div class="card">
-      <h3>Senior School</h3>
-      <p>Detailed subject notes, revision resources and learning materials.</p>
-      <a href="library.html">Explore Library →</a>
-    </div>
-
-    <div class="card">
+    <article class="card">
       <h3>University Education</h3>
-      <p>Academic resources, research materials and university learning support.</p>
-      <a href="library.html">Explore Library →</a>
-    </div>
+      <p>Lecture notes, academic resources, research and revision.</p>
+    </article>
 
-    <div class="card">
-      <h3>Professional Learning</h3>
-      <p>Resources for professional development, skills and lifelong learning.</p>
-      <a href="library.html">Explore Library →</a>
-    </div>
+    <article class="card">
+      <h3>Professional Education</h3>
+      <p>Career development, professional skills and lifelong learning.</p>
+    </article>
+
   </div>
 </section>
 
-<section class="section">
+<!-- MASTERBOOK PORTALS DASHBOARD -->
+
+<section id="portals">
+
   <div class="section-title">
     <h2>MASTERBOOK Portals</h2>
-    <p>One educational platform connecting learners, teachers and administrators.</p>
+    <p>
+      One platform connecting students, teachers, contributors
+      and administrators.
+    </p>
   </div>
 
   <div class="grid">
 
-    <div class="card">
+    <article class="portal-card">
       <h3>Student Portal</h3>
-      <p>Access learning resources, enrol in courses and track your learning progress.</p>
-      <a href="student.html">Open Student Portal →</a>
-    </div>
+      <p>
+        Access learning materials, enrol in learning resources,
+        monitor progress and take assessments.
+      </p>
+      <a href="student.html">Enter Student Portal →</a>
+    </article>
 
-    <div class="card">
+    <article class="portal-card">
       <h3>Teacher Portal</h3>
-      <p>Upload teaching materials, manage resources and support learners.</p>
-      <a href="teacher.html">Open Teacher Portal →</a>
-    </div>
+      <p>
+        Upload teaching resources, manage educational materials
+        and support learners.
+      </p>
+      <a href="teacher.html">Enter Teacher Portal →</a>
+    </article>
 
-    <div class="card">
+    <article class="portal-card">
       <h3>Contributor Portal</h3>
-      <p>Contribute educational content to the MASTERBOOK learning community.</p>
-      <p><strong>Coming soon.</strong></p>
-    </div>
+      <p>
+        Submit educational resources, research, coursebooks
+        and learning materials for review and publication.
+      </p>
+      <a href="contributor.html">Enter Contributor Portal →</a>
+    </article>
 
-    <div class="card">
+    <article class="portal-card">
       <h3>Administration</h3>
-      <p>Manage applications, review resources and oversee the platform.</p>
-      <a href="admin.html">Open Administration →</a>
-    </div>
+      <p>
+        Manage platform resources, review applications,
+        approve submissions and oversee MASTERBOOK operations.
+      </p>
+      <a href="admin.html">Enter Administration →</a>
+    </article>
 
   </div>
 </section>
 
-<section class="info">
-  <h2>Learning Without Boundaries</h2>
-  <p>
-    MASTERBOOK brings together learners, educators
-    and educational contributors in one learning environment.
-  </p>
+<section>
+
+  <div class="section-title">
+    <h2>Our Educational Ecosystem</h2>
+    <p>Designed to connect knowledge with opportunity.</p>
+  </div>
+
+  <div class="stats">
+    <div><strong>4</strong>Education levels</div>
+    <div><strong>Global</strong>Learning ambition</div>
+    <div><strong>Digital</strong>Learning resources</div>
+    <div><strong>AI</strong>Innovation pathway</div>
+  </div>
+
+</section>
+
+<section class="feature" id="about">
+
+  <div class="section-title">
+    <h2>About MASTERBOOK</h2>
+    <p>
+      MASTERBOOK aims to make quality education more accessible
+      through technology, structured knowledge and collaboration.
+    </p>
+  </div>
+
+  <div class="grid">
+
+    <article class="card">
+      <h3>Our Vision</h3>
+      <p>To build a trusted global digital learning ecosystem.</p>
+    </article>
+
+    <article class="card">
+      <h3>Our Mission</h3>
+      <p>To connect learners with accessible, relevant and quality educational resources.</p>
+    </article>
+
+    <article class="card">
+      <h3>Our Approach</h3>
+      <p>Combine original content, approved contributors, technology and innovation.</p>
+    </article>
+
+  </div>
 </section>
 
 </main>
 
 <footer>
+  <div class="logo">MASTER<span>BOOK</span></div>
+  <p>Learning Without Boundaries.</p>
   <p>© 2026 MASTERBOOK. All rights reserved.</p>
-  <p>Founded by G.O. Odhiambo.</p>
+  <p>Developed by G.O. Odhiambo</p>
 </footer>
 
 <script>
-const SUPABASE_URL =
-  "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+const search = document.getElementById("search");
 
-const SUPABASE_KEY =
-  "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+search.addEventListener("input", () => {
+  const term = search.value.toLowerCase();
 
-const client = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
-const BASE_URL =
-  "https://godhiambo992-hu.github.io/masterbook-platform/";
-
-const AUTH_URL = BASE_URL + "auth.html";
-
-const loginLink = document.getElementById("loginLink");
-const logoutButton = document.getElementById("logoutButton");
-const userEmail = document.getElementById("userEmail");
-const welcomeTitle = document.getElementById("welcomeTitle");
-const welcomeText = document.getElementById("welcomeText");
-const statusBox = document.getElementById("status");
-
-function showStatus(message,isError=false){
-  statusBox.textContent=message;
-  statusBox.style.display="block";
-  statusBox.style.background=isError?"#fee2e2":"#dcfce7";
-  statusBox.style.color=isError?"#991b1b":"#166534";
-}
-
-function updateAccount(session){
-  if(session && session.user){
-    loginLink.classList.add("hidden");
-    logoutButton.classList.remove("hidden");
-    userEmail.classList.remove("hidden");
-
-    userEmail.textContent=session.user.email || "Logged in";
-    welcomeTitle.textContent="Welcome to MASTERBOOK";
-    welcomeText.textContent=
-      "You are signed in. Access your learning portal and explore educational resources.";
-  }else{
-    loginLink.classList.remove("hidden");
-    logoutButton.classList.add("hidden");
-    userEmail.classList.add("hidden");
-
-    welcomeTitle.textContent="Welcome to MASTERBOOK";
-    welcomeText.textContent=
-      "Discover learning materials, educational resources, revision notes and knowledge across different levels of education.";
-  }
-}
-
-async function loadSession(){
-  const {data,error}=await client.auth.getSession();
-
-  if(error){
-    showStatus("Unable to check your account session: "+error.message,true);
-    return;
-  }
-
-  updateAccount(data.session);
-}
-
-logoutButton.addEventListener("click",async function(){
-  logoutButton.disabled=true;
-  logoutButton.textContent="Logging out...";
-
-  const {error}=await client.auth.signOut();
-
-  if(error){
-    showStatus("Logout failed: "+error.message,true);
-    logoutButton.disabled=false;
-    logoutButton.textContent="Logout";
-    return;
-  }
-
-  window.location.replace(AUTH_URL);
+  document.querySelectorAll("#resources .card").forEach(card => {
+    card.classList.toggle(
+      "hidden",
+      !card.innerText.toLowerCase().includes(term)
+    );
+  });
 });
-
-client.auth.onAuthStateChange(function(event,session){
-  updateAccount(session);
-});
-
-loadSession();
 </script>
 
 </body>
