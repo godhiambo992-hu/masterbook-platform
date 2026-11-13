@@ -5,253 +5,413 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MASTERBOOK | Account Access</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-:root {
-  --navy:#10233f;
-  --blue:#1769d2;
-  --light:#f3f6fb;
-  --muted:#64748b;
-  --white:#fff;
+* {
+  box-sizing: border-box;
 }
-* {box-sizing:border-box}
+
 body {
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:var(--light);
-  color:var(--navy);
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #102b46, #176b63);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
-header {
-  background:var(--navy);
-  color:white;
-  padding:20px 7%;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.brand {font-size:24px;font-weight:800;letter-spacing:1px}
-.brand span {color:#60a5fa}
-header a {color:white;text-decoration:none}
-main {
-  min-height:85vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:35px 16px;
-}
+
 .container {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  max-width:950px;
-  width:100%;
-  background:white;
-  border-radius:18px;
-  overflow:hidden;
-  box-shadow:0 12px 45px rgba(16,35,63,.12);
+  background: white;
+  width: 100%;
+  max-width: 440px;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 12px 35px rgba(0,0,0,.2);
 }
-.welcome {
-  background:linear-gradient(145deg,#10233f,#1769d2);
-  color:white;
-  padding:55px 38px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
+
+.brand {
+  text-align: center;
+  margin-bottom: 24px;
 }
-.welcome h1 {font-size:36px;line-height:1.2}
-.welcome p {line-height:1.8;color:#e0eaff}
-.welcome ul {padding-left:20px;line-height:2.2}
-.form-area {padding:40px 35px}
-h2 {margin-top:0;font-size:27px}
-.subtitle {color:var(--muted);font-size:14px}
-.tabs {display:flex;gap:10px;margin:25px 0}
+
+.brand h1 {
+  margin: 0;
+  color: #123b58;
+  font-size: 30px;
+  letter-spacing: 1px;
+}
+
+.brand p {
+  color: #64748b;
+  margin-top: 8px;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
 .tabs button {
-  flex:1;padding:12px;border:1px solid #dbe3ef;
-  border-radius:8px;background:white;cursor:pointer;
-  font-weight:700;color:var(--navy)
+  flex: 1;
+  padding: 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #e9eef2;
+  cursor: pointer;
+  font-weight: bold;
 }
-.tabs button.active {background:var(--blue);color:white;border-color:var(--blue)}
-label {display:block;font-size:13px;font-weight:700;margin:15px 0 7px}
-input,select {
-  width:100%;padding:13px;border:1px solid #d5deea;
-  border-radius:8px;font-size:15px;background:white;
+
+.tabs button.active {
+  background: #176b63;
+  color: white;
 }
-input:focus,select:focus {outline:2px solid #9ac5ff;border-color:var(--blue)}
-.primary {
-  width:100%;padding:14px;margin-top:22px;
-  border:0;border-radius:8px;background:var(--blue);
-  color:white;font-size:15px;font-weight:700;cursor:pointer;
+
+h2 {
+  color: #123b58;
+  margin-top: 0;
 }
-.primary:disabled {opacity:.6;cursor:wait}
-.small-link {
-  display:block;text-align:center;margin-top:18px;
-  color:var(--blue);font-size:14px;cursor:pointer;
+
+label {
+  display: block;
+  font-weight: bold;
+  color: #334155;
+  margin: 14px 0 6px;
 }
+
+input, select {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 15px;
+  background: white;
+}
+
+input:focus, select:focus {
+  outline: 2px solid #176b63;
+  border-color: transparent;
+}
+
+.main-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: #176b63;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.main-btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.link {
+  display: block;
+  text-align: center;
+  margin-top: 17px;
+  color: #176b63;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .message {
-  display:none;margin-top:17px;padding:12px;
-  border-radius:8px;font-size:13px;line-height:1.5;
-  overflow-wrap:anywhere;
+  display: none;
+  padding: 12px;
+  margin-top: 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
-.message.error {display:block;background:#feecec;color:#a32020}
-.message.success {display:block;background:#e8f7ed;color:#176536}
-.hidden {display:none!important}
-footer {text-align:center;padding:20px;color:var(--muted);font-size:13px}
-@media(max-width:700px) {
-  .container {grid-template-columns:1fr}
-  .welcome {padding:30px}
-  .welcome h1 {font-size:28px}
-  .form-area {padding:30px 22px}
+
+.success {
+  display: block;
+  background: #e7f7ed;
+  color: #166534;
+}
+
+.error {
+  display: block;
+  background: #feecec;
+  color: #991b1b;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.footer {
+  text-align: center;
+  color: #64748b;
+  font-size: 12px;
+  margin-top: 25px;
 }
 </style>
 </head>
+
 <body>
 
-<header>
-  <div class="brand">MASTER<span>BOOK</span></div>
-  <a href="index.html">← Back to Home</a>
-</header>
-
-<main>
 <div class="container">
 
-<section class="welcome">
-  <h1>Learning Without Boundaries.</h1>
-  <p>Welcome to MASTERBOOK, your learning space for knowledge, discovery and academic growth.</p>
-  <ul>
-    <li>Access educational resources</li>
-    <li>Explore different learning levels</li>
-    <li>Connect with educational content</li>
-    <li>Grow your knowledge and skills</li>
-  </ul>
-  <p><strong>Learn. Discover. Achieve.</strong></p>
-</section>
-
-<section class="form-area">
-  <h2 id="formTitle">Welcome Back</h2>
-  <p class="subtitle" id="formSubtitle">Sign in to your MASTERBOOK account.</p>
-
-  <div class="tabs">
-    <button type="button" id="loginTab" class="active">Login</button>
-    <button type="button" id="signupTab">Register</button>
+  <div class="brand">
+    <h1>MASTERBOOK</h1>
+    <p>Learning Without Boundaries.</p>
   </div>
 
-  <form id="authForm">
-    <div id="nameField" class="hidden">
+  <div id="tabs" class="tabs">
+    <button id="loginTab" class="active" type="button"
+      onclick="showLogin()">Login</button>
+    <button id="registerTab" type="button"
+      onclick="showRegister()">Register</button>
+  </div>
+
+  <section id="loginSection">
+    <h2>Welcome Back</h2>
+
+    <form id="loginForm">
+      <label for="loginEmail">Email address</label>
+      <input id="loginEmail" type="email" required autocomplete="email">
+
+      <label for="loginPassword">Password</label>
+      <input id="loginPassword" type="password" required
+        autocomplete="current-password">
+
+      <button class="main-btn" id="loginButton" type="submit">
+        Login
+      </button>
+    </form>
+
+    <span class="link" onclick="showForgot()">
+      Forgot password?
+    </span>
+  </section>
+
+  <section id="registerSection" class="hidden">
+    <h2>Create Account</h2>
+
+    <form id="registerForm">
       <label for="fullName">Full name</label>
-      <input id="fullName" type="text" placeholder="Enter your full name">
-    </div>
+      <input id="fullName" type="text" required
+        autocomplete="name">
 
-    <div id="roleField" class="hidden">
       <label for="accountRole">Account type</label>
-      <select id="accountRole">
+      <select id="accountRole" required>
         <option value="student">Student</option>
-        <option value="teacher">Teacher — approval required</option>
-        <option value="contributor">Contributor — approval required</option>
+        <option value="teacher">Teacher</option>
+        <option value="contributor">Contributor</option>
       </select>
-    </div>
 
-    <label for="email">Email address</label>
-    <input id="email" type="email" placeholder="you@example.com" required>
+      <label for="registerEmail">Email address</label>
+      <input id="registerEmail" type="email" required
+        autocomplete="email">
 
-    <label for="password">Password</label>
-    <input id="password" type="password" placeholder="Enter password" minlength="6" required>
+      <label for="registerPassword">Password</label>
+      <input id="registerPassword" type="password" required
+        minlength="8" autocomplete="new-password">
 
-    <button type="submit" class="primary" id="submitButton">Sign In</button>
-  </form>
+      <button class="main-btn" id="registerButton" type="submit">
+        Create Account
+      </button>
+    </form>
+  </section>
 
-  <span class="small-link" id="forgotPassword">Forgot your password?</span>
+  <section id="forgotSection" class="hidden">
+    <h2>Reset Password</h2>
+    <p>Enter your registered email address. We will send you a
+    secure password-reset link.</p>
 
-  <div id="message" class="message" role="status" aria-live="polite"></div>
-</section>
+    <form id="forgotForm">
+      <label for="forgotEmail">Email address</label>
+      <input id="forgotEmail" type="email" required
+        autocomplete="email">
+
+      <button class="main-btn" id="forgotButton" type="submit">
+        Send Reset Link
+      </button>
+    </form>
+
+    <span class="link" onclick="showLogin()">Back to Login</span>
+  </section>
+
+  <section id="recoverySection" class="hidden">
+    <h2>Create New Password</h2>
+    <p>Enter your new password below.</p>
+
+    <form id="recoveryForm">
+      <label for="newPassword">New password</label>
+      <input id="newPassword" type="password" required
+        minlength="8" autocomplete="new-password">
+
+      <label for="confirmPassword">Confirm new password</label>
+      <input id="confirmPassword" type="password" required
+        minlength="8" autocomplete="new-password">
+
+      <button class="main-btn" id="recoveryButton" type="submit">
+        Save New Password
+      </button>
+    </form>
+  </section>
+
+  <div id="message" class="message" role="status"
+    aria-live="polite"></div>
+
+  <div class="footer">
+    © 2026 MASTERBOOK. All rights reserved.
+  </div>
 
 </div>
-</main>
-
-<footer>
-  © 2026 MASTERBOOK | Learning Without Boundaries.
-  <br>Educational resources for every learner.
-</footer>
 
 <script>
-const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+const SUPABASE_URL =
+  "https://bxsrhvcqjjtdnflhoplu.supabase.co";
 
-// Replace this placeholder with your actual Supabase publishable key.
-const SUPABASE_KEY = "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+// IMPORTANT: Paste your existing Supabase publishable key
+// between the quotation marks below.
+const SUPABASE_KEY = "PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE";
 
 const client = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
 
-let mode = "login";
+const BASE_URL =
+  "https://godhiambo992-hu.github.io/masterbook-platform/";
 
-const loginTab = document.getElementById("loginTab");
-const signupTab = document.getElementById("signupTab");
-const form = document.getElementById("authForm");
-const message = document.getElementById("message");
-const submitButton = document.getElementById("submitButton");
+const AUTH_URL = BASE_URL + "auth.html";
 
-function showMessage(text, type) {
-  message.textContent = text;
-  message.className = "message " + type;
+const sections = [
+  "loginSection",
+  "registerSection",
+  "forgotSection",
+  "recoverySection"
+];
+
+let recoveryMode = false;
+
+function hideSections() {
+  sections.forEach(id => {
+    document.getElementById(id).classList.add("hidden");
+  });
 }
 
-function setMode(newMode) {
-  mode = newMode;
-  message.className = "message";
-
-  loginTab.classList.toggle("active", mode === "login");
-  signupTab.classList.toggle("active", mode === "signup");
-
-  document.getElementById("nameField").classList.toggle("hidden", mode !== "signup");
-  document.getElementById("roleField").classList.toggle("hidden", mode !== "signup");
-  document.getElementById("forgotPassword").classList.toggle("hidden", mode !== "login");
-
-  document.getElementById("formTitle").textContent =
-    mode === "login" ? "Welcome Back" : "Create Your Account";
-
-  document.getElementById("formSubtitle").textContent =
-    mode === "login"
-      ? "Sign in to your MASTERBOOK account."
-      : "Join the MASTERBOOK learning community.";
-
-  submitButton.textContent = mode === "login" ? "Sign In" : "Create Account";
-  document.getElementById("password").autocomplete =
-    mode === "login" ? "current-password" : "new-password";
+function clearMessage() {
+  const box = document.getElementById("message");
+  box.className = "message";
+  box.textContent = "";
 }
 
-loginTab.addEventListener("click", () => setMode("login"));
-signupTab.addEventListener("click", () => setMode("signup"));
+function showMessage(message, type) {
+  const box = document.getElementById("message");
+  box.textContent = message;
+  box.className = "message " + type;
+}
 
-form.addEventListener("submit", async function(event) {
-  event.preventDefault();
+function setButton(id, disabled, text) {
+  const button = document.getElementById(id);
+  button.disabled = disabled;
+  button.textContent = text;
+}
 
-  if (SUPABASE_KEY === "YOUR_SUPABASE_PUBLISHABLE_KEY") {
-    showMessage("Setup required: add your Supabase publishable key to auth.html.", "error");
-    return;
+function showLogin() {
+  hideSections();
+  clearMessage();
+  document.getElementById("loginSection").classList.remove("hidden");
+  document.getElementById("tabs").classList.remove("hidden");
+  document.getElementById("loginTab").classList.add("active");
+  document.getElementById("registerTab").classList.remove("active");
+}
+
+function showRegister() {
+  hideSections();
+  clearMessage();
+  document.getElementById("registerSection").classList.remove("hidden");
+  document.getElementById("tabs").classList.remove("hidden");
+  document.getElementById("registerTab").classList.add("active");
+  document.getElementById("loginTab").classList.remove("active");
+}
+
+function showForgot() {
+  hideSections();
+  clearMessage();
+  document.getElementById("forgotSection").classList.remove("hidden");
+  document.getElementById("tabs").classList.add("hidden");
+  document.getElementById("forgotEmail").value =
+    document.getElementById("loginEmail").value;
+}
+
+function showRecovery() {
+  recoveryMode = true;
+  hideSections();
+  clearMessage();
+  document.getElementById("tabs").classList.add("hidden");
+  document.getElementById("recoverySection").classList.remove("hidden");
+}
+
+function getError(error) {
+  return error && error.message
+    ? error.message
+    : "Something went wrong. Please try again.";
+}
+
+// LOGIN
+document.getElementById("loginForm").addEventListener(
+  "submit", async function(event) {
+    event.preventDefault();
+    clearMessage();
+
+    setButton("loginButton", true, "Signing in...");
+
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
+
+    try {
+      const { data, error } = await client.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      window.location.replace(BASE_URL);
+    } catch (error) {
+      showMessage(getError(error), "error");
+      setButton("loginButton", false, "Login");
+    }
   }
+);
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  submitButton.disabled = true;
-  submitButton.textContent = "Please wait...";
+// REGISTRATION
+document.getElementById("registerForm").addEventListener(
+  "submit", async function(event) {
+    event.preventDefault();
+    clearMessage();
 
-  try {
-    if (mode === "signup") {
-      const fullName = document.getElementById("fullName").value.trim();
-      const requestedRole = document.getElementById("accountRole").value;
+    setButton("registerButton", true, "Creating account...");
 
-      if (!fullName) {
-        throw new Error("Please enter your full name.");
-      }
+    const fullName = document.getElementById("fullName").value.trim();
+    const email = document.getElementById("registerEmail").value.trim();
+    const password = document.getElementById("registerPassword").value;
+    const role = document.getElementById("accountRole").value;
 
-      const {data, error} = await client.auth.signUp({
+    try {
+      const { data, error } = await client.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: window.location.origin + "/masterbook-platform/auth.html",
+          emailRedirectTo: AUTH_URL,
           data: {
             full_name: fullName,
-            requested_role: requestedRole
+            requested_role: role
           }
         }
       });
@@ -260,64 +420,172 @@ form.addEventListener("submit", async function(event) {
 
       if (data.session) {
         showMessage(
-          "Account created successfully. Your account is registered. Teacher and contributor access requires administrator approval.",
+          "Your account has been created. You can now continue to MASTERBOOK.",
           "success"
         );
       } else {
         showMessage(
-          "Registration received! Check your email for the confirmation link. Teacher and contributor access requires administrator approval.",
+          "Registration received. Check your email for the confirmation link. Teacher and contributor access requires administrator approval.",
           "success"
         );
       }
 
-    } else {
-      const {data, error} = await client.auth.signInWithPassword({
-        email,
-        password
+      document.getElementById("registerForm").reset();
+
+    } catch (error) {
+      showMessage(getError(error), "error");
+    } finally {
+      setButton("registerButton", false, "Create Account");
+    }
+  }
+);
+
+// FORGOT PASSWORD
+document.getElementById("forgotForm").addEventListener(
+  "submit", async function(event) {
+    event.preventDefault();
+    clearMessage();
+
+    setButton("forgotButton", true, "Sending reset link...");
+
+    const email = document.getElementById("forgotEmail").value.trim();
+
+    try {
+      const { error } = await client.auth.resetPasswordForEmail(email, {
+        redirectTo: AUTH_URL
       });
 
       if (error) throw error;
 
-      showMessage("Login successful! Opening your MASTERBOOK account...", "success");
+      showMessage(
+        "If an account exists for this email, a password-reset link has been sent. Check your inbox and Spam folder.",
+        "success"
+      );
 
-      setTimeout(() => {
-        window.location.href = "index.html";
-      }, 1200);
+    } catch (error) {
+      showMessage(getError(error), "error");
+    } finally {
+      setButton("forgotButton", false, "Send Reset Link");
+    }
+  }
+);
+
+// SAVE NEW PASSWORD
+document.getElementById("recoveryForm").addEventListener(
+  "submit", async function(event) {
+    event.preventDefault();
+    clearMessage();
+
+    const password = document.getElementById("newPassword").value;
+    const confirmation =
+      document.getElementById("confirmPassword").value;
+
+    if (password.length < 8) {
+      showMessage("Your password must contain at least 8 characters.", "error");
+      return;
     }
 
-  } catch (error) {
-    showMessage(error.message || "An unexpected error occurred.", "error");
-  } finally {
-    submitButton.disabled = false;
-    submitButton.textContent = mode === "login" ? "Sign In" : "Create Account";
+    if (password !== confirmation) {
+      showMessage("The two passwords do not match.", "error");
+      return;
+    }
+
+    setButton("recoveryButton", true, "Saving password...");
+
+    try {
+      const { error } = await client.auth.updateUser({
+        password: password
+      });
+
+      if (error) throw error;
+
+      recoveryMode = false;
+
+      showMessage(
+        "Your password has been changed successfully. You can now log in using your new password.",
+        "success"
+      );
+
+      document.getElementById("recoveryForm").reset();
+
+      await client.auth.signOut();
+
+      setTimeout(() => {
+        window.history.replaceState({}, document.title, AUTH_URL);
+        showLogin();
+        showMessage(
+          "Password updated. Please log in using your new password.",
+          "success"
+        );
+      }, 2500);
+
+    } catch (error) {
+      showMessage(getError(error), "error");
+    } finally {
+      setButton("recoveryButton", false, "Save New Password");
+    }
+  }
+);
+
+// HANDLE SUPABASE AUTHENTICATION AND RECOVERY LINKS
+client.auth.onAuthStateChange(async function(event, session) {
+  if (event === "PASSWORD_RECOVERY") {
+    showRecovery();
   }
 });
 
-document.getElementById("forgotPassword").addEventListener("click", async function() {
-  const email = document.getElementById("email").value.trim();
+// CHECK FOR RECOVERY LINK OR EXISTING SESSION
+async function initializePage() {
+  const params = new URLSearchParams(window.location.search);
+  const hash = new URLSearchParams(
+    window.location.hash.replace(/^#/, "")
+  );
 
-  if (!email) {
-    showMessage("Enter your email address first, then select Forgot your password.", "error");
+  const hasRecoveryCode = params.has("code");
+  const hasRecoveryToken =
+    hash.get("type") === "recovery" ||
+    hash.has("access_token");
+
+  if (hasRecoveryCode || hasRecoveryToken) {
+    showMessage("Verifying your password-reset link...", "success");
+
+    const { error } = await client.auth.getSession();
+
+    if (error) {
+      showLogin();
+      showMessage(
+        "The recovery link could not be verified. Request a new password-reset email.",
+        "error"
+      );
+      return;
+    }
+
+    const { data } = await client.auth.getSession();
+
+    if (data.session) {
+      showRecovery();
+    } else {
+      showLogin();
+      showMessage(
+        "This recovery link is invalid or expired. Please request another one.",
+        "error"
+      );
+    }
+
     return;
   }
 
-  if (SUPABASE_KEY === "YOUR_SUPABASE_PUBLISHABLE_KEY") {
-    showMessage("Please configure your Supabase publishable key first.", "error");
-    return;
+  const { data } = await client.auth.getSession();
+
+  if (data.session) {
+    showLogin();
+  } else {
+    showLogin();
   }
+}
 
-  try {
-    const {error} = await client.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + "/masterbook-platform/auth.html"
-    });
-
-    if (error) throw error;
-
-    showMessage("If this email belongs to an account, a password reset link will be sent.", "success");
-  } catch (error) {
-    showMessage(error.message, "error");
-  }
-});
+initializePage();
 </script>
+
 </body>
 </html>
