@@ -1,0 +1,181 @@
+
+name: MASTERBOOK Automatic PDF Optimization
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: masterbook-pdf-optimization
+  cancel-in-progress: false
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install qpdf and Python dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qpdf
+          python -m pip install requests
+
+      - name: Automatically optimize uploaded PDFs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          python - <<'PY'
+          import os
+          import sys
+          import tempfile
+          import subprocess
+          from pathlib import Path
+          from urllib.parse import quote
+
+          import requests
+
+          BASE = os.environ["SUPABASE_URL"].rstrip("/")
+          KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
+          BUCKET = "masterbook-resources"
+
+          if not BASE or not KEY:
+              sys.exit("Missing Supabase GitHub secrets.")
+
+          HEADERS = {
+              "apikey": KEY,
+              "Authorization": f"Bearer {KEY}"
+          }
+
+          def mark_complete(resource_id):
+              response = requests.patch(
+                  f"{BASE}/rest/v1/resources",
+                  params={"id": f"eq.{resource_id}"},
+                  headers={
+                      **HEADERS,
+                      "Content-Type": "application/json",
+                      "Prefer": "return=minimal"
+                  },
+                  json={"pdf_linearized": True},
+                  timeout=60
+              )
+              response.raise_for_status()
+
+          def is_linearized(path):
+              result = subprocess.run(
+                  ["qpdf", "--show-linearization", str(path)],
+                  capture_output=True,
+                  text=True
+              )
+              output = (result.stdout + result.stderr).lower()
+              return (
+                  "file is linearized" in output
+                  and "file is not linearized" not in output
+              )
+
+          response = requests.get(
+              f"{BASE}/rest/v1/resources",
+              params={
+                  "select": "id,title,storage_path,pdf_linearized",
+                  "storage_path": "not.is.null",
+                  "pdf_linearized": "eq.false",
+                  "order": "created_at.asc"
+              },
+              headers=HEADERS,
+              timeout=60
+          )
+          response.raise_for_status()
+
+          resources = response.json()
+
+          print(f"Found {len(resources)} PDFs awaiting optimization.")
+
+          for resource in resources:
+              resource_id = resource["id"]
+              title = resource.get("title", "Untitled")
+              path = resource.get("storage_path", "").strip()
+
+              if not path or not path.lower().endswith(".pdf"):
+                  print(f"Skipping non-PDF: {title}")
+                  continue
+
+              encoded_path = quote(path, safe="/")
+              file_url = (
+                  f"{BASE}/storage/v1/object/"
+                  f"{BUCKET}/{encoded_path}"
+              )
+
+              print(f"Processing: {title}")
+
+              try:
+                  download = requests.get(
+                      file_url,
+                      headers=HEADERS,
+                      timeout=180
+                  )
+                  download.raise_for_status()
+
+                  with tempfile.TemporaryDirectory() as folder:
+                      original = Path(folder) / "original.pdf"
+                      optimized = Path(folder) / "optimized.pdf"
+
+                      original.write_bytes(download.content)
+
+                      if is_linearized(original):
+                          print("Already web-optimized.")
+                          mark_complete(resource_id)
+                          continue
+
+                      result = subprocess.run(
+                          [
+                              "qpdf",
+                              "--linearize",
+                              str(original),
+                              str(optimized)
+                          ],
+                          capture_output=True,
+                          text=True
+                      )
+
+                      if result.returncode != 0:
+                          raise RuntimeError(
+                              result.stderr or "qpdf optimization failed"
+                          )
+
+                      if not optimized.exists() or not is_linearized(optimized):
+                          raise RuntimeError(
+                              "Optimized PDF failed verification."
+                          )
+
+                      upload_headers = {
+                          **HEADERS,
+                          "Content-Type": "application/pdf",
+                          "x-upsert": "true"
+                      }
+
+                      with optimized.open("rb") as pdf:
+                          upload = requests.post(
+                              file_url,
+                              headers=upload_headers,
+                              data=pdf,
+                              timeout=300
+                          )
+
+                      upload.raise_for_status()
+
+                      mark_complete(resource_id)
+
+                      print(
+                          f"SUCCESS: {title} is now web-optimized."
+                      )
+
+              except Exception as error:
+                  print(f"FAILED: {title}: {error}")
+                  raise
+
+          print("MASTERBOOK PDF optimization run completed.")
+          PY
