@@ -3,589 +3,469 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MASTERBOOK | Account Access</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-* {
-  box-sizing: border-box;
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100vh;font-family:Arial,sans-serif;
+ background:linear-gradient(135deg,#102b46,#176b63);
+ display:flex;align-items:center;justify-content:center;padding:18px;
 }
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #102b46, #176b63);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+.container{
+ background:white;width:100%;max-width:440px;padding:28px;
+ border-radius:16px;box-shadow:0 12px 35px #0003;
 }
-
-.container {
-  background: white;
-  width: 100%;
-  max-width: 440px;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 12px 35px rgba(0,0,0,.2);
+.brand{text-align:center;margin-bottom:24px}
+.brand h1{margin:0;color:#123b58;font-size:30px;letter-spacing:1px}
+.brand p{color:#64748b;margin-top:8px}
+.tabs{display:flex;gap:8px;margin-bottom:22px}
+.tabs button{
+ flex:1;padding:12px;border:0;border-radius:8px;
+ background:#e9eef2;cursor:pointer;font-weight:bold
 }
-
-.brand {
-  text-align: center;
-  margin-bottom: 24px;
+.tabs button.active{background:#176b63;color:white}
+h2{color:#123b58;margin-top:0}
+label{display:block;font-weight:bold;color:#334155;margin:14px 0 6px}
+input,select{
+ width:100%;padding:13px;border:1px solid #cbd5e1;
+ border-radius:8px;font-size:15px;background:white
 }
-
-.brand h1 {
-  margin: 0;
-  color: #123b58;
-  font-size: 30px;
-  letter-spacing: 1px;
+input:focus,select:focus{outline:2px solid #176b63;border-color:transparent}
+.main-btn{
+ width:100%;padding:14px;border:0;border-radius:8px;
+ background:#176b63;color:white;font-size:16px;
+ font-weight:bold;cursor:pointer;margin-top:20px
 }
-
-.brand p {
-  color: #64748b;
-  margin-top: 8px;
+.main-btn:disabled{opacity:.6;cursor:not-allowed}
+.link{
+ display:block;text-align:center;margin-top:17px;
+ color:#176b63;cursor:pointer;text-decoration:underline
 }
-
-.tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 22px;
+.message{
+ display:none;padding:12px;margin-top:16px;border-radius:8px;
+ font-size:14px;line-height:1.5;overflow-wrap:anywhere
 }
-
-.tabs button {
-  flex: 1;
-  padding: 12px;
-  border: 0;
-  border-radius: 8px;
-  background: #e9eef2;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.tabs button.active {
-  background: #176b63;
-  color: white;
-}
-
-h2 {
-  color: #123b58;
-  margin-top: 0;
-}
-
-label {
-  display: block;
-  font-weight: bold;
-  color: #334155;
-  margin: 14px 0 6px;
-}
-
-input, select {
-  width: 100%;
-  padding: 13px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 15px;
-  background: white;
-}
-
-input:focus, select:focus {
-  outline: 2px solid #176b63;
-  border-color: transparent;
-}
-
-.main-btn {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 8px;
-  background: #176b63;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 20px;
-}
-
-.main-btn:disabled {
-  opacity: .6;
-  cursor: not-allowed;
-}
-
-.link {
-  display: block;
-  text-align: center;
-  margin-top: 17px;
-  color: #176b63;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.message {
-  display: none;
-  padding: 12px;
-  margin-top: 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
-}
-
-.success {
-  display: block;
-  background: #e7f7ed;
-  color: #166534;
-}
-
-.error {
-  display: block;
-  background: #feecec;
-  color: #991b1b;
-}
-
-.hidden {
-  display: none !important;
-}
-
-.footer {
-  text-align: center;
-  color: #64748b;
-  font-size: 12px;
-  margin-top: 25px;
-}
+.success{display:block;background:#e7f7ed;color:#166534}
+.error{display:block;background:#feecec;color:#991b1b}
+.hidden{display:none!important}
+.footer{text-align:center;color:#64748b;font-size:12px;margin-top:25px}
 </style>
 </head>
-
 <body>
 
 <div class="container">
 
-  <div class="brand">
-    <h1>MASTERBOOK</h1>
-    <p>Learning Without Boundaries.</p>
-  </div>
+ <div class="brand">
+  <h1>MASTERBOOK</h1>
+  <p>Learning Without Boundaries.</p>
+ </div>
 
-  <div id="tabs" class="tabs">
-    <button id="loginTab" class="active" type="button"
-      onclick="showLogin()">Login</button>
-    <button id="registerTab" type="button"
-      onclick="showRegister()">Register</button>
-  </div>
+ <div id="tabs" class="tabs">
+  <button id="loginTab" class="active" type="button" onclick="showLogin()">Login</button>
+  <button id="registerTab" type="button" onclick="showRegister()">Register</button>
+ </div>
 
-  <section id="loginSection">
-    <h2>Welcome Back</h2>
+ <section id="loginSection">
+  <h2>Welcome Back</h2>
+  <form id="loginForm">
+   <label for="loginEmail">Email address</label>
+   <input id="loginEmail" type="email" required autocomplete="email">
 
-    <form id="loginForm">
-      <label for="loginEmail">Email address</label>
-      <input id="loginEmail" type="email" required autocomplete="email">
+   <label for="loginPassword">Password</label>
+   <input id="loginPassword" type="password" required autocomplete="current-password">
 
-      <label for="loginPassword">Password</label>
-      <input id="loginPassword" type="password" required
-        autocomplete="current-password">
+   <button class="main-btn" id="loginButton" type="submit">Login</button>
+  </form>
+  <span class="link" onclick="showForgot()">Forgot password?</span>
+ </section>
 
-      <button class="main-btn" id="loginButton" type="submit">
-        Login
-      </button>
-    </form>
+ <section id="registerSection" class="hidden">
+  <h2>Create Account</h2>
+  <form id="registerForm">
+   <label for="fullName">Full name</label>
+   <input id="fullName" type="text" required autocomplete="name">
 
-    <span class="link" onclick="showForgot()">
-      Forgot password?
-    </span>
-  </section>
+   <label for="accountRole">Account type</label>
+   <select id="accountRole" required>
+    <option value="student">Student</option>
+    <option value="teacher">Teacher</option>
+    <option value="contributor">Contributor</option>
+   </select>
 
-  <section id="registerSection" class="hidden">
-    <h2>Create Account</h2>
+   <label for="registerEmail">Email address</label>
+   <input id="registerEmail" type="email" required autocomplete="email">
 
-    <form id="registerForm">
-      <label for="fullName">Full name</label>
-      <input id="fullName" type="text" required
-        autocomplete="name">
+   <label for="registerPassword">Password</label>
+   <input id="registerPassword" type="password" required minlength="8" autocomplete="new-password">
 
-      <label for="accountRole">Account type</label>
-      <select id="accountRole" required>
-        <option value="student">Student</option>
-        <option value="teacher">Teacher</option>
-        <option value="contributor">Contributor</option>
-      </select>
+   <button class="main-btn" id="registerButton" type="submit">Create Account</button>
+  </form>
+ </section>
 
-      <label for="registerEmail">Email address</label>
-      <input id="registerEmail" type="email" required
-        autocomplete="email">
+ <section id="forgotSection" class="hidden">
+  <h2>Reset Password</h2>
+  <p>Enter your registered email address. We will send you a secure password-reset link.</p>
+  <form id="forgotForm">
+   <label for="forgotEmail">Email address</label>
+   <input id="forgotEmail" type="email" required autocomplete="email">
+   <button class="main-btn" id="forgotButton" type="submit">Send Reset Link</button>
+  </form>
+  <span class="link" onclick="showLogin()">Back to Login</span>
+ </section>
 
-      <label for="registerPassword">Password</label>
-      <input id="registerPassword" type="password" required
-        minlength="8" autocomplete="new-password">
+ <section id="recoverySection" class="hidden">
+  <h2>Create New Password</h2>
+  <p>Enter your new password below.</p>
+  <form id="recoveryForm">
+   <label for="newPassword">New password</label>
+   <input id="newPassword" type="password" required minlength="8" autocomplete="new-password">
 
-      <button class="main-btn" id="registerButton" type="submit">
-        Create Account
-      </button>
-    </form>
-  </section>
+   <label for="confirmPassword">Confirm new password</label>
+   <input id="confirmPassword" type="password" required minlength="8" autocomplete="new-password">
 
-  <section id="forgotSection" class="hidden">
-    <h2>Reset Password</h2>
-    <p>Enter your registered email address. We will send you a
-    secure password-reset link.</p>
+   <button class="main-btn" id="recoveryButton" type="submit">Save New Password</button>
+  </form>
+ </section>
 
-    <form id="forgotForm">
-      <label for="forgotEmail">Email address</label>
-      <input id="forgotEmail" type="email" required
-        autocomplete="email">
+ <div id="message" class="message" role="status" aria-live="polite"></div>
 
-      <button class="main-btn" id="forgotButton" type="submit">
-        Send Reset Link
-      </button>
-    </form>
-
-    <span class="link" onclick="showLogin()">Back to Login</span>
-  </section>
-
-  <section id="recoverySection" class="hidden">
-    <h2>Create New Password</h2>
-    <p>Enter your new password below.</p>
-
-    <form id="recoveryForm">
-      <label for="newPassword">New password</label>
-      <input id="newPassword" type="password" required
-        minlength="8" autocomplete="new-password">
-
-      <label for="confirmPassword">Confirm new password</label>
-      <input id="confirmPassword" type="password" required
-        minlength="8" autocomplete="new-password">
-
-      <button class="main-btn" id="recoveryButton" type="submit">
-        Save New Password
-      </button>
-    </form>
-  </section>
-
-  <div id="message" class="message" role="status"
-    aria-live="polite"></div>
-
-  <div class="footer">
-    © 2026 MASTERBOOK. All rights reserved.
-  </div>
-
+ <div class="footer">© 2026 MASTERBOOK. All rights reserved.</div>
 </div>
 
 <script>
-const SUPABASE_URL =
-  "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+"use strict";
 
-// IMPORTANT: Paste your existing Supabase publishable key
-// between the quotation marks below.
-const SUPABASE_KEY = "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+const SUPABASE_URL="https://bxsrhvcqjjtdnflhoplu.supabase.co";
+const SUPABASE_KEY="sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
 
-const client = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
+const client=window.supabase.createClient(
+ SUPABASE_URL,
+ SUPABASE_KEY
 );
 
-const BASE_URL =
-  "https://godhiambo992-hu.github.io/masterbook-platform/";
+const BASE_URL="https://godhiambo992-hu.github.io/masterbook-platform/";
+const AUTH_URL=BASE_URL+"auth.html";
 
-const AUTH_URL = BASE_URL + "auth.html";
-
-const sections = [
-  "loginSection",
-  "registerSection",
-  "forgotSection",
-  "recoverySection"
+const sections=[
+ "loginSection",
+ "registerSection",
+ "forgotSection",
+ "recoverySection"
 ];
 
-let recoveryMode = false;
+let recoveryMode=false;
 
-function hideSections() {
-  sections.forEach(id => {
-    document.getElementById(id).classList.add("hidden");
+function hideSections(){
+ sections.forEach(id=>{
+  document.getElementById(id).classList.add("hidden");
+ });
+}
+
+function clearMessage(){
+ const box=document.getElementById("message");
+ box.className="message";
+ box.textContent="";
+}
+
+function showMessage(text,type){
+ const box=document.getElementById("message");
+ box.textContent=text;
+ box.className="message "+type;
+}
+
+function setButton(id,disabled,text){
+ const button=document.getElementById(id);
+ button.disabled=disabled;
+ button.textContent=text;
+}
+
+function showLogin(){
+ hideSections();
+ clearMessage();
+ document.getElementById("loginSection").classList.remove("hidden");
+ document.getElementById("tabs").classList.remove("hidden");
+ document.getElementById("loginTab").classList.add("active");
+ document.getElementById("registerTab").classList.remove("active");
+}
+
+function showRegister(){
+ hideSections();
+ clearMessage();
+ document.getElementById("registerSection").classList.remove("hidden");
+ document.getElementById("tabs").classList.remove("hidden");
+ document.getElementById("registerTab").classList.add("active");
+ document.getElementById("loginTab").classList.remove("active");
+}
+
+function showForgot(){
+ hideSections();
+ clearMessage();
+ document.getElementById("forgotSection").classList.remove("hidden");
+ document.getElementById("tabs").classList.add("hidden");
+ document.getElementById("forgotEmail").value=
+  document.getElementById("loginEmail").value;
+}
+
+function showRecovery(){
+ recoveryMode=true;
+ hideSections();
+ clearMessage();
+ document.getElementById("tabs").classList.add("hidden");
+ document.getElementById("recoverySection").classList.remove("hidden");
+}
+
+function getError(error){
+ return error&&error.message
+  ?error.message
+  :"Something went wrong. Please try again.";
+}
+
+/* ROLE-BASED DASHBOARD NAVIGATION */
+async function redirectUser(user){
+ if(!user)throw new Error("Your login session could not be verified.");
+
+ const {data:profile,error}=await client
+  .from("profiles")
+  .select("full_name,requested_role,approval_status,is_admin")
+  .eq("id",user.id)
+  .maybeSingle();
+
+ if(error)throw error;
+
+ if(!profile){
+  throw new Error("Your MASTERBOOK profile was not found. Contact the administrator.");
+ }
+
+ let destination="";
+
+ if(profile.is_admin===true){
+  destination="admin.html";
+ }else{
+  const role=String(profile.requested_role||"").toLowerCase();
+  const approval=String(profile.approval_status||"").toLowerCase();
+
+  if(approval!=="approved"){
+   throw new Error("Your account is awaiting administrator approval.");
+  }
+
+  if(role==="student"){
+   destination="student.html";
+  }else if(role==="teacher"){
+   destination="teacher.html";
+  }else if(role==="contributor"){
+   destination="contributor.html";
+  }else{
+   throw new Error("Your account role is not recognised. Contact the administrator.");
+  }
+ }
+
+ window.location.replace(BASE_URL+destination);
+}
+
+/* LOGIN */
+document.getElementById("loginForm").addEventListener("submit",async function(event){
+ event.preventDefault();
+ clearMessage();
+ setButton("loginButton",true,"Signing in...");
+
+ const email=document.getElementById("loginEmail").value.trim();
+ const password=document.getElementById("loginPassword").value;
+
+ try{
+  const {data,error}=await client.auth.signInWithPassword({
+   email,
+   password
   });
-}
 
-function clearMessage() {
-  const box = document.getElementById("message");
-  box.className = "message";
-  box.textContent = "";
-}
+  if(error)throw error;
 
-function showMessage(message, type) {
-  const box = document.getElementById("message");
-  box.textContent = message;
-  box.className = "message " + type;
-}
+  await redirectUser(data.user);
 
-function setButton(id, disabled, text) {
-  const button = document.getElementById(id);
-  button.disabled = disabled;
-  button.textContent = text;
-}
-
-function showLogin() {
-  hideSections();
-  clearMessage();
-  document.getElementById("loginSection").classList.remove("hidden");
-  document.getElementById("tabs").classList.remove("hidden");
-  document.getElementById("loginTab").classList.add("active");
-  document.getElementById("registerTab").classList.remove("active");
-}
-
-function showRegister() {
-  hideSections();
-  clearMessage();
-  document.getElementById("registerSection").classList.remove("hidden");
-  document.getElementById("tabs").classList.remove("hidden");
-  document.getElementById("registerTab").classList.add("active");
-  document.getElementById("loginTab").classList.remove("active");
-}
-
-function showForgot() {
-  hideSections();
-  clearMessage();
-  document.getElementById("forgotSection").classList.remove("hidden");
-  document.getElementById("tabs").classList.add("hidden");
-  document.getElementById("forgotEmail").value =
-    document.getElementById("loginEmail").value;
-}
-
-function showRecovery() {
-  recoveryMode = true;
-  hideSections();
-  clearMessage();
-  document.getElementById("tabs").classList.add("hidden");
-  document.getElementById("recoverySection").classList.remove("hidden");
-}
-
-function getError(error) {
-  return error && error.message
-    ? error.message
-    : "Something went wrong. Please try again.";
-}
-
-// LOGIN
-document.getElementById("loginForm").addEventListener(
-  "submit", async function(event) {
-    event.preventDefault();
-    clearMessage();
-
-    setButton("loginButton", true, "Signing in...");
-
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value;
-
-    try {
-      const { data, error } = await client.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) throw error;
-
-      window.location.replace(BASE_URL);
-    } catch (error) {
-      showMessage(getError(error), "error");
-      setButton("loginButton", false, "Login");
-    }
-  }
-);
-
-// REGISTRATION
-document.getElementById("registerForm").addEventListener(
-  "submit", async function(event) {
-    event.preventDefault();
-    clearMessage();
-
-    setButton("registerButton", true, "Creating account...");
-
-    const fullName = document.getElementById("fullName").value.trim();
-    const email = document.getElementById("registerEmail").value.trim();
-    const password = document.getElementById("registerPassword").value;
-    const role = document.getElementById("accountRole").value;
-
-    try {
-      const { data, error } = await client.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: AUTH_URL,
-          data: {
-            full_name: fullName,
-            requested_role: role
-          }
-        }
-      });
-
-      if (error) throw error;
-
-      if (data.session) {
-        showMessage(
-          "Your account has been created. You can now continue to MASTERBOOK.",
-          "success"
-        );
-      } else {
-        showMessage(
-          "Registration received. Check your email for the confirmation link. Teacher and contributor access requires administrator approval.",
-          "success"
-        );
-      }
-
-      document.getElementById("registerForm").reset();
-
-    } catch (error) {
-      showMessage(getError(error), "error");
-    } finally {
-      setButton("registerButton", false, "Create Account");
-    }
-  }
-);
-
-// FORGOT PASSWORD
-document.getElementById("forgotForm").addEventListener(
-  "submit", async function(event) {
-    event.preventDefault();
-    clearMessage();
-
-    setButton("forgotButton", true, "Sending reset link...");
-
-    const email = document.getElementById("forgotEmail").value.trim();
-
-    try {
-      const { error } = await client.auth.resetPasswordForEmail(email, {
-        redirectTo: AUTH_URL
-      });
-
-      if (error) throw error;
-
-      showMessage(
-        "If an account exists for this email, a password-reset link has been sent. Check your inbox and Spam folder.",
-        "success"
-      );
-
-    } catch (error) {
-      showMessage(getError(error), "error");
-    } finally {
-      setButton("forgotButton", false, "Send Reset Link");
-    }
-  }
-);
-
-// SAVE NEW PASSWORD
-document.getElementById("recoveryForm").addEventListener(
-  "submit", async function(event) {
-    event.preventDefault();
-    clearMessage();
-
-    const password = document.getElementById("newPassword").value;
-    const confirmation =
-      document.getElementById("confirmPassword").value;
-
-    if (password.length < 8) {
-      showMessage("Your password must contain at least 8 characters.", "error");
-      return;
-    }
-
-    if (password !== confirmation) {
-      showMessage("The two passwords do not match.", "error");
-      return;
-    }
-
-    setButton("recoveryButton", true, "Saving password...");
-
-    try {
-      const { error } = await client.auth.updateUser({
-        password: password
-      });
-
-      if (error) throw error;
-
-      recoveryMode = false;
-
-      showMessage(
-        "Your password has been changed successfully. You can now log in using your new password.",
-        "success"
-      );
-
-      document.getElementById("recoveryForm").reset();
-
-      await client.auth.signOut();
-
-      setTimeout(() => {
-        window.history.replaceState({}, document.title, AUTH_URL);
-        showLogin();
-        showMessage(
-          "Password updated. Please log in using your new password.",
-          "success"
-        );
-      }, 2500);
-
-    } catch (error) {
-      showMessage(getError(error), "error");
-    } finally {
-      setButton("recoveryButton", false, "Save New Password");
-    }
-  }
-);
-
-// HANDLE SUPABASE AUTHENTICATION AND RECOVERY LINKS
-client.auth.onAuthStateChange(async function(event, session) {
-  if (event === "PASSWORD_RECOVERY") {
-    showRecovery();
-  }
+ }catch(error){
+  showMessage(getError(error),"error");
+  setButton("loginButton",false,"Login");
+ }
 });
 
-// CHECK FOR RECOVERY LINK OR EXISTING SESSION
-async function initializePage() {
-  const params = new URLSearchParams(window.location.search);
-  const hash = new URLSearchParams(
-    window.location.hash.replace(/^#/, "")
+/* REGISTRATION */
+document.getElementById("registerForm").addEventListener("submit",async function(event){
+ event.preventDefault();
+ clearMessage();
+ setButton("registerButton",true,"Creating account...");
+
+ const fullName=document.getElementById("fullName").value.trim();
+ const email=document.getElementById("registerEmail").value.trim();
+ const password=document.getElementById("registerPassword").value;
+ const role=document.getElementById("accountRole").value;
+
+ try{
+  const {data,error}=await client.auth.signUp({
+   email,
+   password,
+   options:{
+    emailRedirectTo:AUTH_URL,
+    data:{
+     full_name:fullName,
+     requested_role:role
+    }
+   }
+  });
+
+  if(error)throw error;
+
+  if(data.session){
+   showMessage(
+    "Your account has been created. You can now log in.",
+    "success"
+   );
+  }else{
+   showMessage(
+    "Registration received. Check your email for the confirmation link. Teacher and contributor accounts require administrator approval.",
+    "success"
+   );
+  }
+
+  document.getElementById("registerForm").reset();
+
+ }catch(error){
+  showMessage(getError(error),"error");
+ }finally{
+  setButton("registerButton",false,"Create Account");
+ }
+});
+
+/* FORGOT PASSWORD */
+document.getElementById("forgotForm").addEventListener("submit",async function(event){
+ event.preventDefault();
+ clearMessage();
+ setButton("forgotButton",true,"Sending reset link...");
+
+ const email=document.getElementById("forgotEmail").value.trim();
+
+ try{
+  const {error}=await client.auth.resetPasswordForEmail(email,{
+   redirectTo:AUTH_URL
+  });
+
+  if(error)throw error;
+
+  showMessage(
+   "If an account exists for this email, a password-reset link has been sent. Check your inbox and Spam folder.",
+   "success"
   );
 
-  const hasRecoveryCode = params.has("code");
-  const hasRecoveryToken =
-    hash.get("type") === "recovery" ||
-    hash.has("access_token");
+ }catch(error){
+  showMessage(getError(error),"error");
+ }finally{
+  setButton("forgotButton",false,"Send Reset Link");
+ }
+});
 
-  if (hasRecoveryCode || hasRecoveryToken) {
-    showMessage("Verifying your password-reset link...", "success");
+/* SAVE NEW PASSWORD */
+document.getElementById("recoveryForm").addEventListener("submit",async function(event){
+ event.preventDefault();
+ clearMessage();
 
-    const { error } = await client.auth.getSession();
+ const password=document.getElementById("newPassword").value;
+ const confirmation=document.getElementById("confirmPassword").value;
 
-    if (error) {
-      showLogin();
-      showMessage(
-        "The recovery link could not be verified. Request a new password-reset email.",
-        "error"
-      );
-      return;
-    }
+ if(password.length<8){
+  showMessage("Your password must contain at least 8 characters.","error");
+  return;
+ }
 
-    const { data } = await client.auth.getSession();
+ if(password!==confirmation){
+  showMessage("The two passwords do not match.","error");
+  return;
+ }
 
-    if (data.session) {
-      showRecovery();
-    } else {
-      showLogin();
-      showMessage(
-        "This recovery link is invalid or expired. Please request another one.",
-        "error"
-      );
-    }
+ setButton("recoveryButton",true,"Saving password...");
 
-    return;
+ try{
+  const {error}=await client.auth.updateUser({password});
+  if(error)throw error;
+
+  recoveryMode=false;
+
+  showMessage(
+   "Your password has been changed successfully.",
+   "success"
+  );
+
+  document.getElementById("recoveryForm").reset();
+  await client.auth.signOut();
+
+  setTimeout(()=>{
+   window.history.replaceState({},document.title,AUTH_URL);
+   showLogin();
+   showMessage(
+    "Password updated. Please log in using your new password.",
+    "success"
+   );
+  },2000);
+
+ }catch(error){
+  showMessage(getError(error),"error");
+ }finally{
+  setButton("recoveryButton",false,"Save New Password");
+ }
+});
+
+/* PASSWORD RECOVERY EVENT */
+client.auth.onAuthStateChange((event)=>{
+ if(event==="PASSWORD_RECOVERY"){
+  showRecovery();
+ }
+});
+
+/* INITIALISE AUTHENTICATION PAGE */
+async function initializePage(){
+ try{
+  const params=new URLSearchParams(window.location.search);
+  const hash=new URLSearchParams(
+   window.location.hash.replace(/^#/,"")
+  );
+
+  const hasRecoveryCode=params.has("code");
+  const hasRecoveryToken=
+   hash.get("type")==="recovery"||
+   hash.has("access_token");
+
+  if(hasRecoveryCode||hasRecoveryToken){
+   showMessage("Verifying your password-reset link...","success");
+
+   const {data,error}=await client.auth.getSession();
+
+   if(error)throw error;
+
+   if(data.session){
+    showRecovery();
+   }else{
+    showLogin();
+    showMessage(
+     "This recovery link is invalid or expired. Request another password-reset email.",
+     "error"
+    );
+   }
+   return;
   }
 
-  const { data } = await client.auth.getSession();
+  const {data,error}=await client.auth.getSession();
+  if(error)throw error;
 
-  if (data.session) {
-    showLogin();
-  } else {
-    showLogin();
-  }
+  // Keep the login screen visible when the user opens auth.html.
+  // Do not automatically send users to the homepage.
+  showLogin();
+
+ }catch(error){
+  showLogin();
+  showMessage(getError(error),"error");
+ }
 }
 
 initializePage();
 </script>
-
 </body>
 </html>
