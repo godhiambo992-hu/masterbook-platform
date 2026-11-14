@@ -3,202 +3,262 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10243e">
 <title>MASTERBOOK | Digital Library</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-:root {
-    --navy: #10243e;
-    --blue: #1769aa;
-    --gold: #e5ad42;
-    --light: #f4f7fb;
-    --white: #ffffff;
-    --text: #243449;
-    --muted: #64748b;
+:root{
+  --navy:#10243e;
+  --blue:#1769aa;
+  --gold:#e5ad42;
+  --light:#f4f7fb;
+  --white:#ffffff;
+  --text:#243449;
+  --muted:#64748b;
+  --border:#e1e7ef;
+  --green:#16834a;
+  --red:#b83232;
 }
-
-* { box-sizing: border-box; }
-
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    color: var(--text);
-    background: var(--light);
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  color:var(--text);
+  background:var(--light);
 }
-
-header {
-    background: var(--navy);
-    color: white;
-    padding: 20px 6%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
+header{
+  background:var(--navy);
+  color:white;
+  padding:18px 6%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  flex-wrap:wrap;
 }
-
-.logo {
-    font-size: 24px;
-    font-weight: bold;
-    letter-spacing: 2px;
-    color: white;
-    text-decoration: none;
+.logo{
+  font-size:24px;
+  font-weight:bold;
+  letter-spacing:2px;
+  color:white;
+  text-decoration:none;
 }
-
-.logo span { color: var(--gold); }
-
-header a {
-    color: white;
-    text-decoration: none;
+.logo span{color:var(--gold)}
+header a{
+  color:white;
+  text-decoration:none;
 }
-
-main {
-    padding: 35px 6%;
-    min-height: 65vh;
+main{
+  max-width:1250px;
+  margin:auto;
+  padding:30px 5%;
+  min-height:65vh;
 }
-
-.hero {
-    background: linear-gradient(120deg, var(--navy), var(--blue));
-    color: white;
-    padding: 45px 25px;
-    border-radius: 12px;
-    text-align: center;
+.hero{
+  background:linear-gradient(120deg,var(--navy),var(--blue));
+  color:white;
+  padding:45px 25px;
+  border-radius:13px;
+  text-align:center;
 }
-
-.hero h1 { font-size: 32px; margin-top: 0; }
-
-.hero p {
-    color: #e4edf7;
-    line-height: 1.6;
+.hero h1{font-size:32px;margin:0 0 12px}
+.hero p{
+  color:#e4edf7;
+  line-height:1.7;
+  max-width:700px;
+  margin:auto;
 }
-
-.heading {
-    margin: 30px 0 15px;
-    color: var(--navy);
+.heading{
+  margin:30px 0 15px;
+  color:var(--navy);
 }
-
-.controls {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-    gap: 12px;
-    margin: 25px 0;
+.summary{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px;
+  margin:22px 0;
 }
-
-input, select {
-    width: 100%;
-    padding: 14px;
-    border: 1px solid #ccd5e1;
-    border-radius: 6px;
-    font-size: 15px;
-    background: white;
+.summary-card{
+  background:white;
+  padding:17px;
+  border:1px solid var(--border);
+  border-radius:9px;
 }
-
-.status {
-    margin: 15px 0;
-    padding: 12px;
-    border-radius: 6px;
-    background: #e8f1fb;
-    color: var(--navy);
-    font-size: 14px;
-    overflow-wrap: anywhere;
+.summary-card strong{
+  display:block;
+  color:var(--blue);
+  font-size:25px;
+  margin-top:7px;
 }
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 18px;
+.controls{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:12px;
+  margin:20px 0;
 }
-
-.card {
-    background: white;
-    padding: 22px;
-    border-radius: 9px;
-    border: 1px solid #e1e7ef;
-    box-shadow: 0 3px 10px #10243e08;
+input,select{
+  width:100%;
+  padding:13px;
+  border:1px solid #ccd5e1;
+  border-radius:7px;
+  font-size:15px;
+  background:white;
+  color:var(--text);
 }
-
-.card h3 {
-    color: var(--navy);
-    line-height: 1.4;
-    margin-top: 5px;
+button{
+  border:0;
+  border-radius:7px;
+  padding:12px 16px;
+  font-weight:bold;
+  cursor:pointer;
 }
-
-.card p {
-    font-size: 14px;
-    line-height: 1.6;
+button:disabled{
+  opacity:.5;
+  cursor:not-allowed;
 }
-
-.tag {
-    display: inline-block;
-    padding: 4px 9px;
-    background: #e8f1fb;
-    color: var(--blue);
-    font-size: 12px;
-    border-radius: 20px;
-    margin-bottom: 10px;
+.primary{
+  background:var(--blue);
+  color:white;
 }
-
-.meta {
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.7;
-    margin: 12px 0;
+.secondary{
+  background:var(--navy);
+  color:white;
 }
-
-.resource-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 18px;
+.status{
+  margin:15px 0;
+  padding:13px;
+  border-radius:7px;
+  background:#e8f1fb;
+  color:var(--navy);
+  font-size:14px;
+  line-height:1.6;
+  overflow-wrap:anywhere;
 }
-
-.resource-actions button {
-    flex: 1;
-    min-width: 110px;
-    padding: 12px;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
+.status.error{
+  background:#fde8e8;
+  color:var(--red);
 }
-
-.view-button {
-    background: var(--blue);
-    color: white;
+.status.success{
+  background:#e4f5e9;
+  color:var(--green);
 }
-
-.download-button {
-    background: var(--navy);
-    color: white;
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:18px;
+  align-items:stretch;
 }
-
-.resource-actions button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.card{
+  background:white;
+  padding:21px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  box-shadow:0 3px 10px #10243e08;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
 }
-
-.empty {
-    text-align: center;
-    padding: 35px;
-    color: var(--muted);
-    display: none;
-    background: white;
-    border-radius: 9px;
+.card h3{
+  color:var(--navy);
+  line-height:1.4;
+  margin:7px 0;
+  overflow-wrap:anywhere;
 }
-
-footer {
-    background: var(--navy);
-    color: white;
-    text-align: center;
-    padding: 25px;
-    margin-top: 50px;
-    font-size: 13px;
+.card p{
+  font-size:14px;
+  line-height:1.7;
+  overflow-wrap:anywhere;
 }
-
-@media(max-width:600px) {
-    .hero h1 { font-size: 25px; }
-    main { padding: 25px 5%; }
+.tag{
+  display:inline-block;
+  align-self:flex-start;
+  padding:5px 10px;
+  background:#e8f1fb;
+  color:var(--blue);
+  font-size:12px;
+  border-radius:20px;
+}
+.meta{
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.8;
+  margin:10px 0;
+}
+.resource-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:auto;
+  padding-top:15px;
+}
+.resource-actions button{
+  flex:1;
+  min-width:110px;
+  font-size:13px;
+}
+.view-button{
+  background:var(--blue);
+  color:white;
+}
+.download-button{
+  background:var(--navy);
+  color:white;
+}
+.empty{
+  display:none;
+  text-align:center;
+  padding:35px 20px;
+  color:var(--muted);
+  background:white;
+  border-radius:10px;
+  margin:15px 0;
+}
+.pagination{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:25px 0;
+}
+.pagination button{
+  background:var(--navy);
+  color:white;
+}
+.pagination button:disabled{
+  background:#aab6c3;
+}
+#pageInfo{
+  font-size:14px;
+  color:var(--muted);
+}
+.toolbar{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin:15px 0;
+}
+.toolbar button{white-space:nowrap}
+footer{
+  background:var(--navy);
+  color:white;
+  text-align:center;
+  padding:25px;
+  margin-top:45px;
+  font-size:13px;
+}
+footer p{color:#d3dfed}
+@media(max-width:700px){
+  main{padding:22px 4%}
+  .hero{padding:35px 18px}
+  .hero h1{font-size:25px}
+  .controls{grid-template-columns:1fr}
+  .toolbar input{flex:1;min-width:150px}
+  .resource-actions button{min-width:100px}
 }
 </style>
 </head>
@@ -206,317 +266,687 @@ footer {
 <body>
 
 <header>
-    <a href="index.html" class="logo">
-        MASTER<span>BOOK</span>
-    </a>
-    <a href="index.html">← Back to Home</a>
+  <a href="index.html" class="logo">
+    MASTER<span>BOOK</span>
+  </a>
+  <a href="index.html">← Back to Home</a>
 </header>
 
 <main>
 
-<section class="hero">
+  <section class="hero">
     <h1>MASTERBOOK Digital Library</h1>
     <p>
-        Discover knowledge. Explore subjects.
-        Advance your learning.
+      Discover knowledge. Explore subjects. Advance your learning.
+      Access educational resources for every stage of your learning journey.
     </p>
-</section>
+  </section>
 
-<h2 class="heading">Explore Educational Resources</h2>
+  <section class="summary">
+    <div class="summary-card">
+      Available resources
+      <strong id="resourceCount">0</strong>
+    </div>
+    <div class="summary-card">
+      Subjects
+      <strong id="subjectCount">0</strong>
+    </div>
+    <div class="summary-card">
+      Education levels
+      <strong id="levelCount">0</strong>
+    </div>
+  </section>
 
-<div class="controls">
+  <h2 class="heading">Explore Educational Resources</h2>
 
+  <div class="controls">
     <input
-        id="search"
-        type="search"
-        placeholder="Search subjects or resources..."
+      id="search"
+      type="search"
+      placeholder="Search titles, subjects or resources..."
+      aria-label="Search resources"
     >
 
-    <select id="level">
-        <option value="">All Education Levels</option>
-        <option value="Primary">Primary</option>
-        <option value="Junior School">Junior School</option>
-        <option value="Senior School">Senior School</option>
-        <option value="University">University</option>
-        <option value="Professional">Professional</option>
+    <select id="level" aria-label="Filter by education level">
+      <option value="">All Education Levels</option>
+      <option value="Primary">Primary</option>
+      <option value="Junior School">Junior School</option>
+      <option value="Senior School">Senior School</option>
+      <option value="University">University</option>
+      <option value="Professional">Professional</option>
     </select>
 
-    <select id="category">
-        <option value="">All Subjects</option>
-        <option value="Mathematics">Mathematics</option>
-        <option value="Geography">Geography</option>
-        <option value="Science">Science</option>
-        <option value="Languages">Languages</option>
-        <option value="Research">Research</option>
-        <option value="Technology">Technology</option>
+    <select id="category" aria-label="Filter by subject">
+      <option value="">All Subjects</option>
+      <option value="Mathematics">Mathematics</option>
+      <option value="Geography">Geography</option>
+      <option value="Science">Science</option>
+      <option value="Languages">Languages</option>
+      <option value="Research">Research</option>
+      <option value="Technology">Technology</option>
     </select>
+  </div>
 
-</div>
+  <div class="toolbar">
+    <button id="refreshButton" class="primary" type="button">
+      ↻ Refresh Library
+    </button>
+    <button id="clearFilters" class="secondary" type="button">
+      Clear Filters
+    </button>
+  </div>
 
-<div id="libraryStatus" class="status">
+  <div id="libraryStatus" class="status" role="status" aria-live="polite">
     Connecting to MASTERBOOK Library...
-</div>
+  </div>
 
-<h2 class="heading">Available Learning Resources</h2>
+  <h2 class="heading">Available Learning Resources</h2>
 
-<div class="grid" id="library"></div>
+  <div id="library" class="grid"></div>
 
-<div class="empty" id="empty">
+  <div id="empty" class="empty">
     <h3>No matching resources found.</h3>
-    <p>Try another subject or education level.</p>
-</div>
+    <p>Try another search term, subject or education level.</p>
+    <button id="emptyClear" class="primary" type="button">
+      Clear Filters
+    </button>
+  </div>
+
+  <div class="pagination" id="pagination">
+    <button id="previousPage" type="button" disabled>
+      ← Previous
+    </button>
+
+    <span id="pageInfo">Page 1 of 1</span>
+
+    <button id="nextPage" type="button" disabled>
+      Next →
+    </button>
+  </div>
 
 </main>
 
 <footer>
-    <strong>MASTERBOOK</strong>
-    <p>Learning Without Boundaries.</p>
-    <p>© 2026 MASTERBOOK | G.O. Odhiambo</p>
+  <strong>MASTERBOOK</strong>
+  <p>Learning Without Boundaries.</p>
+  <p>© 2026 MASTERBOOK | G.O. Odhiambo</p>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
+/* ==================================================
+   MASTERBOOK SUPABASE CONFIGURATION
+================================================== */
+
 const SUPABASE_URL =
-    "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+  "https://bxsrhvcqjjtdnflhoplu.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+  "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
 
 const BUCKET_NAME = "masterbook-resources";
+const PAGE_SIZE = 12;
+const SIGNED_URL_SECONDS = 3600;
 
 const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
 );
+
+
+/* ==================================================
+   ELEMENT REFERENCES AND STATE
+================================================== */
 
 const search = document.getElementById("search");
 const level = document.getElementById("level");
 const category = document.getElementById("category");
+
 const library = document.getElementById("library");
 const empty = document.getElementById("empty");
 const statusMessage = document.getElementById("libraryStatus");
 
+const previousPage = document.getElementById("previousPage");
+const nextPage = document.getElementById("nextPage");
+const pageInfo = document.getElementById("pageInfo");
+
 let resources = [];
+let filteredResources = [];
+let currentPage = 1;
+let loading = false;
+
+
+/* ==================================================
+   GENERAL HELPERS
+================================================== */
 
 function createElement(tag, className, text) {
-    const element = document.createElement(tag);
+  const element = document.createElement(tag);
 
-    if (className) element.className = className;
-    if (text !== undefined) element.textContent = text;
+  if (className) element.className = className;
+  if (text !== undefined) element.textContent = text;
 
-    return element;
+  return element;
 }
 
-function filterLibrary() {
-    const cards = library.querySelectorAll(".database-resource");
-    let visible = 0;
+function setStatus(message, type = "normal") {
+  statusMessage.textContent = message;
+  statusMessage.className = "status";
 
-    cards.forEach(card => {
-        const matchesText = card.innerText
-            .toLowerCase()
-            .includes(search.value.toLowerCase());
+  if (type === "error") {
+    statusMessage.classList.add("error");
+  }
 
-        const matchesLevel =
-            !level.value || card.dataset.level === level.value;
-
-        const matchesCategory =
-            !category.value || card.dataset.category === category.value;
-
-        const show = matchesText && matchesLevel && matchesCategory;
-
-        card.style.display = show ? "block" : "none";
-
-        if (show) visible++;
-    });
-
-    empty.style.display = visible === 0 ? "block" : "none";
+  if (type === "success") {
+    statusMessage.classList.add("success");
+  }
 }
+
+function formatDate(value) {
+  if (!value) return "Date unavailable";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Date unavailable";
+  }
+
+  return date.toLocaleDateString("en-KE", {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
+}
+
+function updateSummary() {
+  const subjects = new Set(
+    resources.map(r => r.subject).filter(Boolean)
+  );
+
+  const levels = new Set(
+    resources.map(r => r.education_level).filter(Boolean)
+  );
+
+  document.getElementById("resourceCount").textContent =
+    resources.length;
+
+  document.getElementById("subjectCount").textContent =
+    subjects.size;
+
+  document.getElementById("levelCount").textContent =
+    levels.size;
+}
+
+
+/* ==================================================
+   DYNAMIC SUBJECT FILTER
+================================================== */
+
+function updateSubjectOptions() {
+  const selected = category.value;
+
+  const subjects = [...new Set(
+    resources.map(r => r.subject).filter(Boolean)
+  )].sort((a,b) => a.localeCompare(b));
+
+  category.innerHTML = "";
+
+  const allOption = document.createElement("option");
+  allOption.value = "";
+  allOption.textContent = "All Subjects";
+  category.appendChild(allOption);
+
+  subjects.forEach(subject => {
+    const option = document.createElement("option");
+    option.value = subject;
+    option.textContent = subject;
+    category.appendChild(option);
+  });
+
+  if (subjects.includes(selected)) {
+    category.value = selected;
+  }
+}
+
+
+/* ==================================================
+   RESOURCE FILTERING
+================================================== */
+
+function applyFilters() {
+  const searchTerm = search.value.trim().toLowerCase();
+  const selectedLevel = level.value;
+  const selectedSubject = category.value;
+
+  filteredResources = resources.filter(resource => {
+    const searchableText = [
+      resource.title,
+      resource.description,
+      resource.subject,
+      resource.education_level,
+      resource.resource_type,
+      resource.curriculum
+    ].filter(Boolean).join(" ").toLowerCase();
+
+    const matchesSearch =
+      !searchTerm || searchableText.includes(searchTerm);
+
+    const matchesLevel =
+      !selectedLevel ||
+      resource.education_level === selectedLevel;
+
+    const matchesSubject =
+      !selectedSubject ||
+      resource.subject === selectedSubject;
+
+    return matchesSearch && matchesLevel && matchesSubject;
+  });
+
+  currentPage = 1;
+  renderLibrary();
+}
+
+
+/* ==================================================
+   PDF VIEWING AND DOWNLOADING
+================================================== */
 
 async function openResource(resource, downloadFile, button) {
-    const path = resource.storage_path
-        ? resource.storage_path.trim()
-        : "";
+  const path = resource.storage_path
+    ? resource.storage_path.trim()
+    : "";
 
-    if (!path) {
-        statusMessage.textContent =
-            "This resource does not have a storage file path.";
-        return;
+  if (!path) {
+    setStatus(
+      "This resource does not have a valid storage file path.",
+      "error"
+    );
+    return;
+  }
+
+  /*
+    Open a blank tab immediately during the button click.
+    This avoids most browser popup-blocking problems while
+    the signed URL is being prepared.
+  */
+  let pdfWindow = null;
+
+  if (!downloadFile) {
+    pdfWindow = window.open("about:blank", "_blank");
+
+    if (!pdfWindow) {
+      setStatus(
+        "Your browser blocked the PDF tab. Allow pop-ups for MASTERBOOK and try again.",
+        "error"
+      );
+      return;
     }
-
-    button.disabled = true;
-    button.textContent = "Preparing PDF...";
 
     try {
-        const options = downloadFile ? { download: true } : {};
-
-        const { data, error } = await supabaseClient
-            .storage
-            .from(BUCKET_NAME)
-            .createSignedUrl(path, 3600, options);
-
-        if (error) throw error;
-
-        if (!data || !data.signedUrl) {
-            throw new Error("Supabase did not return a PDF link.");
-        }
-
-        // Open the signed PDF link in the current browser tab.
-        window.location.assign(data.signedUrl);
-
-    } catch (error) {
-        console.error("MASTERBOOK PDF error:", error);
-
-        statusMessage.textContent =
-            "Unable to access this PDF: " + error.message;
-
-        button.disabled = false;
-        button.textContent = downloadFile
-            ? "Download PDF"
-            : "View PDF";
+      pdfWindow.document.title = "Preparing MASTERBOOK PDF";
+      pdfWindow.document.body.innerHTML =
+        "<p style='font-family:Arial;padding:25px'>Preparing your document...</p>";
+    } catch (e) {
+      // Continue with the PDF request.
     }
+  }
+
+  const originalText = button.textContent;
+
+  button.disabled = true;
+  button.textContent = "Preparing PDF...";
+
+  try {
+    const options = downloadFile
+      ? {download: true}
+      : {};
+
+    const {data, error} = await supabaseClient
+      .storage
+      .from(BUCKET_NAME)
+      .createSignedUrl(
+        path,
+        SIGNED_URL_SECONDS,
+        options
+      );
+
+    if (error) throw error;
+
+    if (!data || !data.signedUrl) {
+      throw new Error("Supabase did not return a PDF link.");
+    }
+
+    if (downloadFile) {
+      /*
+        The signed URL includes download disposition.
+        Opening it separately leaves the Library page intact.
+      */
+      const link = document.createElement("a");
+      link.href = data.signedUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.download = resource.title || "MASTERBOOK-resource";
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+    } else {
+      pdfWindow.location.href = data.signedUrl;
+    }
+
+    setStatus(
+      downloadFile
+        ? "Your download has been prepared."
+        : "Your PDF has opened in a new tab.",
+      "success"
+    );
+
+  } catch (error) {
+    console.error("MASTERBOOK PDF error:", error);
+
+    if (pdfWindow && !pdfWindow.closed) {
+      pdfWindow.close();
+    }
+
+    setStatus(
+      "Unable to access this PDF: " + error.message,
+      "error"
+    );
+
+  } finally {
+    button.disabled = false;
+    button.textContent = originalText;
+  }
 }
+
+
+/* ==================================================
+   RESOURCE CARD
+================================================== */
 
 function createResourceCard(resource) {
-    const card = createElement(
-        "article",
-        "card database-resource"
-    );
+  const card = createElement("article", "card");
 
-    card.dataset.level = resource.education_level || "";
-    card.dataset.category = resource.subject || "";
+  const tag = createElement(
+    "span",
+    "tag",
+    resource.education_level || "Education"
+  );
 
-    const tag = createElement(
-        "span",
-        "tag",
-        resource.education_level || "Education"
-    );
+  const title = createElement(
+    "h3",
+    "",
+    resource.title || "Untitled resource"
+  );
 
-    const title = createElement(
-        "h3",
-        "",
-        resource.title || "Untitled resource"
-    );
+  const description = createElement(
+    "p",
+    "",
+    resource.description || "Educational learning resource."
+  );
 
-    const description = createElement(
-        "p",
-        "",
-        resource.description || "Educational learning resource."
-    );
+  const meta = createElement(
+    "div",
+    "meta",
+    [
+      resource.subject,
+      resource.resource_type,
+      resource.curriculum
+    ].filter(Boolean).join(" · ")
+  );
 
-    const meta = createElement(
-        "div",
-        "meta",
-        [
-            resource.subject,
-            resource.resource_type,
-            resource.curriculum
-        ].filter(Boolean).join(" · ")
-    );
+  const date = createElement(
+    "div",
+    "meta",
+    "Added: " + formatDate(resource.created_at)
+  );
 
-    const actions = createElement(
-        "div",
-        "resource-actions"
-    );
+  const access = createElement(
+    "div",
+    "meta",
+    "Access: Free"
+  );
 
-    const viewButton = createElement(
-        "button",
-        "view-button",
-        "View PDF"
-    );
+  const actions = createElement(
+    "div",
+    "resource-actions"
+  );
 
-    const downloadButton = createElement(
-        "button",
-        "download-button",
-        "Download PDF"
-    );
+  const viewButton = createElement(
+    "button",
+    "view-button",
+    "View PDF"
+  );
 
-    if (!resource.storage_path) {
-        viewButton.disabled = true;
-        downloadButton.disabled = true;
-    } else {
-        viewButton.addEventListener("click", () => {
-            openResource(resource, false, viewButton);
-        });
+  const downloadButton = createElement(
+    "button",
+    "download-button",
+    "Download PDF"
+  );
 
-        downloadButton.addEventListener("click", () => {
-            openResource(resource, true, downloadButton);
-        });
-    }
+  if (!resource.storage_path) {
+    viewButton.disabled = true;
+    downloadButton.disabled = true;
 
-    actions.appendChild(viewButton);
-    actions.appendChild(downloadButton);
+    viewButton.title = "PDF file path is unavailable";
+    downloadButton.title = "PDF file path is unavailable";
+  } else {
+    viewButton.addEventListener("click", () => {
+      openResource(resource, false, viewButton);
+    });
 
-    card.appendChild(tag);
-    card.appendChild(title);
-    card.appendChild(description);
-    card.appendChild(meta);
-    card.appendChild(actions);
+    downloadButton.addEventListener("click", () => {
+      openResource(resource, true, downloadButton);
+    });
+  }
 
-    return card;
+  actions.appendChild(viewButton);
+  actions.appendChild(downloadButton);
+
+  card.appendChild(tag);
+  card.appendChild(title);
+  card.appendChild(description);
+  card.appendChild(meta);
+  card.appendChild(date);
+  card.appendChild(access);
+  card.appendChild(actions);
+
+  return card;
 }
 
+
+/* ==================================================
+   PAGINATION
+================================================== */
+
+function updatePagination(totalPages) {
+  previousPage.disabled = currentPage <= 1;
+  nextPage.disabled = currentPage >= totalPages;
+
+  pageInfo.textContent =
+    "Page " + currentPage + " of " + totalPages;
+
+  document.getElementById("pagination").style.display =
+    filteredResources.length > 0 ? "flex" : "none";
+}
+
+function changePage(direction) {
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredResources.length / PAGE_SIZE)
+  );
+
+  const next = currentPage + direction;
+
+  if (next < 1 || next > totalPages) return;
+
+  currentPage = next;
+  renderLibrary();
+
+  document.getElementById("library").scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
+
+/* ==================================================
+   RENDER LIBRARY
+================================================== */
+
+function renderLibrary() {
+  library.innerHTML = "";
+
+  const total = filteredResources.length;
+
+  if (!total) {
+    empty.style.display = "block";
+    updatePagination(1);
+    return;
+  }
+
+  empty.style.display = "none";
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(total / PAGE_SIZE)
+  );
+
+  if (currentPage > totalPages) {
+    currentPage = totalPages;
+  }
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const end = start + PAGE_SIZE;
+
+  const pageResources = filteredResources.slice(start, end);
+
+  pageResources.forEach(resource => {
+    library.appendChild(createResourceCard(resource));
+  });
+
+  updatePagination(totalPages);
+}
+
+
+/* ==================================================
+   LOAD RESOURCES FROM SUPABASE
+================================================== */
+
 async function loadResources() {
-    statusMessage.textContent =
-        "Connecting to the MASTERBOOK database...";
+  if (loading) return;
 
-    library.innerHTML = "";
+  loading = true;
 
-    const { data, error } = await supabaseClient
-        .from("resources")
-        .select(
-            "id,title,description,education_level,subject,resource_type,curriculum,storage_path,created_at"
-        )
-        .eq("status", "Published")
-        .eq("access_tier", "Free")
-        .order("created_at", { ascending: false });
+  const refreshButton = document.getElementById("refreshButton");
+  refreshButton.disabled = true;
+  refreshButton.textContent = "Loading...";
 
-    if (error) {
-        console.error("MASTERBOOK database error:", error);
+  setStatus("Connecting to the MASTERBOOK database...");
 
-        statusMessage.textContent =
-            "Unable to retrieve resources: " + error.message;
+  library.innerHTML = "";
+  empty.style.display = "none";
 
-        return;
-    }
+  try {
+    const {data, error} = await supabaseClient
+      .from("resources")
+      .select(
+        "id,title,description,education_level,subject,resource_type,curriculum,storage_path,created_at"
+      )
+      .eq("status", "Published")
+      .eq("access_tier", "Free")
+      .order("created_at", {ascending: false});
+
+    if (error) throw error;
 
     resources = data || [];
 
-    resources.forEach(resource => {
-        if (
-            resource.subject &&
-            !Array.from(category.options).some(
-                option => option.value === resource.subject
-            )
-        ) {
-            const option = document.createElement("option");
-            option.value = resource.subject;
-            option.textContent = resource.subject;
-            category.appendChild(option);
-        }
+    updateSubjectOptions();
+    updateSummary();
 
-        const card = createResourceCard(resource);
-        library.appendChild(card);
-    });
+    applyFilters();
 
-    statusMessage.textContent =
-        "Database connected successfully. " +
-        resources.length +
-        " published free resources retrieved.";
-
-    filterLibrary();
+    setStatus(
+      "Database connected successfully. " +
+      resources.length +
+      " published free resources retrieved.",
+      "success"
+    );
 
     console.log(
-        "MASTERBOOK resources retrieved:",
-        resources.length
+      "MASTERBOOK resources retrieved:",
+      resources.length
     );
+
+  } catch (error) {
+    console.error("MASTERBOOK database error:", error);
+
+    resources = [];
+    filteredResources = [];
+
+    updateSummary();
+    library.innerHTML = "";
+    empty.style.display = "block";
+
+    empty.querySelector("h3").textContent =
+      "The Library could not be loaded.";
+
+    empty.querySelector("p").textContent =
+      "Please check your connection and try refreshing.";
+
+    setStatus(
+      "Unable to retrieve resources: " + error.message,
+      "error"
+    );
+
+  } finally {
+    loading = false;
+    refreshButton.disabled = false;
+    refreshButton.textContent = "↻ Refresh Library";
+  }
 }
 
-search.addEventListener("input", filterLibrary);
-level.addEventListener("change", filterLibrary);
-category.addEventListener("change", filterLibrary);
+
+/* ==================================================
+   FILTER CONTROLS
+================================================== */
+
+search.addEventListener("input", applyFilters);
+level.addEventListener("change", applyFilters);
+category.addEventListener("change", applyFilters);
+
+previousPage.addEventListener("click", () => {
+  changePage(-1);
+});
+
+nextPage.addEventListener("click", () => {
+  changePage(1);
+});
+
+document.getElementById("refreshButton")
+  .addEventListener("click", loadResources);
+
+function clearFilters() {
+  search.value = "";
+  level.value = "";
+  category.value = "";
+
+  applyFilters();
+}
+
+document.getElementById("clearFilters")
+  .addEventListener("click", clearFilters);
+
+document.getElementById("emptyClear")
+  .addEventListener("click", clearFilters);
+
+
+/* ==================================================
+   START MASTERBOOK LIBRARY
+================================================== */
 
 loadResources();
+
 </script>
 
 </body>
