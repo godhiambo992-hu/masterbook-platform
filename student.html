@@ -4,32 +4,49 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Student Dashboard | MASTERBOOK</title>
+<title>MASTERBOOK | Student Learning Centre</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f4f6fb;color:#202b3c}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6fb;color:#202b3c}
 header{background:#102b50;color:white;padding:20px}
 header h1{margin:0;font-size:25px}
-header p{margin:7px 0 0;color:#d9e5f5}
-nav{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-button{border:0;border-radius:7px;padding:11px 15px;cursor:pointer;font-weight:bold}
+header p{margin:7px 0;color:#d9e5f5}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}
+button{border:0;border-radius:7px;padding:11px 14px;cursor:pointer;font-weight:bold}
 nav button{background:#24476e;color:white}
-main{max-width:1100px;margin:25px auto;padding:0 15px}
-.panel{background:white;padding:20px;border-radius:12px;margin-bottom:20px;box-shadow:0 2px 9px #0000000c}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
-.stat{background:#edf3fa;padding:18px;border-radius:10px}
+nav button:hover{background:#35618e}
+main{max-width:1150px;margin:24px auto;padding:0 14px}
+.panel{background:white;padding:20px;border-radius:12px;margin-bottom:18px;box-shadow:0 2px 9px #0000000c}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.stat{background:#edf3fa;padding:17px;border-radius:10px}
 .stat strong{display:block;font-size:27px;margin-top:8px;color:#14518a}
-input{width:100%;padding:12px;border:1px solid #ccd5e0;border-radius:7px;margin:8px 0 15px}
-.resource{border:1px solid #e1e6ed;border-radius:10px;padding:17px;margin:12px 0}
-.resource h3{margin:0 0 8px}
+.resource{border:1px solid #e1e6ed;border-radius:10px;padding:16px;margin:12px 0}
+.resource h3{margin:0 0 9px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #ccd5e0;border-radius:7px;margin:8px 0 15px;font:inherit}
 .primary{background:#14518a;color:white}
-.secondary{background:#e7edf5;color:#173a60;margin-left:5px}
+.secondary{background:#e7edf5;color:#173a60}
+.danger{background:#a83232;color:white}
 .success{color:#168348}
 .muted{color:#687789;font-size:14px}
+.hidden{display:none!important}
 #message{padding:12px;border-radius:7px;margin-bottom:15px}
-.hidden{display:none}
+.option{display:block;background:#f2f5fa;padding:12px;margin:9px 0;border-radius:7px}
+.option input{width:auto;margin:0 8px 0 0}
+.progressbar{height:10px;background:#e3eaf2;border-radius:10px;overflow:hidden}
+.progressbar span{display:block;height:100%;background:#168348}
+.badge{display:inline-block;background:#e7edf5;color:#173a60;padding:5px 9px;border-radius:15px;font-size:12px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.actions button{margin:0}
 footer{text-align:center;padding:25px;color:#667}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+th,td{text-align:left;padding:10px;border-bottom:1px solid #e1e6ed}
+@media(max-width:600px){
+ header{padding:16px}
+ .panel{padding:15px}
+ table{font-size:13px}
+ th,td{padding:7px}
+}
 </style>
 </head>
 <body>
@@ -37,11 +54,15 @@ footer{text-align:center;padding:25px;color:#667}
 <header>
 <h1>MASTERBOOK</h1>
 <p>Learning Without Boundaries.</p>
+<div id="signedIn" class="muted">Student Learning Centre</div>
 <nav>
 <button onclick="showSection('overview')">Dashboard</button>
-<button onclick="showSection('resources')">Learning Resources</button>
+<button onclick="showSection('courses')">My Courses</button>
+<button onclick="showSection('resources')">Library</button>
+<button onclick="showSection('assessments')">Assessments</button>
 <button onclick="showSection('progress')">My Progress</button>
-<button onclick="logout()">Logout</button>
+<button onclick="showSection('certificates')">Certificates</button>
+<button onclick="logout()">Sign Out</button>
 </nav>
 </header>
 
@@ -50,246 +71,573 @@ footer{text-align:center;padding:25px;color:#667}
 
 <section id="overview" class="panel">
 <h2>Welcome, <span id="studentName">Student</span>!</h2>
-<p class="muted">Your personal learning environment.</p>
+<p class="muted">Your personal learning and academic performance centre.</p>
 <div class="grid">
-<div class="stat">Enrolled resources<strong id="enrollmentCount">0</strong></div>
-<div class="stat">Completed resources<strong id="completedCount">0</strong></div>
-<div class="stat">Available resources<strong id="resourceCount">0</strong></div>
+<div class="stat">Available courses<strong id="courseCount">0</strong></div>
+<div class="stat">My enrolments<strong id="enrollmentCount">0</strong></div>
+<div class="stat">Completed lessons<strong id="completedCount">0</strong></div>
+<div class="stat">Assessments taken<strong id="attemptCount">0</strong></div>
 </div>
+<h3>Learning activity</h3>
+<div id="recentActivity" class="muted">Loading your learning activity...</div>
+</section>
+
+<section id="courses" class="panel hidden">
+<h2>Course Catalogue</h2>
+<p class="muted">Explore available published courses and enrol to begin learning.</p>
+<input id="courseSearch" placeholder="Search courses..." oninput="renderCourses()">
+<div id="courseList">Loading courses...</div>
+</section>
+
+<section id="courseDetail" class="panel hidden">
+<button class="secondary" onclick="showSection('courses')">← Back to courses</button>
+<h2 id="detailTitle">Course</h2>
+<p id="detailDescription" class="muted"></p>
+<div id="lessonList">Loading lessons...</div>
 </section>
 
 <section id="resources" class="panel hidden">
 <h2>Learning Resources</h2>
 <p class="muted">Explore published free learning materials.</p>
-<input id="search" placeholder="Search by title or subject..." oninput="renderResources()">
+<input id="resourceSearch" placeholder="Search by title or subject..." oninput="renderResources()">
 <div id="resourceList">Loading resources...</div>
+</section>
+
+<section id="assessments" class="panel hidden">
+<h2>Online Assessments</h2>
+<p class="muted">Attempt published assessments in your available courses.</p>
+<div id="assessmentList">Loading assessments...</div>
+</section>
+
+<section id="quiz" class="panel hidden">
+<button class="secondary" onclick="showSection('assessments')">← Back to assessments</button>
+<h2 id="quizTitle">Assessment</h2>
+<p id="quizDescription" class="muted"></p>
+<form id="quizForm">
+<div id="questionList"></div>
+<button class="primary" type="submit">Submit answers</button>
+</form>
+<div id="quizResult"></div>
 </section>
 
 <section id="progress" class="panel hidden">
 <h2>My Learning Progress</h2>
 <div id="progressList">Loading progress...</div>
+<h3>Assessment history</h3>
+<div id="assessmentHistory">Loading assessment history...</div>
 </section>
-</main>
 
+<section id="certificates" class="panel hidden">
+<h2>My Certificates</h2>
+<p class="muted">Certificates issued for successfully completed courses will appear here.</p>
+<div id="certificateList">Loading certificates...</div>
+</section>
+
+</main>
 <footer>MASTERBOOK | Learning Without Boundaries.</footer>
 
 <script>
-const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
-const SUPABASE_KEY = "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+const SUPABASE_URL="https://bxsrhvcqjjtdnflhoplu.supabase.co";
+const SUPABASE_KEY="sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser=null;
+let courses=[];
+let lessons=[];
+let resources=[];
+let enrollments=[];
+let progressRecords=[];
+let lessonProgress=[];
+let assessments=[];
+let attempts=[];
+let certificates=[];
+let activeCourse=null;
+let activeAssessment=null;
+let activeQuestions=[];
 
-let currentUser = null;
-let resources = [];
-let enrollments = [];
-let progressRecords = [];
+const $=id=>document.getElementById(id);
 
-function message(text, error=false){
- const box=document.getElementById("message");
- box.textContent=text;
- box.style.background=error?"#fde8e8":"#e6f5eb";
- box.style.color=error?"#a32222":"#17653a";
+function message(text,error=false){
+ $("message").textContent=text;
+ $("message").style.background=error?"#fde8e8":"#e6f5eb";
+ $("message").style.color=error?"#a32222":"#17653a";
 }
 
 function escapeHTML(value){
- return String(value ?? "").replace(/[&<>"']/g, c => ({
+ return String(value??"").replace(/[&<>"']/g,c=>({
  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
  }[c]));
 }
 
 function showSection(id){
- ["overview","resources","progress"].forEach(section=>{
-  document.getElementById(section).classList.toggle("hidden",section!==id);
- });
+ ["overview","courses","courseDetail","resources","assessments","quiz","progress","certificates"]
+ .forEach(section=>$(section).classList.toggle("hidden",section!==id));
 }
 
 async function initialize(){
  try{
-  if(SUPABASE_KEY==="YOUR_SUPABASE_PUBLISHABLE_KEY"){
-   throw new Error("Add your existing Supabase publishable key to student.html.");
-  }
-
   const {data:{session},error}=await db.auth.getSession();
   if(error) throw error;
-
-  if(!session){
-   window.location.href="auth.html";
-   return;
-  }
-
+  if(!session){location.href="auth.html";return;}
   currentUser=session.user;
 
-  const {data:profile,error:profileError}=await db
-   .from("profiles")
+  const {data:profile,error:profileError}=await db.from("profiles")
    .select("full_name,email,requested_role,approval_status,is_admin")
-   .eq("id",currentUser.id)
-   .maybeSingle();
+   .eq("id",currentUser.id).maybeSingle();
 
   if(profileError) throw profileError;
   if(!profile) throw new Error("Your MASTERBOOK profile could not be found.");
-
-  if(profile.approval_status!=="approved"){
+  if(profile.approval_status!=="approved")
    throw new Error("Your account is awaiting approval.");
-  }
-
-  if(profile.requested_role!=="student" && profile.is_admin!==true){
+  if(profile.requested_role!=="student" && profile.is_admin!==true)
    throw new Error("This dashboard is available to student accounts.");
-  }
 
-  document.getElementById("studentName").textContent=
-   profile.full_name || currentUser.email;
+  $("studentName").textContent=profile.full_name||currentUser.email;
+  $("signedIn").textContent="Signed in as "+(profile.full_name||currentUser.email);
 
   await loadData();
-  message("Welcome to your MASTERBOOK student dashboard.");
-
+  message("Your MASTERBOOK learning centre is ready.");
  }catch(error){
-  message(error.message || "Unable to load the student dashboard.",true);
+  message(error.message||"Unable to load dashboard.",true);
  }
 }
 
 async function loadData(){
- const [resourceResult,enrollmentResult,progressResult]=await Promise.all([
-  db.from("resources")
-   .select("id,title,description,education_level,subject,resource_type,storage_path")
-   .eq("status","Published")
-   .eq("access_tier","Free")
-   .order("created_at",{ascending:false}),
-
-  db.from("student_enrollments")
-   .select("*")
-   .eq("student_id",currentUser.id),
-
-  db.from("student_progress")
-   .select("*")
-   .eq("student_id",currentUser.id)
+ const queries=await Promise.all([
+  db.from("learning_courses").select("*").eq("status","Published").order("created_at",{ascending:false}),
+  db.from("resources").select("id,title,description,education_level,subject,resource_type,storage_path").eq("status","Published").eq("access_tier","Free").order("created_at",{ascending:false}),
+  db.from("student_enrollments").select("*").eq("student_id",currentUser.id),
+  db.from("student_progress").select("*").eq("student_id",currentUser.id),
+  db.from("student_lesson_progress").select("*").eq("student_id",currentUser.id),
+  db.from("student_assessment_attempts").select("*").eq("student_id",currentUser.id).order("submitted_at",{ascending:false}),
+  db.from("student_certificates").select("*").eq("student_id",currentUser.id)
  ]);
 
- if(resourceResult.error) throw resourceResult.error;
- if(enrollmentResult.error) throw enrollmentResult.error;
- if(progressResult.error) throw progressResult.error;
+ queries.forEach(result=>{if(result.error)throw result.error;});
 
- resources=resourceResult.data || [];
- enrollments=enrollmentResult.data || [];
- progressRecords=progressResult.data || [];
+ courses=queries[0].data||[];
+ resources=queries[1].data||[];
+ enrollments=queries[2].data||[];
+ progressRecords=queries[3].data||[];
+ lessonProgress=queries[4].data||[];
+ attempts=queries[5].data||[];
+ certificates=queries[6].data||[];
 
- document.getElementById("resourceCount").textContent=resources.length;
- document.getElementById("enrollmentCount").textContent=enrollments.length;
- document.getElementById("completedCount").textContent=
-  progressRecords.filter(p=>p.completed).length;
-
+ // Show only courses available under the current access rules.
+ renderDashboard();
+ renderCourses();
  renderResources();
  renderProgress();
+ renderHistory();
+ renderCertificates();
+
+ await loadAssessments();
 }
 
-function renderResources(){
- const query=(document.getElementById("search").value || "").toLowerCase();
- const list=document.getElementById("resourceList");
+function renderDashboard(){
+ $("courseCount").textContent=courses.length;
+ $("enrollmentCount").textContent=enrollments.length;
+ $("completedCount").textContent=
+  lessonProgress.filter(p=>p.completed).length+
+  progressRecords.filter(p=>p.completed).length;
+ $("attemptCount").textContent=attempts.length;
 
- const filtered=resources.filter(r=>
-  (r.title+" "+r.subject+" "+r.education_level).toLowerCase().includes(query)
+ $("recentActivity").textContent=attempts.length?
+  "Your latest assessment: "+(attempts[0].percentage??0)+"%.":
+  "No assessments completed yet. Start a course and practise.";
+}
+
+function enrolled(course){
+ return enrollments.some(e=>e.course_id===course.id);
+}
+
+function renderCourses(){
+ const query=($("courseSearch").value||"").toLowerCase();
+ const filtered=courses.filter(c=>
+  (c.title+" "+c.subject+" "+c.education_level).toLowerCase().includes(query)
  );
+ const list=$("courseList");
 
  if(!filtered.length){
-  list.textContent="No matching published resources found.";
+  list.textContent="No published courses are currently available.";
   return;
  }
 
- list.innerHTML=filtered.map(r=>{
-  const enrolled=enrollments.some(e=>e.course_title===r.title);
+ list.innerHTML=filtered.map(c=>`
+ <div class="resource">
+  <h3>${escapeHTML(c.title)}</h3>
+  <p>${escapeHTML(c.description||"")}</p>
+  <p class="muted">${escapeHTML(c.education_level)} | ${escapeHTML(c.subject)} | ${escapeHTML(c.curriculum||"")}</p>
+  <span class="badge">${escapeHTML(c.access_tier||"Free")}</span>
+  <div class="actions">
+   <button class="primary" onclick="enrolCourse('${c.id}')">${enrolled(c)?"Open course":"Enrol now"}</button>
+  </div>
+ </div>`).join("");
+}
+
+async function enrolCourse(id){
+ const course=courses.find(c=>c.id===id);
+ if(!course)return;
+
+ if(enrolled(course)){
+  await openCourse(id);
+  return;
+ }
+
+ try{
+  const {error}=await db.from("student_enrollments").insert({
+   student_id:currentUser.id,
+   course_id:course.id,
+   course_title:course.title,
+   subject:course.subject,
+   education_level:course.education_level
+  });
+  if(error)throw error;
+  await loadData();
+  message("Successfully enrolled in "+course.title);
+  await openCourse(id);
+ }catch(error){message(error.message,true);}
+}
+
+async function openCourse(id){
+ const course=courses.find(c=>c.id===id);
+ if(!course)return;
+ if(!enrolled(course)){
+  message("Please enrol in this course first.",true);
+  return;
+ }
+
+ activeCourse=course;
+ $("detailTitle").textContent=course.title;
+ $("detailDescription").textContent=course.description||"";
+ $("lessonList").textContent="Loading lessons...";
+ showSection("courseDetail");
+
+ try{
+  const {data,error}=await db.from("learning_lessons")
+   .select("*").eq("course_id",id).eq("status","Published")
+   .order("lesson_order",{ascending:true});
+  if(error)throw error;
+  lessons=data||[];
+  renderLessons();
+ }catch(error){message(error.message,true);}
+}
+
+function renderLessons(){
+ const list=$("lessonList");
+ if(!lessons.length){
+  list.textContent="No published lessons are available in this course yet.";
+  return;
+ }
+
+ list.innerHTML=lessons.map((l,i)=>{
+  const done=lessonProgress.some(p=>p.lesson_id===l.id&&p.completed);
   return `
    <div class="resource">
-    <h3>${escapeHTML(r.title)}</h3>
-    <p>${escapeHTML(r.description || "")}</p>
-    <p class="muted">${escapeHTML(r.education_level)} | ${escapeHTML(r.subject)} | ${escapeHTML(r.resource_type)}</p>
-    <button class="primary" onclick="enroll('${r.id}')">
-     ${enrolled?"Enrolled":"Enroll"}
-    </button>
-    <button class="secondary" onclick="openPDF('${r.id}')">View PDF</button>
-    <button class="secondary" onclick="completeResource('${r.id}')">Mark completed</button>
+    <h3>${i+1}. ${escapeHTML(l.title)}</h3>
+    <p>${escapeHTML(l.content||"Lesson content will be added by the course administrator.")}</p>
+    ${l.resource_id?`<button class="secondary" onclick="openLinkedResource('${l.resource_id}')">Open learning material</button>`:""}
+    <div class="actions">
+     <button class="${done?"secondary":"primary"}" onclick="completeLesson('${l.id}')">
+      ${done?"Completed":"Mark lesson complete"}
+     </button>
+    </div>
    </div>`;
  }).join("");
 }
 
-async function enroll(id){
+async function completeLesson(id){
+ try{
+  const {error}=await db.from("student_lesson_progress").upsert({
+   student_id:currentUser.id,
+   lesson_id:id,
+   completed:true,
+   completed_at:new Date().toISOString(),
+   updated_at:new Date().toISOString()
+  },{onConflict:"student_id,lesson_id"});
+  if(error)throw error;
+
+  await loadData();
+  await openCourse(activeCourse.id);
+  message("Lesson completion recorded.");
+ }catch(error){message(error.message,true);}
+}
+
+async function openLinkedResource(id){
  const resource=resources.find(r=>r.id===id);
- if(!resource) return;
+ if(resource){await openPDF(id);return;}
 
- const {error}=await db.from("student_enrollments").upsert({
-  student_id:currentUser.id,
-  course_title:resource.title,
-  subject:resource.subject,
-  education_level:resource.education_level
- },{onConflict:"student_id,course_title",ignoreDuplicates:true});
+ try{
+  const {data,error}=await db.from("resources")
+   .select("id,title,storage_path")
+   .eq("id",id).eq("status","Published").eq("access_tier","Free")
+   .maybeSingle();
+  if(error)throw error;
+  if(!data)throw new Error("This learning material is unavailable.");
+  await openPDFData(data);
+ }catch(error){message(error.message,true);}
+}
 
- if(error){message(error.message,true);return;}
+function renderResources(){
+ const query=($("resourceSearch").value||"").toLowerCase();
+ const filtered=resources.filter(r=>
+  (r.title+" "+r.subject+" "+r.education_level).toLowerCase().includes(query)
+ );
+ if(!filtered.length){$("resourceList").textContent="No matching resources found.";return;}
 
- await loadData();
- message("Successfully enrolled in "+resource.title);
+ $("resourceList").innerHTML=filtered.map(r=>{
+  const completed=progressRecords.some(p=>p.resource_id===r.id&&p.completed);
+  return `
+   <div class="resource">
+    <h3>${escapeHTML(r.title)}</h3>
+    <p>${escapeHTML(r.description||"")}</p>
+    <p class="muted">${escapeHTML(r.education_level)} | ${escapeHTML(r.subject)} | ${escapeHTML(r.resource_type)}</p>
+    <span class="badge">Free resource</span>
+    <div class="actions">
+     <button class="primary" onclick="openPDF('${r.id}')">View PDF</button>
+     <button class="secondary" onclick="downloadPDF('${r.id}')">Download PDF</button>
+     <button class="secondary" onclick="completeResource('${r.id}')">${completed?"Completed":"Mark completed"}</button>
+    </div>
+   </div>`;
+ }).join("");
 }
 
 async function openPDF(id){
  const resource=resources.find(r=>r.id===id);
- if(!resource || !resource.storage_path){
-  message("PDF file is not available.",true);
-  return;
- }
+ if(!resource){message("Resource not found.",true);return;}
+ await openPDFData(resource);
+}
 
- const {data,error}=await db.storage
-  .from("masterbook-resources")
+async function openPDFData(resource){
+ if(!resource.storage_path){message("PDF file is not available.",true);return;}
+ const {data,error}=await db.storage.from("masterbook-resources")
   .createSignedUrl(resource.storage_path,3600);
-
  if(error){message(error.message,true);return;}
+ window.open(data.signedUrl,"_blank","noopener");
+}
 
+async function downloadPDF(id){
+ const resource=resources.find(r=>r.id===id);
+ if(!resource){message("Resource not found.",true);return;}
+ if(!resource.storage_path){message("PDF file is not available.",true);return;}
+
+ const {data,error}=await db.storage.from("masterbook-resources")
+  .createSignedUrl(resource.storage_path,3600,{download:true});
+ if(error){message(error.message,true);return;}
  window.open(data.signedUrl,"_blank","noopener");
 }
 
 async function completeResource(id){
- const resource=resources.find(r=>r.id===id);
- if(!resource) return;
-
- const {error}=await db.from("student_progress").upsert({
-  student_id:currentUser.id,
-  resource_id:resource.id,
-  progress_percentage:100,
-  completed:true,
-  updated_at:new Date().toISOString()
- },{onConflict:"student_id,resource_id"});
-
- if(error){message(error.message,true);return;}
-
- await loadData();
- message("Resource marked as completed.");
+ try{
+  const {error}=await db.from("student_progress").upsert({
+   student_id:currentUser.id,
+   resource_id:id,
+   progress_percentage:100,
+   completed:true,
+   updated_at:new Date().toISOString()
+  },{onConflict:"student_id,resource_id"});
+  if(error)throw error;
+  await loadData();
+  message("Resource marked as completed.");
+ }catch(error){message(error.message,true);}
 }
 
-function renderProgress(){
- const list=document.getElementById("progressList");
+async function loadAssessments(){
+ const {data,error}=await db.from("learning_assessments")
+  .select("id,course_id,title,description,subject,total_marks,pass_percentage,status")
+  .eq("status","Published").order("created_at",{ascending:false});
+ if(error)throw error;
 
- if(!progressRecords.length){
-  list.textContent="You have not recorded any learning progress yet.";
+ assessments=(data||[]).filter(a=>enrollments.some(e=>e.course_id===a.course_id));
+ renderAssessments();
+}
+
+function renderAssessments(){
+ if(!assessments.length){
+  $("assessmentList").textContent="No assessments are currently available in your enrolled courses.";
   return;
  }
 
- list.innerHTML=progressRecords.map(p=>{
-  const resource=resources.find(r=>r.id===p.resource_id);
-  return `
+ $("assessmentList").innerHTML=assessments.map(a=>`
+  <div class="resource">
+   <h3>${escapeHTML(a.title)}</h3>
+   <p>${escapeHTML(a.description||"")}</p>
+   <p class="muted">${escapeHTML(a.subject)} | ${escapeHTML(a.total_marks)} marks | Pass mark ${escapeHTML(a.pass_percentage)}%</p>
+   <button class="primary" onclick="startQuiz('${a.id}')">Start assessment</button>
+  </div>`).join("");
+}
+
+async function startQuiz(id){
+ try{
+  activeAssessment=assessments.find(a=>a.id===id);
+  if(!activeAssessment)throw new Error("Assessment unavailable.");
+
+  const {data,error}=await db.rpc("masterbook_get_quiz",{
+   p_assessment_id:id
+  });
+  if(error)throw error;
+
+  activeQuestions=data.questions||[];
+  $("quizTitle").textContent=data.title;
+  $("quizDescription").textContent=data.description||"Answer all questions before submitting.";
+  $("quizResult").textContent="";
+
+  if(!activeQuestions.length)throw new Error("This assessment has no questions.");
+
+  $("questionList").innerHTML=activeQuestions.map((q,i)=>{
+   const options=Array.isArray(q.options)?q.options:[];
+   return `
+    <div class="resource">
+     <h3>${i+1}. ${escapeHTML(q.question)}</h3>
+     <p class="muted">${escapeHTML(q.marks)} marks</p>
+     ${options.map((o,j)=>{
+      const value=typeof o==="object"?(o.value??o.label??o.text??""):o;
+      const label=typeof o==="object"?(o.label??o.text??o.value??""):o;
+      return `<label class="option">
+       <input type="radio" name="question_${escapeHTML(q.id)}" value="${escapeHTML(value)}">
+       ${escapeHTML(label)}
+      </label>`;
+     }).join("")}
+    </div>`;
+  }).join("");
+
+  showSection("quiz");
+ }catch(error){message(error.message,true);}
+}
+
+$("quizForm").addEventListener("submit",async event=>{
+ event.preventDefault();
+ if(!activeAssessment)return;
+
+ const answers={};
+ activeQuestions.forEach(q=>{
+  const selected=document.querySelector('input[name="question_'+CSS.escape(q.id)+'"]:checked');
+  if(selected)answers[q.id]=selected.value;
+ });
+
+ if(Object.keys(answers).length!==activeQuestions.length){
+  message("Please answer every question before submitting.",true);
+  return;
+ }
+
+ const submitButton=$("quizForm").querySelector('button[type="submit"]');
+ submitButton.disabled=true;
+ submitButton.textContent="Marking assessment...";
+
+ try{
+  const {data,error}=await db.rpc("masterbook_submit_quiz",{
+   p_assessment_id:activeAssessment.id,
+   p_answers:answers
+  });
+  if(error)throw error;
+
+  $("quizForm").classList.add("hidden");
+  $("quizResult").innerHTML=`
    <div class="resource">
-    <strong>${escapeHTML(resource?.title || "Learning resource")}</strong>
-    <p>${p.progress_percentage}% complete</p>
-    <p class="success">${p.completed?"Completed":"In progress"}</p>
+    <h3>Assessment result</h3>
+    <p><strong>Score:</strong> ${escapeHTML(data.score)} / ${escapeHTML(data.total_marks)}</p>
+    <p><strong>Percentage:</strong> ${escapeHTML(data.percentage)}%</p>
+    <p class="${data.passed?"success":"muted"}"><strong>${data.passed?"PASSED":"NOT PASSED"}</strong></p>
+    <p>${escapeHTML(data.message)}</p>
+    <button class="primary" onclick="finishQuiz()">Return to assessments</button>
    </div>`;
+  await loadData();
+  message("Assessment submitted and marked successfully.");
+ }catch(error){
+  message(error.message,true);
+ }finally{
+  submitButton.disabled=false;
+  submitButton.textContent="Submit answers";
+ }
+});
+
+function finishQuiz(){
+ $("quizForm").classList.remove("hidden");
+ showSection("assessments");
+}
+
+function renderProgress(){
+ const list=$("progressList");
+ const lessonDone=lessonProgress.filter(p=>p.completed).length;
+ const resourceDone=progressRecords.filter(p=>p.completed).length;
+
+ let html=`
+  <div class="grid">
+   <div class="stat">Completed lessons<strong>${lessonDone}</strong></div>
+   <div class="stat">Completed resources<strong>${resourceDone}</strong></div>
+   <div class="stat">Assessment attempts<strong>${attempts.length}</strong></div>
+  </div>`;
+
+ if(!lessonProgress.length&&!progressRecords.length){
+  html+="<p class='muted'>You have not recorded any learning progress yet.</p>";
+ }
+
+ html+="<h3>Resource progress</h3>";
+ html+=progressRecords.map(p=>{
+  const r=resources.find(x=>x.id===p.resource_id);
+  return `<div class="resource">
+   <strong>${escapeHTML(r?.title||"Learning resource")}</strong>
+   <p>${Number(p.progress_percentage||0)}% complete</p>
+   <div class="progressbar"><span style="width:${Math.max(0,Math.min(100,Number(p.progress_percentage)||0))}%"></span></div>
+   <p class="success">${p.completed?"Completed":"In progress"}</p>
+  </div>`;
+ }).join("");
+
+ html+="<h3>Lesson progress</h3>";
+ html+=lessonProgress.map(p=>{
+  const l=lessons.find(x=>x.id===p.lesson_id);
+  return `<div class="resource">
+   <strong>${escapeHTML(l?.title||"Completed lesson")}</strong>
+   <p class="success">${p.completed?"Completed":"In progress"}</p>
+  </div>`;
+ }).join("");
+
+ list.innerHTML=html;
+}
+
+function renderHistory(){
+ if(!attempts.length){
+  $("assessmentHistory").textContent="No assessment attempts recorded yet.";
+  return;
+ }
+
+ $("assessmentHistory").innerHTML=`
+ <table>
+ <thead><tr><th>Score</th><th>Percentage</th><th>Result</th><th>Date</th></tr></thead>
+ <tbody>${attempts.map(a=>`
+  <tr>
+   <td>${escapeHTML(a.score)} / ${escapeHTML(a.total_marks)}</td>
+   <td>${escapeHTML(a.percentage)}%</td>
+   <td>${a.passed?"Passed":"Not passed"}</td>
+   <td>${a.submitted_at?new Date(a.submitted_at).toLocaleDateString():"—"}</td>
+  </tr>`).join("")}</tbody>
+ </table>`;
+}
+
+function renderCertificates(){
+ if(!certificates.length){
+  $("certificateList").textContent="No certificates have been issued to your account yet.";
+  return;
+ }
+
+ $("certificateList").innerHTML=certificates.map(c=>{
+  const course=courses.find(x=>x.id===c.course_id);
+  return `<div class="resource">
+   <h3>${escapeHTML(course?.title||"Course certificate")}</h3>
+   <p>Certificate code: ${escapeHTML(c.certificate_code)}</p>
+   <p class="muted">Issued: ${c.issued_at?new Date(c.issued_at).toLocaleDateString():"—"}</p>
+  </div>`;
  }).join("");
 }
 
 async function logout(){
  const {error}=await db.auth.signOut();
  if(error){message(error.message,true);return;}
- window.location.href="auth.html";
+ location.href="auth.html";
 }
 
-db.auth.onAuthStateChange((event,session)=>{
- if(event==="SIGNED_OUT"){
-  window.location.href="auth.html";
- }
+db.auth.onAuthStateChange((event)=>{
+ if(event==="SIGNED_OUT")location.href="auth.html";
 });
 
 initialize();
