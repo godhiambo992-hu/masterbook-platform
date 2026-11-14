@@ -12,7 +12,6 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-
 body{
   font-family:Arial,sans-serif;
   background:#f4f7fa;
@@ -44,7 +43,6 @@ nav{
   flex-wrap:wrap;
   gap:16px
 }
-
 nav a{
   color:white;
   text-decoration:none;
@@ -59,7 +57,6 @@ nav a:hover{color:#e5ad42}
   gap:10px;
   flex-wrap:wrap
 }
-
 #userEmail{
   font-size:12px;
   color:#dbeafe;
@@ -89,7 +86,6 @@ button:disabled{opacity:.6;cursor:not-allowed}
   font-size:clamp(32px,5vw,48px);
   margin-bottom:15px
 }
-
 .hero p{
   max-width:700px;
   margin:auto;
@@ -121,12 +117,10 @@ main{
 }
 
 .welcome{margin-bottom:25px}
-
 .welcome h2,.workspace h2{
   color:#176b63;
   margin-bottom:8px
 }
-
 #roleText{
   margin-top:8px;
   font-weight:bold;
@@ -150,7 +144,6 @@ main{
 }
 
 .workspace p{margin-bottom:15px}
-
 .workspace a{
   display:inline-block;
   background:#1769aa;
@@ -178,7 +171,6 @@ main{
   color:#176b63;
   margin-bottom:10px
 }
-
 .card a{
   display:inline-block;
   margin-top:15px;
@@ -194,7 +186,6 @@ main{
   background:#e6f1ef;
   text-align:center
 }
-
 #status{
   display:none;
   padding:12px;
@@ -229,7 +220,6 @@ footer p{margin:5px}
 <nav>
 
   <div class="logo">MASTER<span>BOOK</span></div>
-
   <div class="navlinks">
     <a href="index.html">Home</a>
     <a href="library.html">Library</a>
@@ -278,7 +268,6 @@ footer p{margin:5px}
   <p id="workspaceDescription">
     Access your MASTERBOOK account tools.
   </p>
-
   <a id="workspaceLink" href="library.html">
     Open My Workspace
   </a>
@@ -328,7 +317,6 @@ footer p{margin:5px}
 </section>
 
 <section class="section" id="portals">
-
   <div class="section-title">
     <h2>MASTERBOOK Portals</h2>
     <p>One platform connecting learners, teachers, contributors and administrators.</p>
@@ -373,7 +361,6 @@ footer p{margin:5px}
     Our mission is to expand access to quality knowledge through technology.
   </p>
 </section>
-
 </main>
 
 <footer>
@@ -390,9 +377,8 @@ footer p{margin:5px}
 const SUPABASE_URL =
   "https://bxsrhvcqjjtdnflhoplu.supabase.co";
 
-/* Same publishable key used in the working Teacher Portal */
 const SUPABASE_KEY =
-  "sb_publishable_Hgg2m91Ht2OOWCUH7sGrw_mC9yCj7S";
+  "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
 
 const db = window.supabase.createClient(
   SUPABASE_URL,
@@ -406,7 +392,6 @@ const logoutButton = document.getElementById("logoutButton");
 const welcomeTitle = document.getElementById("welcomeTitle");
 const welcomeText = document.getElementById("welcomeText");
 const roleText = document.getElementById("roleText");
-
 const workspace = document.getElementById("workspace");
 const roleBadge = document.getElementById("roleBadge");
 const workspaceTitle = document.getElementById("workspaceTitle");
@@ -443,7 +428,6 @@ function clearAccount(){
 
   roleText.classList.add("hidden");
   workspace.classList.add("hidden");
-
   welcomeTitle.textContent = "Welcome to MASTERBOOK";
 
   welcomeText.textContent =
@@ -451,24 +435,14 @@ function clearAccount(){
 
 }
 
-/* IDENTIFY ACCOUNT ROLE */
+/* IDENTIFY ACCOUNT ROLE
+   Normal account role takes priority.
+   Administrator access remains available separately.
+*/
 
 function getRole(profile){
 
-  if(profile.is_admin === true){
-
-    return {
-      name:"Administrator",
-      title:"Administration Workspace",
-      description:
-        "Manage applications, review resources, oversee platform users and administer MASTERBOOK.",
-      url:"admin.html"
-    };
-
-  }
-
   if(profile.requested_role === "student"){
-
     return {
       name:"Student",
       title:"Student Learning Workspace",
@@ -476,13 +450,11 @@ function getRole(profile){
         "Access learning resources, enrol in learning materials and monitor your academic progress.",
       url:"student.html"
     };
-
   }
 
   if(profile.requested_role === "teacher"){
 
     if(profile.approval_status !== "approved"){
-
       return {
         name:"Teacher — Pending Approval",
         title:"Teacher Application",
@@ -490,7 +462,6 @@ function getRole(profile){
           "Your teacher account is awaiting administrator approval.",
         url:"library.html"
       };
-
     }
 
     return {
@@ -500,13 +471,11 @@ function getRole(profile){
         "Upload teaching materials and manage your educational resources.",
       url:"teacher.html"
     };
-
   }
 
   if(profile.requested_role === "contributor"){
 
     if(profile.approval_status !== "approved"){
-
       return {
         name:"Contributor — Pending Approval",
         title:"Contributor Application",
@@ -514,7 +483,6 @@ function getRole(profile){
           "Your contributor account is awaiting administrator approval.",
         url:"library.html"
       };
-
     }
 
     return {
@@ -524,7 +492,16 @@ function getRole(profile){
         "Submit educational content, research, coursebooks and monitor your submissions.",
       url:"contributor.html"
     };
+  }
 
+  if(profile.is_admin === true){
+    return {
+      name:"Administrator",
+      title:"Administration Workspace",
+      description:
+        "Manage applications, review resources, oversee platform users and administer MASTERBOOK.",
+      url:"admin.html"
+    };
   }
 
   return {
@@ -546,10 +523,8 @@ async function loadAccount(session){
   const request = ++latestRequest;
 
   if(!session || !session.user){
-
     clearAccount();
     return;
-
   }
 
   const user = session.user;
@@ -597,6 +572,12 @@ async function loadAccount(session){
 
     roleText.textContent =
       "Account type: " + role.name;
+
+    if(profile.is_admin === true &&
+       profile.requested_role === "student"){
+      roleText.textContent +=
+        " | Administrator access is also enabled.";
+    }
 
     roleText.classList.remove("hidden");
 
@@ -671,7 +652,6 @@ logoutButton.addEventListener("click",async function(){
     if(error) throw error;
 
     clearAccount();
-
     window.location.replace(AUTH_URL);
 
   }catch(error){
