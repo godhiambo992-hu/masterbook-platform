@@ -12,204 +12,221 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
+
 body{
-  font-family:Arial,sans-serif;
-  background:#f4f7fa;
-  color:#183047;
-  line-height:1.6
+ font-family:Arial,sans-serif;
+ background:#f4f7fa;
+ color:#183047;
+ line-height:1.6
 }
 
 .hidden{display:none!important}
 
 header{
-  background:#102b46;
-  color:white;
-  padding:18px 5%
+ background:#102b46;
+ color:white;
+ padding:18px 5%
 }
 
 nav{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:15px
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ flex-wrap:wrap;
+ gap:15px
 }
 
-.logo{font-size:25px;font-weight:bold;letter-spacing:1px}
+.logo{
+ font-size:25px;
+ font-weight:bold;
+ letter-spacing:1px
+}
+
 .logo span{color:#e5ad42}
 
 .navlinks{
-  display:flex;
-  flex-wrap:wrap;
-  gap:16px
+ display:flex;
+ flex-wrap:wrap;
+ gap:16px
 }
+
 nav a{
-  color:white;
-  text-decoration:none;
-  font-size:14px
+ color:white;
+ text-decoration:none;
+ font-size:14px
 }
 
 nav a:hover{color:#e5ad42}
 
 .account{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  flex-wrap:wrap
+ display:flex;
+ align-items:center;
+ gap:10px;
+ flex-wrap:wrap
 }
+
 #userEmail{
-  font-size:12px;
-  color:#dbeafe;
-  overflow-wrap:anywhere
+ font-size:12px;
+ color:#dbeafe;
+ overflow-wrap:anywhere
 }
 
 button{
-  background:#e0a43b;
-  color:#102b46;
-  border:0;
-  border-radius:6px;
-  padding:10px 16px;
-  font-weight:bold;
-  cursor:pointer
+ background:#e0a43b;
+ color:#102b46;
+ border:0;
+ border-radius:6px;
+ padding:10px 16px;
+ font-weight:bold;
+ cursor:pointer
 }
 
-button:disabled{opacity:.6;cursor:not-allowed}
+button:disabled{
+ opacity:.6;
+ cursor:not-allowed
+}
 
 .hero{
-  background:linear-gradient(120deg,#123b58,#176b63);
-  color:white;
-  text-align:center;
-  padding:75px 8%
+ background:linear-gradient(120deg,#123b58,#176b63);
+ color:white;
+ text-align:center;
+ padding:75px 8%
 }
 
 .hero h1{
-  font-size:clamp(32px,5vw,48px);
-  margin-bottom:15px
+ font-size:clamp(32px,5vw,48px);
+ margin-bottom:15px
 }
+
 .hero p{
-  max-width:700px;
-  margin:auto;
-  font-size:18px
+ max-width:700px;
+ margin:auto;
+ font-size:18px
 }
 
 .hero a{
-  display:inline-block;
-  margin-top:25px;
-  background:#e0a43b;
-  color:#102b46;
-  padding:13px 24px;
-  border-radius:7px;
-  text-decoration:none;
-  font-weight:bold
+ display:inline-block;
+ margin-top:25px;
+ background:#e0a43b;
+ color:#102b46;
+ padding:13px 24px;
+ border-radius:7px;
+ text-decoration:none;
+ font-weight:bold
 }
 
 main{
-  max-width:1150px;
-  margin:auto;
-  padding:35px 20px
+ max-width:1150px;
+ margin:auto;
+ padding:35px 20px
 }
 
 .welcome,.workspace,.card,.info{
-  background:white;
-  padding:24px;
-  border-radius:12px;
-  box-shadow:0 3px 12px #0000000d
+ background:white;
+ padding:24px;
+ border-radius:12px;
+ box-shadow:0 3px 12px #0000000d
 }
 
 .welcome{margin-bottom:25px}
+
 .welcome h2,.workspace h2{
-  color:#176b63;
-  margin-bottom:8px
+ color:#176b63;
+ margin-bottom:8px
 }
+
 #roleText{
-  margin-top:8px;
-  font-weight:bold;
-  color:#176b63
+ margin-top:8px;
+ font-weight:bold;
+ color:#176b63
 }
 
 .workspace{
-  border-left:5px solid #176b63;
-  margin-bottom:35px
+ border-left:5px solid #176b63;
+ margin-bottom:35px
 }
 
 .role-label{
-  display:inline-block;
-  background:#e6f1ef;
-  color:#176b63;
-  padding:5px 12px;
-  border-radius:20px;
-  font-size:12px;
-  font-weight:bold;
-  margin-bottom:10px
+ display:inline-block;
+ background:#e6f1ef;
+ color:#176b63;
+ padding:5px 12px;
+ border-radius:20px;
+ font-size:12px;
+ font-weight:bold;
+ margin-bottom:10px
 }
 
 .workspace p{margin-bottom:15px}
+
 .workspace a{
-  display:inline-block;
-  background:#1769aa;
-  color:white;
-  padding:11px 18px;
-  border-radius:6px;
-  text-decoration:none;
-  font-weight:bold
+ display:inline-block;
+ background:#1769aa;
+ color:white;
+ padding:11px 18px;
+ border-radius:6px;
+ text-decoration:none;
+ font-weight:bold
 }
 
 .section{margin-top:40px}
 
 .section-title{
-  text-align:center;
-  margin-bottom:25px
+ text-align:center;
+ margin-bottom:25px
 }
 
 .grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:20px
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+ gap:20px
 }
 
 .card h3{
-  color:#176b63;
-  margin-bottom:10px
+ color:#176b63;
+ margin-bottom:10px
 }
+
 .card a{
-  display:inline-block;
-  margin-top:15px;
-  color:#176b63;
-  font-weight:bold;
-  text-decoration:none
+ display:inline-block;
+ margin-top:15px;
+ color:#176b63;
+ font-weight:bold;
+ text-decoration:none
 }
 
 .card a:hover{text-decoration:underline}
 
 .info{
-  margin-top:40px;
-  background:#e6f1ef;
-  text-align:center
+ margin-top:40px;
+ background:#e6f1ef;
+ text-align:center
 }
+
 #status{
-  display:none;
-  padding:12px;
-  margin-bottom:18px;
-  border-radius:6px;
-  overflow-wrap:anywhere
+ display:none;
+ padding:12px;
+ margin-bottom:18px;
+ border-radius:6px;
+ overflow-wrap:anywhere
 }
 
 footer{
-  background:#102b46;
-  color:white;
-  text-align:center;
-  padding:25px;
-  margin-top:40px
+ background:#102b46;
+ color:white;
+ text-align:center;
+ padding:25px;
+ margin-top:40px
 }
 
 footer p{margin:5px}
 
 @media(max-width:700px){
-  nav{align-items:flex-start}
-  .navlinks{width:100%;gap:12px}
-  .account{width:100%}
-  .hero{padding:55px 20px}
-  main{padding:25px 15px}
+ nav{align-items:flex-start}
+ .navlinks{width:100%;gap:12px}
+ .account{width:100%}
+ .hero{padding:55px 20px}
+ main{padding:25px 15px}
 }
 </style>
 </head>
@@ -219,31 +236,34 @@ footer p{margin:5px}
 <header>
 <nav>
 
-  <div class="logo">MASTER<span>BOOK</span></div>
-  <div class="navlinks">
-    <a href="index.html">Home</a>
-    <a href="library.html">Library</a>
-    <a href="#education">Education</a>
-    <a href="#portals">Portals</a>
-    <a href="#about">About</a>
-  </div>
+ <div class="logo">MASTER<span>BOOK</span></div>
 
-  <div class="account">
-    <a id="loginLink" href="auth.html">Login / Register</a>
-    <span id="userEmail" class="hidden"></span>
-    <button id="logoutButton" class="hidden" type="button">Sign Out</button>
-  </div>
+ <div class="navlinks">
+  <a href="index.html">Home</a>
+  <a href="library.html">Library</a>
+  <a href="#education">Education</a>
+  <a href="#portals">Portals</a>
+  <a href="#about">About</a>
+ </div>
+
+ <div class="account">
+  <a id="loginLink" href="auth.html">Login / Register</a>
+  <span id="userEmail" class="hidden"></span>
+  <button id="logoutButton" class="hidden" type="button">
+   Sign Out
+  </button>
+ </div>
 
 </nav>
 </header>
 
 <section class="hero">
-  <h1>Learning Without Boundaries</h1>
-  <p>
-    A digital educational platform connecting learners,
-    teachers, researchers and educational contributors.
-  </p>
-  <a href="library.html">Explore Learning Library</a>
+ <h1>Learning Without Boundaries</h1>
+ <p>
+  A digital educational platform connecting learners,
+  teachers, researchers and educational contributors.
+ </p>
+ <a href="library.html">Explore Learning Library</a>
 </section>
 
 <main>
@@ -251,139 +271,155 @@ footer p{margin:5px}
 <div id="status" role="status" aria-live="polite"></div>
 
 <section class="welcome">
-  <h2 id="welcomeTitle">Welcome to MASTERBOOK</h2>
-  <p id="welcomeText">
-    Discover quality educational resources and learning
-    materials across different levels of education.
-  </p>
-  <p id="roleText" class="hidden"></p>
+ <h2 id="welcomeTitle">Welcome to MASTERBOOK</h2>
+
+ <p id="welcomeText">
+  Discover quality educational resources and learning
+  materials across different levels of education.
+ </p>
+
+ <p id="roleText" class="hidden"></p>
 </section>
 
 <section id="workspace" class="workspace hidden">
 
-  <span id="roleBadge" class="role-label">My Workspace</span>
+ <span id="roleBadge" class="role-label">My Workspace</span>
 
-  <h2 id="workspaceTitle">Your Workspace</h2>
+ <h2 id="workspaceTitle">Your Workspace</h2>
 
-  <p id="workspaceDescription">
-    Access your MASTERBOOK account tools.
-  </p>
-  <a id="workspaceLink" href="library.html">
-    Open My Workspace
-  </a>
+ <p id="workspaceDescription">
+  Access your MASTERBOOK account tools.
+ </p>
+
+ <a id="workspaceLink" href="library.html">
+  Open My Workspace
+ </a>
 
 </section>
 
 <section class="section" id="education">
 
-  <div class="section-title">
-    <h2>Explore Education</h2>
-    <p>Learning resources for every stage of education.</p>
+ <div class="section-title">
+  <h2>Explore Education</h2>
+  <p>Learning resources for every stage of education.</p>
+ </div>
+
+ <div class="grid">
+
+  <div class="card">
+   <h3>Primary Education</h3>
+   <p>Learning materials and revision resources for primary learners.</p>
+   <a href="library.html">Explore Library →</a>
   </div>
 
-  <div class="grid">
-
-    <div class="card">
-      <h3>Primary Education</h3>
-      <p>Learning materials and revision resources for primary learners.</p>
-      <a href="library.html">Explore Library →</a>
-    </div>
-
-    <div class="card">
-      <h3>Junior School</h3>
-      <p>Resources supporting competency-based learning.</p>
-      <a href="library.html">Explore Library →</a>
-    </div>
-
-    <div class="card">
-      <h3>Senior School</h3>
-      <p>Detailed subject notes, revision materials and coursebooks.</p>
-      <a href="library.html">Explore Library →</a>
-    </div>
-
-    <div class="card">
-      <h3>University Education</h3>
-      <p>Academic resources, research and university learning support.</p>
-      <a href="library.html">Explore Library →</a>
-    </div>
-
-    <div class="card">
-      <h3>Professional Learning</h3>
-      <p>Professional development, skills and lifelong learning.</p>
-      <a href="library.html">Explore Library →</a>
-    </div>
-
+  <div class="card">
+   <h3>Junior School</h3>
+   <p>Resources supporting competency-based learning.</p>
+   <a href="library.html">Explore Library →</a>
   </div>
+
+  <div class="card">
+   <h3>Senior School</h3>
+   <p>Detailed subject notes, revision materials and coursebooks.</p>
+   <a href="library.html">Explore Library →</a>
+  </div>
+
+  <div class="card">
+   <h3>University Education</h3>
+   <p>Academic resources, research and university learning support.</p>
+   <a href="library.html">Explore Library →</a>
+  </div>
+
+  <div class="card">
+   <h3>Professional Learning</h3>
+   <p>Professional development, skills and lifelong learning.</p>
+   <a href="library.html">Explore Library →</a>
+  </div>
+
+ </div>
 </section>
 
 <section class="section" id="portals">
-  <div class="section-title">
-    <h2>MASTERBOOK Portals</h2>
-    <p>One platform connecting learners, teachers, contributors and administrators.</p>
+
+ <div class="section-title">
+  <h2>MASTERBOOK Portals</h2>
+  <p>
+   One platform connecting learners, teachers,
+   contributors and administrators.
+  </p>
+ </div>
+
+ <div class="grid">
+
+  <div class="card">
+   <h3>Student Portal</h3>
+   <p>Access learning materials, enrol and track academic progress.</p>
+   <a href="student.html">Open Student Portal →</a>
   </div>
 
-  <div class="grid">
-
-    <div class="card">
-      <h3>Student Portal</h3>
-      <p>Access learning materials, enrol and track academic progress.</p>
-      <a href="student.html">Open Student Portal →</a>
-    </div>
-
-    <div class="card">
-      <h3>Teacher Portal</h3>
-      <p>Upload teaching materials and manage educational resources.</p>
-      <a href="teacher.html">Open Teacher Portal →</a>
-    </div>
-
-    <div class="card">
-      <h3>Contributor Portal</h3>
-      <p>Submit educational content, research and coursebooks.</p>
-      <a href="contributor.html">Open Contributor Portal →</a>
-    </div>
-
-    <div class="card">
-      <h3>Administration</h3>
-      <p>Review applications, manage resources and oversee the platform.</p>
-      <a href="admin.html">Open Administration →</a>
-    </div>
-
+  <div class="card">
+   <h3>Teacher Portal</h3>
+   <p>Upload teaching materials and manage educational resources.</p>
+   <a href="teacher.html">Open Teacher Portal →</a>
   </div>
+
+  <div class="card">
+   <h3>Contributor Portal</h3>
+   <p>Submit educational content, research and coursebooks.</p>
+   <a href="contributor.html">Open Contributor Portal →</a>
+  </div>
+
+  <div class="card">
+   <h3>Administration</h3>
+   <p>Review applications, manage resources and oversee the platform.</p>
+   <a href="admin.html">Open Administration →</a>
+  </div>
+
+ </div>
 </section>
 
 <section class="info" id="about">
-  <h2>About MASTERBOOK</h2>
-  <p>
-    MASTERBOOK brings together learners, educators,
-    researchers and contributors in one learning environment.
-  </p>
-  <p>
-    Our mission is to expand access to quality knowledge through technology.
-  </p>
+ <h2>About MASTERBOOK</h2>
+
+ <p>
+  MASTERBOOK brings together learners, educators,
+  researchers and contributors in one learning environment.
+ </p>
+
+ <p>
+  Our mission is to expand access to quality knowledge through technology.
+ </p>
 </section>
+
 </main>
 
 <footer>
-  <div class="logo">MASTER<span>BOOK</span></div>
-  <p>Learning Without Boundaries.</p>
-  <p>© 2026 MASTERBOOK. All rights reserved.</p>
-  <p>Founded by G.O. Odhiambo.</p>
+ <div class="logo">MASTER<span>BOOK</span></div>
+ <p>Learning Without Boundaries.</p>
+ <p>© 2026 MASTERBOOK. All rights reserved.</p>
+ <p>Founded by G.O. Odhiambo.</p>
 </footer>
 
 <script>
+"use strict";
 
 /* MASTERBOOK SUPABASE CONFIGURATION */
 
 const SUPABASE_URL =
-  "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+ "https://bxsrhvcqjjtdnflhoplu.supabase.co";
 
 const SUPABASE_KEY =
-  "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+ "sb_publishable_Hgg2m91Ht2OOWCUHh7SGrw_mC9yCj7S";
 
 const db = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
+ SUPABASE_URL,
+ SUPABASE_KEY
 );
+
+const BASE_URL =
+ "https://godhiambo992-hu.github.io/masterbook-platform/";
+
+const AUTH_URL = BASE_URL + "auth.html";
 
 const loginLink = document.getElementById("loginLink");
 const userEmail = document.getElementById("userEmail");
@@ -392,125 +428,154 @@ const logoutButton = document.getElementById("logoutButton");
 const welcomeTitle = document.getElementById("welcomeTitle");
 const welcomeText = document.getElementById("welcomeText");
 const roleText = document.getElementById("roleText");
+
 const workspace = document.getElementById("workspace");
 const roleBadge = document.getElementById("roleBadge");
 const workspaceTitle = document.getElementById("workspaceTitle");
 const workspaceDescription =
-  document.getElementById("workspaceDescription");
+ document.getElementById("workspaceDescription");
 const workspaceLink = document.getElementById("workspaceLink");
 
 const statusBox = document.getElementById("status");
-
-const AUTH_URL =
-  "https://godhiambo992-hu.github.io/masterbook-platform/auth.html";
 
 /* STATUS MESSAGE */
 
 function showStatus(message,isError=false){
 
-  statusBox.textContent = message;
-  statusBox.style.display = "block";
+ statusBox.textContent = message;
+ statusBox.style.display = "block";
 
-  statusBox.style.background =
-    isError ? "#fee2e2" : "#dcfce7";
+ statusBox.style.background =
+  isError ? "#fee2e2" : "#dcfce7";
 
-  statusBox.style.color =
-    isError ? "#991b1b" : "#166534";
+ statusBox.style.color =
+  isError ? "#991b1b" : "#166534";
 }
 
 /* RESET ACCOUNT DISPLAY */
 
 function clearAccount(){
 
-  loginLink.classList.remove("hidden");
-  userEmail.classList.add("hidden");
-  logoutButton.classList.add("hidden");
+ loginLink.classList.remove("hidden");
+ userEmail.classList.add("hidden");
+ logoutButton.classList.add("hidden");
 
-  roleText.classList.add("hidden");
-  workspace.classList.add("hidden");
-  welcomeTitle.textContent = "Welcome to MASTERBOOK";
+ roleText.classList.add("hidden");
+ workspace.classList.add("hidden");
 
-  welcomeText.textContent =
-    "Discover quality educational resources and learning materials across different levels of education.";
+ welcomeTitle.textContent = "Welcome to MASTERBOOK";
+
+ welcomeText.textContent =
+  "Discover quality educational resources and learning materials across different levels of education.";
+
+}
+
+/* NORMALIZE ACCOUNT VALUES */
+
+function normalize(value){
+
+ return String(value || "").trim().toLowerCase();
 
 }
 
 /* IDENTIFY ACCOUNT ROLE
-   Normal account role takes priority.
-   Administrator access remains available separately.
+   STUDENT ROLE TAKES PRIORITY OVER ADMINISTRATOR FLAG.
 */
 
 function getRole(profile){
 
-  if(profile.requested_role === "student"){
-    return {
-      name:"Student",
-      title:"Student Learning Workspace",
-      description:
-        "Access learning resources, enrol in learning materials and monitor your academic progress.",
-      url:"student.html"
-    };
-  }
+ const requestedRole = normalize(profile.requested_role);
+ const approval = normalize(profile.approval_status);
 
-  if(profile.requested_role === "teacher"){
+ /* STUDENT */
 
-    if(profile.approval_status !== "approved"){
-      return {
-        name:"Teacher — Pending Approval",
-        title:"Teacher Application",
-        description:
-          "Your teacher account is awaiting administrator approval.",
-        url:"library.html"
-      };
-    }
+ if(requestedRole === "student"){
 
-    return {
-      name:"Teacher",
-      title:"Teacher Workspace",
-      description:
-        "Upload teaching materials and manage your educational resources.",
-      url:"teacher.html"
-    };
-  }
+  return {
+   name:"Student",
+   title:"Student Learning Workspace",
+   description:
+    "Access learning resources, enrol in learning materials and monitor your academic progress.",
+   url:"student.html"
+  };
 
-  if(profile.requested_role === "contributor"){
+ }
 
-    if(profile.approval_status !== "approved"){
-      return {
-        name:"Contributor — Pending Approval",
-        title:"Contributor Application",
-        description:
-          "Your contributor account is awaiting administrator approval.",
-        url:"library.html"
-      };
-    }
+ /* TEACHER */
 
-    return {
-      name:"Contributor",
-      title:"Contributor Workspace",
-      description:
-        "Submit educational content, research, coursebooks and monitor your submissions.",
-      url:"contributor.html"
-    };
-  }
+ if(requestedRole === "teacher"){
 
-  if(profile.is_admin === true){
-    return {
-      name:"Administrator",
-      title:"Administration Workspace",
-      description:
-        "Manage applications, review resources, oversee platform users and administer MASTERBOOK.",
-      url:"admin.html"
-    };
+  if(approval !== "approved"){
+
+   return {
+    name:"Teacher — Pending Approval",
+    title:"Teacher Application",
+    description:
+     "Your teacher account is awaiting administrator approval.",
+    url:"library.html"
+   };
+
   }
 
   return {
-    name:"Registered User",
-    title:"MASTERBOOK Learning Workspace",
-    description:
-      "Explore the educational library and public learning resources.",
-    url:"library.html"
+   name:"Teacher",
+   title:"Teacher Workspace",
+   description:
+    "Upload teaching materials and manage your educational resources.",
+   url:"teacher.html"
   };
+
+ }
+
+ /* CONTRIBUTOR */
+
+ if(requestedRole === "contributor"){
+
+  if(approval !== "approved"){
+
+   return {
+    name:"Contributor — Pending Approval",
+    title:"Contributor Application",
+    description:
+     "Your contributor account is awaiting administrator approval.",
+    url:"library.html"
+   };
+
+  }
+
+  return {
+   name:"Contributor",
+   title:"Contributor Workspace",
+   description:
+    "Submit educational content, research, coursebooks and monitor your submissions.",
+   url:"contributor.html"
+  };
+
+ }
+
+ /* ADMINISTRATOR FALLBACK */
+
+ if(profile.is_admin === true){
+
+  return {
+   name:"Administrator",
+   title:"Administration Workspace",
+   description:
+    "Manage applications, review resources, oversee platform users and administer MASTERBOOK.",
+   url:"admin.html"
+  };
+
+ }
+
+ /* OTHER REGISTERED ACCOUNTS */
+
+ return {
+  name:"Registered User",
+  title:"MASTERBOOK Learning Workspace",
+  description:
+   "Explore the educational library and public learning resources.",
+  url:"library.html"
+ };
 
 }
 
@@ -520,96 +585,111 @@ let latestRequest = 0;
 
 async function loadAccount(session){
 
-  const request = ++latestRequest;
+ const request = ++latestRequest;
 
-  if(!session || !session.user){
-    clearAccount();
-    return;
+ if(!session || !session.user){
+
+  clearAccount();
+  return;
+
+ }
+
+ const user = session.user;
+
+ loginLink.classList.add("hidden");
+ userEmail.classList.remove("hidden");
+ logoutButton.classList.remove("hidden");
+
+ userEmail.textContent = user.email || "Signed in";
+
+ welcomeTitle.textContent = "Loading your account...";
+
+ welcomeText.textContent =
+  "Connecting to your MASTERBOOK profile.";
+
+ workspace.classList.add("hidden");
+
+ try{
+
+  const {data:profile,error} = await db
+   .from("profiles")
+   .select(
+    "full_name,email,requested_role,approval_status,is_admin"
+   )
+   .eq("id",user.id)
+   .maybeSingle();
+
+  if(request !== latestRequest) return;
+
+  if(error) throw error;
+
+  if(!profile){
+
+   throw new Error(
+    "Your MASTERBOOK profile was not found."
+   );
+
   }
 
-  const user = session.user;
+  const displayName =
+   profile.full_name ||
+   profile.email ||
+   user.email ||
+   "MASTERBOOK User";
 
-  loginLink.classList.add("hidden");
-  userEmail.classList.remove("hidden");
-  logoutButton.classList.remove("hidden");
+  const role = getRole(profile);
 
-  userEmail.textContent = user.email || "Signed in";
-
-  welcomeTitle.textContent = "Loading your account...";
+  welcomeTitle.textContent =
+   "Welcome, " + displayName;
 
   welcomeText.textContent =
-    "Connecting to your MASTERBOOK profile.";
+   "Your MASTERBOOK account is connected. Your personalized workspace is ready.";
 
-  workspace.classList.add("hidden");
+  roleText.textContent =
+   "Account type: " + role.name;
 
-  try{
+  if(
+   profile.is_admin === true &&
+   normalize(profile.requested_role) === "student"
+  ){
 
-    const {data:profile,error} = await db
-      .from("profiles")
-      .select(
-        "full_name,email,requested_role,approval_status,is_admin"
-      )
-      .eq("id",user.id)
-      .single();
-
-    if(request !== latestRequest) return;
-
-    if(error) throw error;
-
-    const displayName =
-      profile.full_name ||
-      profile.email ||
-      user.email ||
-      "MASTERBOOK User";
-
-    const role = getRole(profile);
-
-    welcomeTitle.textContent =
-      "Welcome, " + displayName;
-
-    welcomeText.textContent =
-      "Your MASTERBOOK account is connected. Your personalized workspace is ready.";
-
-    roleText.textContent =
-      "Account type: " + role.name;
-
-    if(profile.is_admin === true &&
-       profile.requested_role === "student"){
-      roleText.textContent +=
-        " | Administrator access is also enabled.";
-    }
-
-    roleText.classList.remove("hidden");
-
-    roleBadge.textContent = role.name;
-    workspaceTitle.textContent = role.title;
-    workspaceDescription.textContent = role.description;
-    workspaceLink.href = role.url;
-
-    workspaceLink.textContent =
-      "Open " + role.name + " Workspace";
-
-    workspace.classList.remove("hidden");
-
-    statusBox.style.display = "none";
-
-  }catch(error){
-
-    console.error("MASTERBOOK profile error:",error);
-
-    if(request !== latestRequest) return;
-
-    welcomeTitle.textContent = "Welcome to MASTERBOOK";
-
-    welcomeText.textContent =
-      "You are signed in, but your profile could not be loaded.";
-
-    showStatus(
-      "Profile error: " + error.message,
-      true
-    );
+   roleText.textContent +=
+    " | Administrator access is also enabled.";
 
   }
+
+  roleText.classList.remove("hidden");
+
+  roleBadge.textContent = role.name;
+  workspaceTitle.textContent = role.title;
+  workspaceDescription.textContent = role.description;
+
+  workspaceLink.href = BASE_URL + role.url;
+
+  workspaceLink.textContent =
+   "Open " + role.name + " Workspace";
+
+  workspace.classList.remove("hidden");
+
+  statusBox.style.display = "none";
+
+ }catch(error){
+
+  console.error("MASTERBOOK profile error:",error);
+
+  if(request !== latestRequest) return;
+
+  welcomeTitle.textContent = "Welcome to MASTERBOOK";
+
+  welcomeText.textContent =
+   "You are signed in, but your profile could not be loaded.";
+
+  showStatus(
+   "Profile error: " + error.message,
+   true
+  );
+
+ }
 
 }
 
@@ -617,22 +697,22 @@ async function loadAccount(session){
 
 async function checkSession(){
 
-  try{
+ try{
 
-    const {data,error} = await db.auth.getSession();
+  const {data,error} = await db.auth.getSession();
 
-    if(error) throw error;
+  if(error) throw error;
 
-    await loadAccount(data.session);
+  await loadAccount(data.session);
 
-  }catch(error){
+ }catch(error){
 
-    showStatus(
-      "Connection error: " + error.message,
-      true
-    );
+  showStatus(
+   "Connection error: " + error.message,
+   true
+  );
 
-  }
+ }
 
 }
 
@@ -640,31 +720,32 @@ async function checkSession(){
 
 logoutButton.addEventListener("click",async function(){
 
-  logoutButton.disabled = true;
-  logoutButton.textContent = "Signing out...";
+ logoutButton.disabled = true;
+ logoutButton.textContent = "Signing out...";
 
-  try{
+ try{
 
-    const {error} = await db.auth.signOut({
-      scope:"global"
-    });
+  const {error} = await db.auth.signOut({
+   scope:"global"
+  });
 
-    if(error) throw error;
+  if(error) throw error;
 
-    clearAccount();
-    window.location.replace(AUTH_URL);
+  clearAccount();
 
-  }catch(error){
+  window.location.replace(AUTH_URL);
 
-    showStatus(
-      "Sign out failed: " + error.message,
-      true
-    );
+ }catch(error){
 
-    logoutButton.disabled = false;
-    logoutButton.textContent = "Sign Out";
+  showStatus(
+   "Sign out failed: " + error.message,
+   true
+  );
 
-  }
+  logoutButton.disabled = false;
+  logoutButton.textContent = "Sign Out";
+
+ }
 
 });
 
@@ -672,11 +753,11 @@ logoutButton.addEventListener("click",async function(){
 
 db.auth.onAuthStateChange(function(event,session){
 
-  Promise.resolve().then(function(){
+ Promise.resolve().then(function(){
 
-    loadAccount(session);
+  loadAccount(session);
 
-  });
+ });
 
 });
 
