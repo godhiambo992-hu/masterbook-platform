@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MASTERBOOK | Account Access</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 *{box-sizing:border-box}
 body{
@@ -53,6 +54,7 @@ input:focus,select:focus{outline:2px solid #176b63;border-color:transparent}
 .footer{text-align:center;color:#64748b;font-size:12px;margin-top:25px}
 </style>
 </head>
+
 <body>
 <div class="container">
 
@@ -129,13 +131,13 @@ input:focus,select:focus{outline:2px solid #176b63;border-color:transparent}
  </section>
 
  <div id="message" class="message" role="status" aria-live="polite"></div>
-
  <div class="footer">© 2026 MASTERBOOK. All rights reserved.</div>
 </div>
 
 <script>
 "use strict";
 
+/* SUPABASE CONFIGURATION */
 const SUPABASE_URL="https://bxsrhvcqjjtdnflhoplu.supabase.co";
 const SUPABASE_KEY="sb_publishable_Hgg2m91Ht2OOWCUHh7sGrw_mC9yCj7S";
 
@@ -147,14 +149,13 @@ const client=window.supabase.createClient(
 const BASE_URL="https://godhiambo992-hu.github.io/masterbook-platform/";
 const AUTH_URL=BASE_URL+"auth.html";
 
+/* PAGE SECTIONS */
 const sections=[
  "loginSection",
  "registerSection",
  "forgotSection",
  "recoverySection"
 ];
-
-let recoveryMode=false;
 
 function hideSections(){
  sections.forEach(id=>{
@@ -208,7 +209,6 @@ function showForgot(){
 }
 
 function showRecovery(){
- recoveryMode=true;
  hideSections();
  clearMessage();
  document.getElementById("tabs").classList.add("hidden");
@@ -221,7 +221,12 @@ function getError(error){
   :"Something went wrong. Please try again.";
 }
 
-/* MASTERBOOK ROLE-BASED LOGIN REDIRECTION */
+/* =================================================
+   MASTERBOOK ROLE-BASED REDIRECTION
+   STUDENTS ALWAYS GO TO THE MAIN HOMEPAGE.
+   STUDENT ROLE TAKES PRIORITY OVER ADMIN FLAG.
+================================================= */
+
 async function redirectUser(user){
 
  if(!user){
@@ -250,18 +255,14 @@ async function redirectUser(user){
 
  let destination="";
 
- /*
-  IMPORTANT:
-  STUDENT ROLE MUST BE CHECKED FIRST.
-  Even if is_admin is true, a student account
-  must open the main MASTERBOOK homepage.
- */
-
+ /* STUDENT: MAIN HOMEPAGE */
  if(role==="student"){
 
   destination=BASE_URL;
 
- }else if(role==="teacher"){
+ }
+ /* TEACHER */
+ else if(role==="teacher"){
 
   if(approval!=="approved"){
    throw new Error("Your teacher account is awaiting administrator approval.");
@@ -269,7 +270,9 @@ async function redirectUser(user){
 
   destination=BASE_URL+"teacher.html";
 
- }else if(role==="contributor"){
+ }
+ /* CONTRIBUTOR */
+ else if(role==="contributor"){
 
   if(approval!=="approved"){
    throw new Error("Your contributor account is awaiting administrator approval.");
@@ -277,11 +280,14 @@ async function redirectUser(user){
 
   destination=BASE_URL+"contributor.html";
 
- }else if(profile.is_admin===true){
+ }
+ /* ADMINISTRATOR */
+ else if(profile.is_admin===true){
 
   destination=BASE_URL+"admin.html";
 
- }else{
+ }
+ else{
 
   throw new Error("Your account role is not recognised. Contact the administrator.");
 
@@ -439,8 +445,6 @@ document.getElementById("recoveryForm").addEventListener("submit",async function
 
   if(error)throw error;
 
-  recoveryMode=false;
-
   showMessage(
    "Your password has been changed successfully.",
    "success"
@@ -525,12 +529,9 @@ async function initializePage(){
    return;
   }
 
-  const {data,error}=await client.auth.getSession();
+  await client.auth.getSession();
 
-  if(error)throw error;
-
-  // Keep the login screen visible when auth.html is opened.
-  // Login redirects are handled after successful sign-in.
+  /* Keep the login screen visible when auth.html opens. */
   showLogin();
 
  }catch(error){
