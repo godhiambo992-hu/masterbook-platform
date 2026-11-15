@@ -58,6 +58,9 @@ input,select,textarea{width:100%;padding:12px;border:1px solid #ccd5e0;border-ra
 footer{text-align:center;padding:25px;color:#667}
 table{width:100%;border-collapse:collapse;margin-top:12px}
 th,td{text-align:left;padding:10px;border-bottom:1px solid #e1e6ed}
+.certificate-card{border-left:5px solid #14518a}
+.certificate-card .badge{margin-top:8px}
+
 @media(max-width:600px){
  header{padding:16px}
  .panel{padding:15px}
@@ -120,9 +123,7 @@ th,td{text-align:left;padding:10px;border-bottom:1px solid #e1e6ed}
 <div id="lessonList">Loading lessons...</div>
 </section>
 
-<!-- DEDICATED LESSON READER -->
 <section id="lessonReader" class="panel hidden">
-
 <button class="secondary" onclick="backToCourse()">← Back to course</button>
 
 <div class="reader-header">
@@ -133,10 +134,7 @@ th,td{text-align:left;padding:10px;border-bottom:1px solid #e1e6ed}
 
 <h3>Lesson content</h3>
 
-<div id="readerContent" class="reader-content">
-Loading lesson...
-</div>
-
+<div id="readerContent" class="reader-content">Loading lesson...</div>
 <div id="readerResource" class="actions"></div>
 
 <div class="reader-navigation">
@@ -151,7 +149,6 @@ Mark lesson as complete
 </div>
 
 <p id="readerCompletionStatus" class="muted"></p>
-
 </section>
 
 <section id="resources" class="panel hidden">
@@ -187,7 +184,10 @@ Mark lesson as complete
 
 <section id="certificates" class="panel hidden">
 <h2>My Certificates</h2>
-<p class="muted">Certificates issued for successfully completed courses will appear here.</p>
+<p class="muted">
+Complete all published lessons and pass all published assessments
+in an enrolled course to qualify for a certificate.
+</p>
 <div id="certificateList">Loading certificates...</div>
 </section>
 
@@ -533,7 +533,6 @@ function renderLessonReader(){
  $("readerPosition").textContent=
   "Lesson "+(activeLessonIndex+1)+" of "+lessons.length;
 
- // textContent protects the page and preserves the lesson text.
  $("readerContent").textContent=
   lesson.content||"Learning content will be added by the course administrator.";
 
@@ -550,7 +549,6 @@ function renderLessonReader(){
  $("completeLessonButton").disabled=done;
 
  $("previousLesson").disabled=activeLessonIndex===0;
-
  $("nextLesson").disabled=activeLessonIndex===lessons.length-1;
 
  const resourceArea=$("readerResource");
@@ -568,17 +566,11 @@ function renderLessonReader(){
 }
 
 function previousLesson(){
-
- if(activeLessonIndex>0){
-  openLesson(activeLessonIndex-1);
- }
+ if(activeLessonIndex>0)openLesson(activeLessonIndex-1);
 }
 
 function nextLesson(){
-
- if(activeLessonIndex<lessons.length-1){
-  openLesson(activeLessonIndex+1);
- }
+ if(activeLessonIndex<lessons.length-1)openLesson(activeLessonIndex+1);
 }
 
 function backToCourse(){
@@ -590,7 +582,6 @@ function backToCourse(){
 async function completeCurrentLesson(){
 
  const lesson=lessons[activeLessonIndex];
-
  if(!lesson)return;
 
  const button=$("completeLessonButton");
@@ -611,7 +602,6 @@ async function completeCurrentLesson(){
   if(error)throw error;
 
   await loadData();
-
   renderLessonReader();
 
   message("Lesson completion recorded successfully.");
@@ -771,7 +761,6 @@ async function completeResource(id){
   if(error)throw error;
 
   await loadData();
-
   message("Resource marked as completed.");
 
  }catch(error){
@@ -943,7 +932,6 @@ $("quizForm").addEventListener("submit",async event=>{
    </div>`;
 
   await loadData();
-
   message("Assessment submitted and marked successfully.");
 
  }catch(error){
@@ -960,7 +948,6 @@ $("quizForm").addEventListener("submit",async event=>{
 });
 
 function finishQuiz(){
-
  $("quizForm").classList.remove("hidden");
  showSection("assessments");
 }
@@ -1009,10 +996,8 @@ function renderProgress(){
 
   let title="Completed lesson";
 
-  for(const course of courses){
-   const known=lessons.find(x=>x.id===p.lesson_id);
-   if(known){title=known.title;break;}
-  }
+  const known=lessons.find(x=>x.id===p.lesson_id);
+  if(known)title=known.title;
 
   return `
    <div class="resource">
@@ -1062,27 +1047,304 @@ function renderHistory(){
 
 function renderCertificates(){
 
- if(!certificates.length){
-  $("certificateList").textContent=
-   "No certificates have been issued to your account yet.";
+ const list=$("certificateList");
+
+ const enrolledCourses=courses.filter(c=>enrolled(c));
+
+ if(!enrolledCourses.length){
+  list.innerHTML=
+   "<p class='muted'>Enrol in a course to work towards a certificate.</p>";
   return;
  }
 
- $("certificateList").innerHTML=certificates.map(c=>{
+ let html="";
 
-  const course=courses.find(x=>x.id===c.course_id);
+ enrolledCourses.forEach(course=>{
 
-  return `
-   <div class="resource">
-    <h3>${escapeHTML(course?.title||"Course certificate")}</h3>
-    <p>Certificate code: ${escapeHTML(c.certificate_code)}</p>
-    <p class="muted">
-     Issued: ${c.issued_at?
-      new Date(c.issued_at).toLocaleDateString():"—"}
-    </p>
-   </div>`;
+  const certificate=certificates.find(
+   c=>c.course_id===course.id
+  );
 
- }).join("");
+  if(certificate){
+
+   html+=`
+    <div class="resource certificate-card">
+     <h3>${escapeHTML(course.title)}</h3>
+     <span class="badge">Certificate issued</span>
+
+     <p><strong>Certificate number:</strong>
+      ${escapeHTML(certificate.certificate_code)}
+     </p>
+
+     <p class="muted">
+      Date issued:
+      ${certificate.issued_at?
+       new Date(certificate.issued_at).toLocaleDateString():"—"}
+     </p>
+
+     <div class="actions">
+      <button class="primary"
+       onclick="printCertificate('${certificate.id}')">
+       Print / Save Certificate
+      </button>
+     </div>
+    </div>`;
+
+  }else{
+
+   html+=`
+    <div class="resource certificate-card">
+     <h3>${escapeHTML(course.title)}</h3>
+     <span class="badge">Not yet issued</span>
+
+     <p class="muted">
+      Complete all published lessons and pass all published assessments
+      to qualify for this course certificate.
+     </p>
+
+     <div class="actions">
+      <button class="primary"
+       onclick="requestCourseCertificate('${course.id}',this)">
+       Check eligibility and request certificate
+      </button>
+     </div>
+    </div>`;
+
+  }
+
+ });
+
+ list.innerHTML=html;
+}
+
+/* REQUEST CERTIFICATE */
+
+async function requestCourseCertificate(courseId,button){
+
+ if(!currentUser){
+  message("Please sign in again.",true);
+  return;
+ }
+
+ const originalText=button.textContent;
+
+ button.disabled=true;
+ button.textContent="Checking eligibility...";
+
+ try{
+
+  const {data,error}=await db.rpc(
+   "masterbook_issue_certificate",
+   {p_course_id:courseId}
+  );
+
+  if(error)throw error;
+
+  const issued=Array.isArray(data)?data[0]:data;
+
+  if(!issued||!issued.certificate_code){
+   throw new Error(
+    "No certificate was returned. Please try again."
+   );
+  }
+
+  await loadData();
+
+  showSection("certificates");
+
+  message("Congratulations! Your certificate has been issued.");
+
+ }catch(error){
+
+  message(
+   error.message||"Certificate request failed.",
+   true
+  );
+
+  button.disabled=false;
+  button.textContent=originalText;
+
+ }
+}
+
+/* PRINT AND SAVE CERTIFICATE */
+
+function printCertificate(certificateId){
+
+ const certificate=certificates.find(
+  c=>c.id===certificateId
+ );
+
+ if(!certificate){
+  message("Certificate not found.",true);
+  return;
+ }
+
+ const course=courses.find(
+  c=>c.id===certificate.course_id
+ );
+
+ if(!course){
+  message("Course information could not be found.",true);
+  return;
+ }
+
+ const studentName=$("studentName").textContent||"MASTERBOOK Student";
+
+ const issuedDate=certificate.issued_at?
+  new Date(certificate.issued_at).toLocaleDateString():"—";
+
+ const printWindow=window.open("","_blank");
+
+ if(!printWindow){
+  message("Allow pop-ups in your browser to print the certificate.",true);
+  return;
+ }
+
+ printWindow.document.open();
+
+ printWindow.document.write(`
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1">
+ <title>MASTERBOOK Certificate</title>
+
+ <style>
+ *{box-sizing:border-box}
+
+ body{
+  margin:0;
+  padding:25px;
+  background:#f1f4f8;
+  font-family:Georgia,serif;
+  color:#17314f;
+ }
+
+ .certificate{
+  max-width:1050px;
+  min-height:680px;
+  margin:20px auto;
+  padding:55px;
+  background:white;
+  border:12px double #173d68;
+  text-align:center;
+ }
+
+ .brand{
+  font-family:Arial,sans-serif;
+  font-size:36px;
+  font-weight:bold;
+  letter-spacing:5px;
+  color:#173d68;
+ }
+
+ .tagline{
+  font-family:Arial,sans-serif;
+  color:#687789;
+  margin-top:8px;
+ }
+
+ .heading{
+  font-size:38px;
+  margin:55px 0 20px;
+  color:#173d68;
+ }
+
+ .student{
+  font-size:34px;
+  font-weight:bold;
+  margin:30px auto;
+  padding:0 20px 12px;
+  border-bottom:2px solid #173d68;
+  display:inline-block;
+ }
+
+ .course{
+  font-size:27px;
+  font-weight:bold;
+  margin:30px 0;
+ }
+
+ .details{
+  font-family:Arial,sans-serif;
+  line-height:2;
+  margin-top:40px;
+ }
+
+ .footer{
+  margin-top:55px;
+  font-family:Arial,sans-serif;
+  font-size:13px;
+  color:#687789;
+ }
+
+ .print-button{
+  display:block;
+  margin:20px auto;
+  padding:14px 25px;
+  border:0;
+  border-radius:7px;
+  background:#173d68;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+ }
+
+ @media print{
+  body{background:white;padding:0}
+  .certificate{margin:0;min-height:95vh;box-shadow:none}
+  .print-button{display:none}
+  @page{size:A4 landscape;margin:10mm}
+ }
+ </style>
+ </head>
+
+ <body>
+
+ <div class="certificate">
+
+  <div class="brand">MASTERBOOK</div>
+  <div class="tagline">Learning Without Boundaries.</div>
+
+  <h1 class="heading">CERTIFICATE OF COMPLETION</h1>
+
+  <p>This certificate is proudly presented to</p>
+
+  <div class="student">${escapeHTML(studentName)}</div>
+
+  <p>In recognition of successfully completing the course</p>
+
+  <div class="course">${escapeHTML(course.title)}</div>
+
+  <p>Through the MASTERBOOK Learning Platform.</p>
+
+  <div class="details">
+   <strong>Certificate Number:</strong>
+   ${escapeHTML(certificate.certificate_code)}
+   <br>
+   <strong>Date Issued:</strong>
+   ${escapeHTML(issuedDate)}
+  </div>
+
+  <div class="footer">
+   MASTERBOOK | Learning Without Boundaries.
+   <br>
+   Issued electronically by the MASTERBOOK Learning Platform.
+  </div>
+
+ </div>
+
+ <button class="print-button" onclick="window.print()">
+  Print / Save as PDF
+ </button>
+
+ </body>
+ </html>
+ `);
+
+ printWindow.document.close();
 }
 
 /* LOGOUT */
