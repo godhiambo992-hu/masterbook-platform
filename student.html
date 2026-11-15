@@ -22,7 +22,7 @@ nav button{background:#24476e;color:white}
 nav button:hover{background:#35618e}
 main{max-width:1150px;margin:24px auto;padding:0 14px}
 .panel{background:white;padding:20px;border-radius:12px;margin-bottom:18px;box-shadow:0 2px 9px #0000000c}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
 .stat{background:#edf3fa;padding:17px;border-radius:10px}
 .stat strong{display:block;font-size:27px;margin-top:8px;color:#14518a}
 .resource{border:1px solid #e1e6ed;border-radius:10px;padding:16px;margin:12px 0}
@@ -50,7 +50,7 @@ input,select,textarea{width:100%;padding:12px;border:1px solid #ccd5e0;border-ra
 .reader-navigation button{flex:1;min-width:120px}
 footer{text-align:center;padding:25px;color:#667}
 table{width:100%;border-collapse:collapse;margin-top:12px}
-th,td{text-align:left;padding:10px;border-bottom:1px solid #e1e6ed}
+th,td{text-align:left;padding:10px;border-bottom:1px solid #e1e6ed;white-space:nowrap}
 .certificate-card{border-left:5px solid #14518a}
 .certificate-card .badge{margin-top:8px}
 .empty{padding:18px;text-align:center;color:#687789;background:#f8fafc;border-radius:8px}
@@ -58,6 +58,9 @@ a{color:#14518a}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7ab4ed;outline-offset:2px}
 #quizForm button[type="submit"]{width:100%;margin-top:15px}
 #quizResult{margin-top:15px}
+.result-score{font-size:30px;font-weight:bold;color:#14518a}
+.result-passed{background:#e6f5eb;border-left:5px solid #168348}
+.result-failed{background:#fff0d9;border-left:5px solid #a45b00}
 @media(max-width:600px){
  header{padding:16px}
  .panel{padding:15px}
@@ -95,17 +98,26 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7ab4
 <section id="overview" class="panel">
 <h2>Welcome, <span id="studentName">Student</span>!</h2>
 <p class="muted">Your personal learning and academic performance centre.</p>
+
 <div class="grid">
 <div class="stat">Available courses<strong id="courseCount">0</strong></div>
 <div class="stat">My enrolments<strong id="enrollmentCount">0</strong></div>
 <div class="stat">Completed lessons<strong id="completedCount">0</strong></div>
 <div class="stat">Assessments taken<strong id="attemptCount">0</strong></div>
+<div class="stat">Assessments passed<strong id="passedCount">0</strong></div>
+<div class="stat">Average score<strong id="averageScore">0%</strong></div>
 </div>
+
+<h3>Assessment performance</h3>
+<div id="performanceSummary" class="resource muted">Your assessment performance will appear here.</div>
+
 <h3>Learning activity</h3>
 <div id="recentActivity" class="muted">Loading your learning activity...</div>
+
 <div class="actions">
 <button class="primary" onclick="refreshDashboard()">Refresh dashboard</button>
 <button class="secondary" onclick="showSection('courses')">Explore courses</button>
+<button class="secondary" onclick="showSection('progress')">View assessment history</button>
 </div>
 </section>
 
@@ -191,6 +203,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7ab4
 <h2>My Learning Progress</h2>
 <div id="progressList">Loading progress...</div>
 <h3>Assessment history</h3>
+<p class="muted">A record of your submitted assessments, scores and results.</p>
 <div id="assessmentHistory">Loading assessment history...</div>
 </section>
 
@@ -279,6 +292,12 @@ function formatDate(value){
  return Number.isNaN(date.getTime())?"—":date.toLocaleDateString();
 }
 
+function formatDateTime(value){
+ if(!value)return "—";
+ const date=new Date(value);
+ return Number.isNaN(date.getTime())?"—":date.toLocaleString();
+}
+
 function showSection(id){
  if(!sections.includes(id))return;
 
@@ -313,6 +332,32 @@ function restoreButton(button){
 
 function enrolled(course){
  return enrollments.some(e=>e.course_id===course.id);
+}
+
+function assessmentTitle(attempt){
+ const assessment=assessments.find(a=>a.id===attempt.assessment_id);
+ return assessment?.title||"Assessment";
+}
+
+function getAttemptStats(){
+ const total=attempts.length;
+ const passed=attempts.filter(a=>a.passed===true).length;
+ const failed=total-passed;
+
+ const percentages=attempts
+  .map(a=>Number(a.percentage))
+  .filter(n=>Number.isFinite(n));
+
+ const average=percentages.length
+  ?percentages.reduce((sum,n)=>sum+n,0)/percentages.length
+  :0;
+
+ return {
+  total,
+  passed,
+  failed,
+  average:Math.round(average*100)/100
+ };
 }
 
 /* =====================================================
@@ -430,7 +475,12 @@ async function loadData(){
 
    db.from("learning_lessons")
     .select("id,title,course_id,lesson_order,status")
+    .eq("status","Published"),
+
+   db.from("learning_assessments")
+    .select("id,course_id,title,description,subject,total_marks,pass_percentage,status,created_at")
     .eq("status","Published")
+    .order("created_at",{ascending:false})
   ]);
 
   results.forEach(result=>{
@@ -446,14 +496,17 @@ async function loadData(){
   certificates=results[6].data||[];
   allLessons=results[7].data||[];
 
+  assessments=(results[8].data||[]).filter(a=>
+   enrollments.some(e=>e.course_id===a.course_id)
+  );
+
   renderDashboard();
   renderCourses();
   renderResources();
   renderProgress();
   renderHistory();
   renderCertificates();
-
-  await loadAssessments();
+  renderAssessments();
 
  }finally{
   loadingDashboard=false;
@@ -472,7 +525,7 @@ async function refreshDashboard(){
 }
 
 /* =====================================================
-   5. DASHBOARD
+   5. DASHBOARD AND ASSESSMENT ANALYTICS
 ===================================================== */
 
 function renderDashboard(){
@@ -484,15 +537,53 @@ function renderDashboard(){
  const completedResources=progressRecords.filter(p=>p.completed).length;
 
  $("completedCount").textContent=completedLessons+completedResources;
- $("attemptCount").textContent=attempts.length;
 
- if(attempts.length){
+ const stats=getAttemptStats();
+
+ $("attemptCount").textContent=stats.total;
+ $("passedCount").textContent=stats.passed;
+ $("averageScore").textContent=stats.average.toFixed(2)+"%";
+
+ if(stats.total){
+
+  $("performanceSummary").innerHTML=`
+   <div class="grid">
+    <div>
+     <strong>Total attempts</strong>
+     <p>${stats.total}</p>
+    </div>
+    <div>
+     <strong>Passed</strong>
+     <p class="success">${stats.passed}</p>
+    </div>
+    <div>
+     <strong>Not passed</strong>
+     <p class="warning">${stats.failed}</p>
+    </div>
+    <div>
+     <strong>Average percentage</strong>
+     <p>${stats.average.toFixed(2)}%</p>
+    </div>
+   </div>
+   <p class="muted">Your average is calculated from all recorded assessment attempts.</p>`;
+
   const latest=attempts[0];
-  $("recentActivity").textContent=
-   "Your latest assessment result was "+(latest.percentage??0)+"% on "+formatDate(latest.submitted_at)+".";
+
+  $("recentActivity").innerHTML=`
+   <div class="resource">
+    <strong>Latest assessment: ${escapeHTML(assessmentTitle(latest))}</strong>
+    <p>Score: ${escapeHTML(latest.score)} / ${escapeHTML(latest.total_marks)}</p>
+    <p>Percentage: ${escapeHTML(latest.percentage)}%</p>
+    <p class="${latest.passed?"success":"warning"}">
+     ${latest.passed?"Passed":"Not passed"}
+    </p>
+    <p class="muted">Submitted: ${formatDateTime(latest.submitted_at)}</p>
+   </div>`;
+
  }else{
-  $("recentActivity").textContent=
-   "No assessments completed yet. Enrol in a free course and begin learning.";
+
+  $("performanceSummary").textContent="You have not submitted any assessments yet.";
+  $("recentActivity").textContent="No assessments completed yet. Enrol in a free course and begin learning.";
  }
 }
 
@@ -956,22 +1047,6 @@ async function completeResource(id){
    16. ASSESSMENTS
 ===================================================== */
 
-async function loadAssessments(){
-
- const {data,error}=await db.from("learning_assessments")
-  .select("id,course_id,title,description,subject,total_marks,pass_percentage,status,created_at")
-  .eq("status","Published")
-  .order("created_at",{ascending:false});
-
- if(error)throw error;
-
- assessments=(data||[]).filter(a=>
-  enrollments.some(e=>e.course_id===a.course_id)
- );
-
- renderAssessments();
-}
-
 function renderAssessments(){
 
  if(!assessments.length){
@@ -980,18 +1055,30 @@ function renderAssessments(){
   return;
  }
 
- $("assessmentList").innerHTML=assessments.map(a=>`
-  <div class="resource">
-   <h3>${escapeHTML(a.title)}</h3>
-   <p>${escapeHTML(a.description||"")}</p>
-   <p class="muted">
-    ${escapeHTML(a.subject)} |
-    ${escapeHTML(a.total_marks)} marks |
-    Pass mark ${escapeHTML(a.pass_percentage)}%
-   </p>
-   <button class="primary" onclick="startQuiz('${escapeHTML(a.id)}')">Start assessment</button>
-  </div>
- `).join("");
+ $("assessmentList").innerHTML=assessments.map(a=>{
+
+  const previousAttempts=attempts.filter(x=>x.assessment_id===a.id);
+  const latest=previousAttempts[0];
+
+  return `
+   <div class="resource">
+    <h3>${escapeHTML(a.title)}</h3>
+    <p>${escapeHTML(a.description||"")}</p>
+    <p class="muted">
+     ${escapeHTML(a.subject)} |
+     ${escapeHTML(a.total_marks)} marks |
+     Pass mark ${escapeHTML(a.pass_percentage)}%
+    </p>
+    <p class="muted">Previous attempts: ${previousAttempts.length}</p>
+    ${latest?`
+     <p>Latest result: ${escapeHTML(latest.percentage)}%
+      <span class="${latest.passed?"success":"warning"}">
+       ${latest.passed?"Passed":"Not passed"}
+      </span>
+     </p>`:""}
+    <button class="primary" onclick="startQuiz('${escapeHTML(a.id)}')">Start assessment</button>
+   </div>`;
+ }).join("");
 }
 
 /* =====================================================
@@ -1020,6 +1107,9 @@ async function startQuiz(id){
   $("quizResult").innerHTML="";
   $("questionList").innerHTML="Loading questions...";
   $("quizForm").classList.remove("hidden");
+
+  const submitButton=$("quizForm").querySelector('button[type="submit"]');
+  submitButton.disabled=false;
 
   showSection("quiz");
 
@@ -1083,7 +1173,7 @@ async function startQuiz(id){
 }
 
 /* =====================================================
-   18. IMPROVED ASSESSMENT SUBMISSION
+   18. ASSESSMENT SUBMISSION AND RESULT DISPLAY
 ===================================================== */
 
 $("quizForm").addEventListener("submit",async event=>{
@@ -1148,34 +1238,44 @@ $("quizForm").addEventListener("submit",async event=>{
   }
 
   const passed=result.passed===true;
+  const submittedTitle=activeAssessment.title;
 
   $("quizForm").classList.add("hidden");
 
   $("quizResult").innerHTML=`
-   <div class="resource">
+   <div class="resource ${passed?"result-passed":"result-failed"}">
     <h3>Assessment result</h3>
+    <h2>${escapeHTML(submittedTitle)}</h2>
+    <p class="result-score">
+     ${escapeHTML(result.percentage??0)}%
+    </p>
     <p><strong>Score:</strong>
      ${escapeHTML(result.score??0)} /
      ${escapeHTML(result.total_marks??0)}
-    </p>
-    <p><strong>Percentage:</strong>
-     ${escapeHTML(result.percentage??0)}%
     </p>
     <p class="${passed?"success":"warning"}">
      <strong>${passed?"PASSED":"NOT PASSED"}</strong>
     </p>
     <p>${escapeHTML(result.message||"Your assessment has been marked.")}</p>
     <p class="muted">Your submitted result has been received by MASTERBOOK.</p>
-    <button class="primary" onclick="finishQuiz()">Return to assessments</button>
+    <div class="actions">
+     <button class="primary" onclick="finishQuiz()">Return to assessments</button>
+     <button class="secondary" onclick="showSection('progress')">View assessment history</button>
+     <button class="secondary" onclick="showSection('overview')">View dashboard</button>
+    </div>
    </div>`;
 
   message("Assessment submitted and marked successfully.");
 
-  /* Refresh dashboard separately.
-     A refresh failure must not undo a saved result. */
+  /*
+   Refresh saved assessment history and dashboard.
+   A refresh error does not change a successfully
+   returned assessment result.
+  */
 
   try{
    await loadData();
+   message("Assessment result saved. Dashboard and assessment history updated.");
   }catch(refreshError){
    console.error("Post-assessment dashboard refresh:",refreshError);
    message("Your assessment result was saved. Dashboard refresh failed; use Refresh dashboard to try again.",true);
@@ -1201,8 +1301,8 @@ function finishQuiz(){
  activeQuestions=[];
  $("quizForm").reset();
  $("quizForm").classList.remove("hidden");
- $("questionList").innerHTML="";
  $("quizResult").innerHTML="";
+ $("questionList").innerHTML="";
  showSection("assessments");
 }
 
@@ -1216,12 +1316,15 @@ function renderProgress(){
 
  const lessonDone=lessonProgress.filter(p=>p.completed).length;
  const resourceDone=progressRecords.filter(p=>p.completed).length;
+ const stats=getAttemptStats();
 
  let html=`
   <div class="grid">
    <div class="stat">Completed lessons<strong>${lessonDone}</strong></div>
    <div class="stat">Completed resources<strong>${resourceDone}</strong></div>
-   <div class="stat">Assessment attempts<strong>${attempts.length}</strong></div>
+   <div class="stat">Assessment attempts<strong>${stats.total}</strong></div>
+   <div class="stat">Assessments passed<strong>${stats.passed}</strong></div>
+   <div class="stat">Average score<strong>${stats.average.toFixed(2)}%</strong></div>
   </div>`;
 
  if(!lessonProgress.length&&!progressRecords.length){
@@ -1274,35 +1377,45 @@ function renderProgress(){
 }
 
 /* =====================================================
-   20. ASSESSMENT HISTORY
+   20. DETAILED ASSESSMENT HISTORY
 ===================================================== */
 
 function renderHistory(){
 
  if(!attempts.length){
   $("assessmentHistory").innerHTML=
-   '<p class="muted">No assessment attempts recorded yet.</p>';
+   '<div class="empty">No assessment attempts recorded yet. Your submitted assessments will appear here.</div>';
   return;
  }
 
  $("assessmentHistory").innerHTML=`
+  <div class="resource">
+   <h3>Assessment performance summary</h3>
+   <p>Total attempts: <strong>${attempts.length}</strong></p>
+   <p>Passed: <strong class="success">${attempts.filter(a=>a.passed===true).length}</strong></p>
+   <p>Not passed: <strong class="warning">${attempts.filter(a=>a.passed!==true).length}</strong></p>
+   <p>Average score: <strong>${getAttemptStats().average.toFixed(2)}%</strong></p>
+  </div>
+
   <div style="overflow-x:auto">
    <table>
     <thead>
      <tr>
+      <th>Assessment</th>
       <th>Score</th>
       <th>Percentage</th>
       <th>Result</th>
-      <th>Date</th>
+      <th>Date submitted</th>
      </tr>
     </thead>
     <tbody>
      ${attempts.map(a=>`
       <tr>
+       <td>${escapeHTML(assessmentTitle(a))}</td>
        <td>${escapeHTML(a.score)} / ${escapeHTML(a.total_marks)}</td>
        <td>${escapeHTML(a.percentage)}%</td>
        <td class="${a.passed?"success":"warning"}">${a.passed?"Passed":"Not passed"}</td>
-       <td>${formatDate(a.submitted_at)}</td>
+       <td>${formatDateTime(a.submitted_at)}</td>
       </tr>
      `).join("")}
     </tbody>
