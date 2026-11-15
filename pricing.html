@@ -1,0 +1,439 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MASTERBOOK | Pricing Catalogue</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6fa;color:#26364a}
+header{background:#10243e;color:white;padding:22px 5%;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+header h1{margin:0;font-size:23px}
+header p{margin:6px 0 0;color:#d2ddeb;font-size:13px}
+main{max-width:1150px;margin:25px auto;padding:0 15px}
+.panel{background:white;border-radius:12px;padding:20px;margin-bottom:18px;box-shadow:0 2px 12px #10243e0c}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 15px}
+.full{grid-column:1/-1}
+label{display:block;font-weight:bold;margin:13px 0 7px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #ccd5df;border-radius:7px;font:inherit;background:white}
+button{border:0;border-radius:7px;padding:11px 15px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:#1769aa;color:white}
+.secondary{background:#e3eaf2;color:#10243e}
+.danger{background:#bd3434;color:white}
+.success{background:#16834a;color:white}
+.message{padding:13px;border-radius:8px;background:#edf4fb;margin:12px 0;line-height:1.5;overflow-wrap:anywhere}
+.error{background:#fde5e5;color:#9b2525}
+.good{background:#e1f5e8;color:#126b39}
+.muted{font-size:13px;color:#718096;line-height:1.7}
+.product{border:1px solid #e1e7ee;border-radius:10px;padding:16px;margin:12px 0;overflow-wrap:anywhere}
+.product h3{margin:0 0 8px}
+.badge{display:inline-block;padding:5px 10px;border-radius:20px;background:#edf1f5;font-size:12px;font-weight:bold;margin:5px 5px 5px 0}
+.active{background:#def5e7;color:#126b39}
+.inactive{background:#fff3d7;color:#8b5b00}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hidden{display:none!important}
+footer{text-align:center;color:#718096;padding:25px;font-size:12px}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.panel{padding:15px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>MASTERBOOK Pricing Catalogue</h1>
+    <p>Administrator product and subscription management</p>
+  </div>
+  <button class="secondary" id="backBtn">Admin Dashboard</button>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>Administrator Access</h2>
+    <div id="message" class="message">Verifying administrator access...</div>
+  </section>
+
+  <section class="panel">
+    <h2 id="formHeading">Add a Product</h2>
+    <p class="muted">
+      Create pricing records for courses, individual resources and subscriptions.
+      New products are saved inactive by default.
+    </p>
+
+    <form id="productForm">
+      <input type="hidden" id="productId">
+
+      <div class="grid">
+        <div>
+          <label for="productType">Product type</label>
+          <select id="productType" required>
+            <option value="subscription">Monthly subscription</option>
+            <option value="course">Individual course</option>
+            <option value="resource">Individual resource</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="productCode">Product code</label>
+          <input id="productCode" required maxlength="80"
+            placeholder="Example: MB-GEO-001">
+        </div>
+
+        <div class="full">
+          <label for="productName">Product name</label>
+          <input id="productName" required maxlength="200">
+        </div>
+
+        <div class="full">
+          <label for="description">Description</label>
+          <textarea id="description" rows="3" maxlength="2000"></textarea>
+        </div>
+
+        <div id="courseField" class="full hidden">
+          <label for="courseId">Select course</label>
+          <select id="courseId">
+            <option value="">Select a course</option>
+          </select>
+        </div>
+
+        <div id="resourceField" class="full hidden">
+          <label for="resourceId">Select resource</label>
+          <select id="resourceId">
+            <option value="">Select a resource</option>
+          </select>
+        </div>
+
+        <div id="planField" class="full">
+          <label for="planCode">Subscription plan</label>
+          <select id="planCode">
+            <option value="monthly">Monthly — 30 days</option>
+          </select>
+        </div>
+
+        <div id="durationField" class="full">
+          <label for="duration">Duration (days)</label>
+          <input id="duration" type="number" min="1" value="30">
+        </div>
+
+        <div>
+          <label for="price">Price (KES)</label>
+          <input id="price" type="number" min="1" step="0.01" required>
+        </div>
+
+        <div>
+          <label>Currency</label>
+          <input value="KES" disabled>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="saveBtn" type="submit">Save Product</button>
+        <button class="secondary" id="resetBtn" type="button">Clear Form</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Pricing Catalogue</h2>
+    <p class="muted">
+      Review, edit and manage the products registered in MASTERBOOK.
+    </p>
+    <button class="primary" id="refreshBtn" type="button">Refresh Catalogue</button>
+    <div id="productList">Loading products...</div>
+  </section>
+</main>
+
+<footer>MASTERBOOK | Administrator Pricing Management</footer>
+
+<script>
+const SUPABASE_URL="https://bxsrhvcqjjtdnflhoplu.supabase.co";
+const SUPABASE_KEY="sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const $=id=>document.getElementById(id);
+let products=[];
+let courses=[];
+let resources=[];
+let currentUser=null;
+
+function message(text,type="normal"){
+  $("message").textContent=text;
+  $("message").className="message";
+  if(type==="error")$("message").classList.add("error");
+  if(type==="success")$("message").classList.add("good");
+}
+
+function escapeHTML(value){
+  return String(value??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    '"':"&quot;","'":"&#039;"
+  }[c]));
+}
+
+function showProductFields(){
+  const type=$("productType").value;
+  $("courseField").classList.toggle("hidden",type!=="course");
+  $("resourceField").classList.toggle("hidden",type!=="resource");
+  $("planField").classList.toggle("hidden",type!=="subscription");
+  $("durationField").classList.toggle("hidden",type!=="subscription");
+
+  $("courseId").required=type==="course";
+  $("resourceId").required=type==="resource";
+  $("planCode").required=type==="subscription";
+  $("duration").required=type==="subscription";
+}
+
+$("productType").addEventListener("change",showProductFields);
+
+async function initialise(){
+  try{
+    const {data:{session},error}=await db.auth.getSession();
+    if(error)throw error;
+
+    if(!session){
+      location.href="auth.html";
+      return;
+    }
+
+    currentUser=session.user;
+
+    const {data:isAdmin,error:adminError}=
+      await db.rpc("masterbook_admin_is_admin");
+
+    if(adminError)throw adminError;
+    if(isAdmin!==true){
+      throw new Error("Administrator privileges are required.");
+    }
+
+    message("Administrator access verified.","success");
+
+    await Promise.all([
+      loadCourses(),
+      loadResources(),
+      loadProducts()
+    ]);
+
+    showProductFields();
+
+  }catch(error){
+    console.error(error);
+    message("Access or loading error: "+error.message,"error");
+  }
+}
+
+async function loadCourses(){
+  const {data,error}=await db.from("learning_courses")
+    .select("id,title")
+    .order("title");
+
+  if(error)throw error;
+  courses=data||[];
+
+  $("courseId").innerHTML=
+    '<option value="">Select a course</option>'+
+    courses.map(c=>
+      `<option value="${escapeHTML(c.id)}">${escapeHTML(c.title)}</option>`
+    ).join("");
+}
+
+async function loadResources(){
+  const {data,error}=await db.from("resources")
+    .select("id,title")
+    .order("title");
+
+  if(error)throw error;
+  resources=data||[];
+
+  $("resourceId").innerHTML=
+    '<option value="">Select a resource</option>'+
+    resources.map(r=>
+      `<option value="${escapeHTML(r.id)}">${escapeHTML(r.title)}</option>`
+    ).join("");
+}
+
+async function loadProducts(){
+  $("productList").textContent="Loading catalogue...";
+
+  const {data,error}=await db.from("masterbook_products")
+    .select("*")
+    .order("display_order")
+    .order("created_at",{ascending:false});
+
+  if(error)throw error;
+  products=data||[];
+  renderProducts();
+}
+
+function renderProducts(){
+  if(!products.length){
+    $("productList").textContent="No products have been registered yet.";
+    return;
+  }
+
+  $("productList").innerHTML=products.map(p=>{
+    let target="";
+
+    if(p.product_type==="course"){
+      target=courses.find(c=>c.id===p.course_id)?.title||"Course";
+    }else if(p.product_type==="resource"){
+      target=resources.find(r=>r.id===p.resource_id)?.title||"Resource";
+    }else{
+      target="Monthly subscription · "+p.duration_days+" days";
+    }
+
+    return `
+      <article class="product">
+        <h3>${escapeHTML(p.product_name)}</h3>
+        <p><strong>KSh ${Number(p.price_kes).toLocaleString("en-KE",{minimumFractionDigits:2})}</strong></p>
+        <p class="muted">${escapeHTML(p.product_code)} · ${escapeHTML(p.product_type)}</p>
+        <p>${escapeHTML(target)}</p>
+        <span class="badge ${p.is_active?"active":"inactive"}">
+          ${p.is_active?"Active":"Inactive"}
+        </span>
+        <span class="badge">${escapeHTML(p.currency)}</span>
+        <div class="actions">
+          <button class="secondary" onclick="editProduct('${p.id}')">Edit</button>
+          <button class="${p.is_active?"danger":"success"}"
+            onclick="toggleProduct('${p.id}',${!p.is_active})">
+            ${p.is_active?"Deactivate":"Activate"}
+          </button>
+        </div>
+      </article>`;
+  }).join("");
+}
+
+function resetForm(){
+  $("productForm").reset();
+  $("productId").value="";
+  $("productType").value="subscription";
+  $("duration").value="30";
+  $("formHeading").textContent="Add a Product";
+  $("saveBtn").textContent="Save Product";
+  showProductFields();
+}
+
+function editProduct(id){
+  const p=products.find(item=>item.id===id);
+  if(!p)return;
+
+  $("productId").value=p.id;
+  $("productType").value=p.product_type;
+  $("productCode").value=p.product_code;
+  $("productName").value=p.product_name;
+  $("description").value=p.description||"";
+  $("price").value=p.price_kes;
+  $("courseId").value=p.course_id||"";
+  $("resourceId").value=p.resource_id||"";
+  $("planCode").value=p.plan_code||"monthly";
+  $("duration").value=p.duration_days||30;
+
+  $("formHeading").textContent="Edit Product";
+  $("saveBtn").textContent="Update Product";
+  showProductFields();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+$("productForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+
+  const button=$("saveBtn");
+  button.disabled=true;
+  button.textContent="Saving...";
+
+  try{
+    const type=$("productType").value;
+    const productCode=$("productCode").value.trim().toUpperCase();
+    const productId=$("productId").value;
+
+    const payload={
+      product_code:productCode,
+      product_name:$("productName").value.trim(),
+      description:$("description").value.trim()||null,
+      product_type:type,
+      course_id:type==="course"?$("courseId").value:null,
+      resource_id:type==="resource"?$("resourceId").value:null,
+      plan_code:type==="subscription"?$("planCode").value:null,
+      price_kes:Number($("price").value),
+      currency:"KES",
+      duration_days:type==="subscription"?Number($("duration").value):null,
+      updated_at:new Date().toISOString()
+    };
+
+    if(!payload.product_name)throw new Error("Enter a product name.");
+    if(!Number.isFinite(payload.price_kes)||payload.price_kes<=0)
+      throw new Error("Enter a valid price.");
+
+    if(type==="subscription" && payload.plan_code!=="monthly")
+      throw new Error("Only the monthly subscription is currently configured.");
+
+    if(productId){
+      const {error}=await db.from("masterbook_products")
+        .update(payload).eq("id",productId);
+      if(error)throw error;
+    }else{
+      payload.is_active=false;
+      const {error}=await db.from("masterbook_products").insert(payload);
+      if(error)throw error;
+    }
+
+    message(productId?
+      "Product updated successfully.":
+      "Product saved successfully as inactive.","success");
+
+    resetForm();
+    await loadProducts();
+
+  }catch(error){
+    console.error(error);
+    message("Could not save product: "+error.message,"error");
+  }finally{
+    button.disabled=false;
+    button.textContent=$("productId").value?"Update Product":"Save Product";
+  }
+});
+
+async function toggleProduct(id,active){
+  const p=products.find(item=>item.id===id);
+  if(!p)return;
+
+  if(active && !confirm(
+    "Activate this product? Only do this after its payment and access controls are ready."
+  ))return;
+
+  if(!active && !confirm("Deactivate this product?"))return;
+
+  try{
+    const {error}=await db.from("masterbook_products")
+      .update({is_active:active,updated_at:new Date().toISOString()})
+      .eq("id",id);
+
+    if(error)throw error;
+
+    message("Product status updated.","success");
+    await loadProducts();
+
+  }catch(error){
+    message("Status update failed: "+error.message,"error");
+  }
+}
+
+$("refreshBtn").addEventListener("click",async()=>{
+  try{
+    await Promise.all([loadCourses(),loadResources(),loadProducts()]);
+    message("Pricing catalogue refreshed.","success");
+  }catch(error){
+    message(error.message,"error");
+  }
+});
+
+$("resetBtn").addEventListener("click",resetForm);
+$("backBtn").addEventListener("click",()=>{
+  location.href="admin.html";
+});
+
+initialise();
+</script>
+</body>
+</html>
