@@ -181,185 +181,165 @@ footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
 
 <main>
 
-  <!-- MAIN DASHBOARD NAVIGATION -->
-  <section class="navigation" aria-label="Dashboard navigation">
-    <button id="backBtn" type="button" disabled>← Back</button>
-    <button id="forwardBtn" type="button" disabled>Forward →</button>
-    <button id="homeBtn" class="home" type="button">Dashboard Home</button>
+<section class="navigation" aria-label="Dashboard navigation">
+  <button id="backBtn" type="button" disabled>← Back</button>
+  <button id="forwardBtn" type="button" disabled>Forward →</button>
+  <button id="homeBtn" class="home" type="button">Dashboard Home</button>
 
-    <button class="section-btn active" data-section="workspace" type="button">
-      Overview
-    </button>
-    <button class="section-btn" data-section="applicationsPanel" type="button">
-      Applications
-    </button>
-    <button class="section-btn" data-section="uploadPanel" type="button">
-      Upload
-    </button>
-    <button class="section-btn" data-section="resourcePanel" type="button">
-      Resources
-    </button>
+  <button class="section-btn active" data-section="workspace" type="button">Overview</button>
+  <button class="section-btn" data-section="applicationsPanel" type="button">Applications</button>
+  <button class="section-btn" data-section="uploadPanel" type="button">Upload</button>
+  <button class="section-btn" data-section="resourcePanel" type="button">Resources</button>
 
-    <span id="navigationInfo" class="nav-info">Dashboard Overview</span>
-  </section>
+  <span id="navigationInfo" class="nav-info">Dashboard Overview</span>
+</section>
 
-  <!-- OVERVIEW -->
-  <section class="panel" id="workspace">
-    <h2>Administrator Workspace</h2>
-    <div id="identity" class="small">Verifying administrator access...</div>
-    <div id="message" class="message">Connecting to MASTERBOOK...</div>
-  </section>
+<section class="panel" id="workspace">
+  <h2>Administrator Workspace</h2>
+  <div id="identity" class="small">Verifying administrator access...</div>
+  <div id="message" class="message">Connecting to MASTERBOOK...</div>
+</section>
 
-  <section class="stats" id="dashboardStats">
-    <div class="stat">Total resources<strong id="totalCount">—</strong></div>
-    <div class="stat">Awaiting review<strong id="pendingCount">—</strong></div>
-    <div class="stat">Published<strong id="publishedCount">—</strong></div>
-    <div class="stat">Rejected<strong id="rejectedCount">—</strong></div>
-    <div class="stat">Pending applications<strong id="applicationCount">—</strong></div>
-  </section>
+<section class="stats" id="dashboardStats">
+  <div class="stat">Total resources<strong id="totalCount">—</strong></div>
+  <div class="stat">Awaiting review<strong id="pendingCount">—</strong></div>
+  <div class="stat">Published<strong id="publishedCount">—</strong></div>
+  <div class="stat">Rejected<strong id="rejectedCount">—</strong></div>
+  <div class="stat">Pending applications<strong id="applicationCount">—</strong></div>
+</section>
 
-  <!-- TEACHER AND CONTRIBUTOR APPLICATIONS -->
-  <section class="panel" id="applicationsPanel">
-    <h2>Teacher and Contributor Applications</h2>
-    <p class="small">
-      Review applications from people requesting Teacher or Contributor access.
-      Approving an application changes its account approval status.
-    </p>
+<section class="panel" id="applicationsPanel">
+  <h2>Teacher and Contributor Applications</h2>
+  <p class="small">
+    Review applications from people requesting Teacher or Contributor access.
+    Approving an application changes its account approval status.
+  </p>
 
-    <button class="primary" id="refreshApplications" type="button">
-      Refresh Applications
-    </button>
+  <button class="primary" id="refreshApplications" type="button">
+    Refresh Applications
+  </button>
 
-    <div id="applicationsMessage" class="message">
-      Applications have not yet been loaded.
-    </div>
+  <div id="applicationsMessage" class="message">
+    Applications have not yet been loaded.
+  </div>
 
-    <div id="applicationsList"></div>
-  </section>
+  <div id="applicationsList"></div>
+</section>
 
-  <!-- RESOURCE UPLOAD -->
-  <section class="panel" id="uploadPanel">
-    <h2>Upload a Resource</h2>
-    <p class="small">
-      Administrator uploads are saved as drafts for review and publication.
-    </p>
+<section class="panel" id="uploadPanel">
+  <h2>Upload a Resource</h2>
+  <p class="small">
+    Administrator uploads are saved as drafts for review and publication.
+  </p>
 
-    <form id="uploadForm">
-      <div class="grid">
-        <div class="full">
-          <label for="uploadTitle">Resource title</label>
-          <input id="uploadTitle" maxlength="200" required>
-        </div>
-
-        <div class="full">
-          <label for="uploadDescription">Description</label>
-          <textarea id="uploadDescription" maxlength="2000"></textarea>
-        </div>
-
-        <div>
-          <label for="uploadLevel">Education level</label>
-          <select id="uploadLevel" required>
-            <option value="">Select level</option>
-            <option>Primary</option>
-            <option>Junior School</option>
-            <option>Senior School</option>
-            <option>University</option>
-            <option>Professional</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="uploadSubject">Subject</label>
-          <input id="uploadSubject" required maxlength="100">
-        </div>
-
-        <div>
-          <label for="uploadType">Resource type</label>
-          <select id="uploadType" required>
-            <option value="">Select type</option>
-            <option>Notes</option>
-            <option>Revision Paper</option>
-            <option>Coursebook</option>
-            <option>Lesson Plan</option>
-            <option>Research</option>
-            <option>Video</option>
-            <option>Other</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="uploadCurriculum">Curriculum</label>
-          <select id="uploadCurriculum">
-            <option>Kenyan CBC</option>
-            <option>University</option>
-            <option>International</option>
-            <option>Other</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="uploadTier">Access tier</label>
-          <select id="uploadTier">
-            <option>Free</option>
-            <option>Premium</option>
-          </select>
-        </div>
-
-        <div class="full">
-          <label for="uploadFile">PDF document</label>
-          <input id="uploadFile" type="file" accept=".pdf,application/pdf" required>
-          <p class="small">PDF only. Maximum 50 MB.</p>
-        </div>
+  <form id="uploadForm">
+    <div class="grid">
+      <div class="full">
+        <label for="uploadTitle">Resource title</label>
+        <input id="uploadTitle" maxlength="200" required>
       </div>
 
-      <div id="uploadProgress" class="hidden">
-        <p id="progressLabel" class="small">Preparing upload...</p>
-        <div class="progress-wrap">
-          <div id="progressBar" class="progress-bar"></div>
-        </div>
-        <p id="progressText" class="small">0%</p>
+      <div class="full">
+        <label for="uploadDescription">Description</label>
+        <textarea id="uploadDescription" maxlength="2000"></textarea>
       </div>
 
-      <button class="primary" id="uploadButton" type="submit">
-        Upload Resource
-      </button>
+      <div>
+        <label for="uploadLevel">Education level</label>
+        <select id="uploadLevel" required>
+          <option value="">Select level</option>
+          <option>Primary</option>
+          <option>Junior School</option>
+          <option>Senior School</option>
+          <option>University</option>
+          <option>Professional</option>
+        </select>
+      </div>
 
-      <button class="edit hidden" id="retryUploadButton" type="button">
-        Retry Saving Resource Record
-      </button>
-    </form>
-  </section>
+      <div>
+        <label for="uploadSubject">Subject</label>
+        <input id="uploadSubject" required maxlength="100">
+      </div>
 
-  <!-- RESOURCE MANAGEMENT -->
-  <section class="panel" id="resourcePanel">
-    <h2>Resource Management</h2>
+      <div>
+        <label for="uploadType">Resource type</label>
+        <select id="uploadType" required>
+          <option value="">Select type</option>
+          <option>Notes</option>
+          <option>Revision Paper</option>
+          <option>Coursebook</option>
+          <option>Lesson Plan</option>
+          <option>Research</option>
+          <option>Video</option>
+          <option>Other</option>
+        </select>
+      </div>
 
-    <div class="tabs">
-      <button class="active" data-tab="pending" type="button">Submissions</button>
-      <button data-tab="published" type="button">Published</button>
-      <button data-tab="rejected" type="button">Rejected</button>
-      <button data-tab="all" type="button">All Resources</button>
+      <div>
+        <label for="uploadCurriculum">Curriculum</label>
+        <select id="uploadCurriculum">
+          <option>Kenyan CBC</option>
+          <option>University</option>
+          <option>International</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="uploadTier">Access tier</label>
+        <select id="uploadTier">
+          <option>Free</option>
+          <option>Premium</option>
+        </select>
+      </div>
+
+      <div class="full">
+        <label for="uploadFile">PDF document</label>
+        <input id="uploadFile" type="file" accept=".pdf,application/pdf" required>
+        <p class="small">PDF only. Maximum 50 MB.</p>
+      </div>
     </div>
 
-    <h3 id="sectionTitle">Submissions Awaiting Review</h3>
-
-    <div class="toolbar">
-      <input id="searchBox" placeholder="Search title, subject or education level">
-      <button class="primary" id="refreshButton" type="button">Refresh</button>
+    <div id="uploadProgress" class="hidden">
+      <p id="progressLabel" class="small">Preparing upload...</p>
+      <div class="progress-wrap">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+      <p id="progressText" class="small">0%</p>
     </div>
 
-    <div class="navigation">
-      <button id="previousResourceBtn" type="button" disabled>
-        ← Previous Resource
-      </button>
-      <button id="nextResourceBtn" type="button" disabled>
-        Next Resource →
-      </button>
-      <span id="resourcePosition" class="nav-info">No resources selected</span>
-    </div>
+    <button class="primary" id="uploadButton" type="submit">Upload Resource</button>
+    <button class="edit hidden" id="retryUploadButton" type="button">
+      Retry Saving Resource Record
+    </button>
+  </form>
+</section>
 
-    <div id="resourceList">Loading resources...</div>
-  </section>
+<section class="panel" id="resourcePanel">
+  <h2>Resource Management</h2>
+
+  <div class="tabs">
+    <button class="active" data-tab="pending" type="button">Submissions</button>
+    <button data-tab="published" type="button">Published</button>
+    <button data-tab="rejected" type="button">Rejected</button>
+    <button data-tab="all" type="button">All Resources</button>
+  </div>
+
+  <h3 id="sectionTitle">Submissions Awaiting Review</h3>
+
+  <div class="toolbar">
+    <input id="searchBox" placeholder="Search title, subject or education level">
+    <button class="primary" id="refreshButton" type="button">Refresh</button>
+  </div>
+
+  <div class="navigation">
+    <button id="previousResourceBtn" type="button" disabled>← Previous Resource</button>
+    <button id="nextResourceBtn" type="button" disabled>Next Resource →</button>
+    <span id="resourcePosition" class="nav-info">No resources selected</span>
+  </div>
+
+  <div id="resourceList">Loading resources...</div>
+</section>
 
 </main>
 
@@ -371,8 +351,6 @@ footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
 ===================================================== */
 
 const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
-
-/* Existing MASTERBOOK publishable key */
 const SUPABASE_KEY = "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
 
 const BUCKET = "masterbook-resources";
@@ -388,11 +366,9 @@ let applications = [];
 let activeTab = "pending";
 let busy = false;
 let pendingUpload = null;
-
 let visibleResources = [];
 let currentResourceIndex = 0;
 
-/* Navigation history */
 let navigationHistory = [];
 let navigationForward = [];
 let applyingNavigation = false;
@@ -406,11 +382,11 @@ const $ = id => document.getElementById(id);
 
 function escapeHTML(value) {
   return String(value ?? "").replace(/[&<>"']/g, c => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
   }[c]));
 }
 
@@ -420,6 +396,14 @@ function notify(text, type = "normal") {
 
   if (type === "error") $("message").classList.add("error");
   if (type === "success") $("message").classList.add("success");
+}
+
+function setApplicationsMessage(text, type = "normal") {
+  $("applicationsMessage").textContent = text;
+  $("applicationsMessage").className = "message";
+
+  if (type === "error") $("applicationsMessage").classList.add("error");
+  if (type === "success") $("applicationsMessage").classList.add("success");
 }
 
 function setBusy(value) {
@@ -440,6 +424,12 @@ function makeId() {
   return crypto.randomUUID
     ? crypto.randomUUID()
     : Date.now().toString(36) + Math.random().toString(36).slice(2);
+}
+
+function isValidUUID(value) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    String(value || "")
+  );
 }
 
 
@@ -469,17 +459,17 @@ function updateNavigationInfo() {
   const state = getNavigationState();
 
   const names = {
-    workspace: "Dashboard Overview",
-    applicationsPanel: "Account Applications",
-    uploadPanel: "Resource Upload",
-    resourcePanel: "Resource Management"
+    workspace:"Dashboard Overview",
+    applicationsPanel:"Account Applications",
+    uploadPanel:"Resource Upload",
+    resourcePanel:"Resource Management"
   };
 
   const tabNames = {
-    pending: "Submissions",
-    published: "Published",
-    rejected: "Rejected",
-    all: "All Resources"
+    pending:"Submissions",
+    published:"Published",
+    rejected:"Rejected",
+    all:"All Resources"
   };
 
   $("navigationInfo").textContent =
@@ -496,9 +486,7 @@ function recordNavigation(state) {
 
   navigationHistory.push({...state});
 
-  if (navigationHistory.length > 50) {
-    navigationHistory.shift();
-  }
+  if (navigationHistory.length > 50) navigationHistory.shift();
 
   navigationForward = [];
   updateNavigationButtons();
@@ -546,9 +534,7 @@ function goBack() {
   const current = navigationHistory.pop();
   navigationForward.push(current);
 
-  applyNavigationState(
-    navigationHistory[navigationHistory.length - 1]
-  );
+  applyNavigationState(navigationHistory[navigationHistory.length - 1]);
 }
 
 function goForward() {
@@ -561,10 +547,7 @@ function goForward() {
 }
 
 function goHome() {
-  const homeState = {
-    section: "workspace",
-    tab: "pending"
-  };
+  const homeState = {section:"workspace", tab:"pending"};
 
   recordNavigation(homeState);
 
@@ -576,12 +559,9 @@ function goHome() {
 }
 
 function goToSection(sectionId) {
-  if (!$ (sectionId)) return;
+  if (!$(sectionId)) return;
 
-  const nextState = {
-    section: sectionId,
-    tab: activeTab
-  };
+  const nextState = {section:sectionId, tab:activeTab};
 
   if (!sameNavigationState(getNavigationState(), nextState)) {
     recordNavigation(nextState);
@@ -637,6 +617,7 @@ async function initialise() {
         "Access denied. Administrator privileges are required.",
         "error"
       );
+      $("identity").textContent = "Administrator access denied.";
       return;
     }
 
@@ -656,13 +637,11 @@ async function initialise() {
     updateNavigationButtons();
     updateNavigationInfo();
 
-    notify(
-      "Administrator access verified. Dashboard is ready.",
-      "success"
-    );
+    notify("Administrator access verified. Dashboard is ready.", "success");
 
   } catch (error) {
     console.error(error);
+
     notify(
       "Administrator verification failed: " + error.message,
       "error"
@@ -677,8 +656,7 @@ async function initialise() {
 
 async function loadApplications() {
   $("applicationsList").textContent = "Loading applications...";
-  $("applicationsMessage").textContent =
-    "Retrieving pending applications...";
+  setApplicationsMessage("Retrieving pending applications...");
 
   try {
     const {data, error} = await db.rpc(
@@ -695,84 +673,116 @@ async function loadApplications() {
       $("applicationsList").innerHTML =
         "<p class='small'>There are currently no pending Teacher or Contributor applications.</p>";
 
-      $("applicationsMessage").textContent =
-        "Application records are up to date.";
-
+      setApplicationsMessage("Application records are up to date.", "success");
       return;
     }
 
-    $("applicationsMessage").textContent =
-      applications.length + " pending application(s) found.";
+    setApplicationsMessage(
+      applications.length + " pending application(s) found.",
+      "success"
+    );
 
-    $("applicationsList").innerHTML = applications.map(app => `
-      <article class="application">
-        <h3>${escapeHTML(app.full_name || "Name not provided")}</h3>
+    $("applicationsList").innerHTML = applications.map(app => {
+      /* IMPORTANT: SQL returns user_id, not id. */
+      const applicantId = app.user_id;
 
-        <div class="meta">
-          <strong>Email:</strong> ${escapeHTML(app.email || "Not provided")}<br>
-          <strong>Requested role:</strong>
-          ${escapeHTML(app.requested_role || "Not specified")}<br>
-          <strong>Application date:</strong>
-          ${app.created_at
-            ? new Date(app.created_at).toLocaleString()
-            : "Not recorded"}
-        </div>
+      const validId = isValidUUID(applicantId);
 
-        <span class="status pending">Awaiting approval</span>
+      return `
+        <article class="application">
+          <h3>${escapeHTML(app.full_name || "Name not provided")}</h3>
 
-        <div class="actions">
-          <button class="approve"
-            data-application-action="approve"
-            data-user-id="${escapeHTML(app.id)}">
-            Approve
-          </button>
+          <div class="meta">
+            <strong>Email:</strong> ${escapeHTML(app.email || "Not provided")}<br>
+            <strong>Requested role:</strong>
+            ${escapeHTML(app.requested_role || "Not specified")}<br>
+            <strong>Application date:</strong>
+            ${app.created_at
+              ? new Date(app.created_at).toLocaleString()
+              : "Not recorded"}
+          </div>
 
-          <button class="reject"
-            data-application-action="reject"
-            data-user-id="${escapeHTML(app.id)}">
-            Decline
-          </button>
-        </div>
-      </article>
-    `).join("");
+          <span class="status pending">Awaiting approval</span>
+
+          ${!validId
+            ? `<p class="message error">This application has no valid user UUID. Approval is disabled until the database record is checked.</p>`
+            : ""}
+
+          <div class="actions">
+            <button class="approve"
+              data-application-action="approve"
+              data-user-id="${validId ? escapeHTML(applicantId) : ""}"
+              ${validId ? "" : "disabled"}>
+              Approve
+            </button>
+
+            <button class="reject"
+              data-application-action="reject"
+              data-user-id="${validId ? escapeHTML(applicantId) : ""}"
+              ${validId ? "" : "disabled"}>
+              Decline
+            </button>
+          </div>
+        </article>
+      `;
+    }).join("");
 
   } catch (error) {
     console.error("Application loading failed:", error);
 
+    applications = [];
     $("applicationCount").textContent = "—";
     $("applicationsList").textContent =
       "Applications could not be loaded.";
 
-    $("applicationsMessage").textContent =
-      "Application loading failed: " + error.message;
-
-    $("applicationsMessage").className = "message error";
+    setApplicationsMessage(
+      "Application loading failed: " + error.message,
+      "error"
+    );
   }
 }
 
 async function reviewApplication(userId, decision, button) {
-  if (button) button.disabled = true;
-
-  const action = decision === "approve" ? "approve" : "decline";
-
-  if (!confirm("Are you sure you want to " + action + " this application?")) {
-    if (button) button.disabled = false;
+  if (!isValidUUID(userId)) {
+    notify(
+      "Invalid applicant UUID. Refresh applications and try again.",
+      "error"
+    );
     return;
   }
+
+  if (!["approved", "rejected"].includes(decision)) {
+    notify("Invalid application decision.", "error");
+    return;
+  }
+
+  const action = decision === "approved" ? "approve" : "decline";
+
+  if (!confirm(
+    "Are you sure you want to " + action + " this application?"
+  )) return;
+
+  if (button) button.disabled = true;
 
   try {
     const {data, error} = await db.rpc(
       "masterbook_admin_review_application",
       {
-        p_user_id: userId,
-        p_decision: decision
+        p_user_id:userId,
+        p_decision:decision
       }
     );
 
     if (error) throw error;
 
+    if (data !== true) {
+      throw new Error("Supabase did not confirm the application decision.");
+    }
+
     notify(
-      "Application " + action + " action completed.",
+      decision === "approved"
+        ? "Teacher or Contributor application approved successfully."
+        : "Teacher or Contributor application rejected successfully.",
       "success"
     );
 
@@ -790,6 +800,7 @@ async function reviewApplication(userId, decision, button) {
   }
 }
 
+/* Correctly translate the button action into the SQL decision value. */
 $("applicationsList").addEventListener("click", event => {
   const button = event.target.closest(
     "button[data-application-action]"
@@ -798,7 +809,22 @@ $("applicationsList").addEventListener("click", event => {
   if (!button || button.disabled) return;
 
   const userId = button.dataset.userId;
-  const decision = button.dataset.applicationAction;
+  const action = button.dataset.applicationAction;
+
+  if (!isValidUUID(userId)) {
+    notify("Applicant UUID is missing or invalid.", "error");
+    return;
+  }
+
+  const decision =
+    action === "approve" ? "approved" :
+    action === "reject" ? "rejected" :
+    null;
+
+  if (!decision) {
+    notify("Unknown application action.", "error");
+    return;
+  }
 
   reviewApplication(userId, decision, button);
 });
@@ -930,10 +956,10 @@ $("nextResourceBtn").addEventListener("click", () => {
 
 function renderResources() {
   const headings = {
-    pending: "Submissions Awaiting Review",
-    published: "Published Resources",
-    rejected: "Rejected Submissions",
-    all: "All MASTERBOOK Resources"
+    pending:"Submissions Awaiting Review",
+    published:"Published Resources",
+    rejected:"Rejected Submissions",
+    all:"All MASTERBOOK Resources"
   };
 
   $("sectionTitle").textContent = headings[activeTab];
@@ -1045,11 +1071,11 @@ async function updateReview(id, decision, reason = "") {
   }
 
   const update = {
-    status: decision === "approve" ? "Published" : "Draft",
-    reviewed_by: currentUser.id,
-    reviewed_at: new Date().toISOString(),
-    rejection_reason: decision === "reject" ? reason : null,
-    updated_at: new Date().toISOString()
+    status:decision === "approve" ? "Published" : "Draft",
+    reviewed_by:currentUser.id,
+    reviewed_at:new Date().toISOString(),
+    rejection_reason:decision === "reject" ? reason : null,
+    updated_at:new Date().toISOString()
   };
 
   const button = document.querySelector(
@@ -1085,10 +1111,7 @@ async function updateReview(id, decision, reason = "") {
   } catch (error) {
     console.error("Review action failed:", error);
 
-    notify(
-      "The review action was not confirmed: " + error.message,
-      "error"
-    );
+    notify("The review action was not confirmed: " + error.message, "error");
 
     if (button) button.disabled = false;
   }
@@ -1103,9 +1126,7 @@ async function approveResource(id) {
 }
 
 async function rejectResource(id) {
-  const reason = prompt(
-    "Enter a clear reason for rejecting this resource:"
-  );
+  const reason = prompt("Enter a clear reason for rejecting this resource:");
 
   if (reason === null) return;
 
@@ -1114,9 +1135,9 @@ async function rejectResource(id) {
     return;
   }
 
-  if (!confirm(
-    "Confirm rejection? The resource will remain unpublished."
-  )) return;
+  if (!confirm("Confirm rejection? The resource will remain unpublished.")) {
+    return;
+  }
 
   await updateReview(id, "reject", reason.trim());
 }
@@ -1160,12 +1181,12 @@ async function editResource(id) {
   try {
     const {data, error} = await db.from("resources")
       .update({
-        title: title.trim(),
-        description: description.trim(),
-        subject: subject.trim(),
-        education_level: level.trim(),
-        access_tier: tier.trim(),
-        updated_at: new Date().toISOString()
+        title:title.trim(),
+        description:description.trim(),
+        subject:subject.trim(),
+        education_level:level.trim(),
+        access_tier:tier.trim(),
+        updated_at:new Date().toISOString()
       })
       .eq("id", id)
       .select("id")
@@ -1194,13 +1215,13 @@ function safeName(name) {
 
 function readUploadForm() {
   return {
-    title: $("uploadTitle").value.trim(),
-    description: $("uploadDescription").value.trim(),
-    education_level: $("uploadLevel").value,
-    subject: $("uploadSubject").value.trim(),
-    resource_type: $("uploadType").value,
-    curriculum: $("uploadCurriculum").value,
-    access_tier: $("uploadTier").value
+    title:$("uploadTitle").value.trim(),
+    description:$("uploadDescription").value.trim(),
+    education_level:$("uploadLevel").value,
+    subject:$("uploadSubject").value.trim(),
+    resource_type:$("uploadType").value,
+    curriculum:$("uploadCurriculum").value,
+    access_tier:$("uploadTier").value
   };
 }
 
@@ -1244,23 +1265,23 @@ async function uploadPDF(file, path) {
 
   return new Promise(async (resolve, reject) => {
     const upload = new tus.Upload(file, {
-      endpoint: SUPABASE_URL + "/storage/v1/upload/resumable",
-      retryDelays: [0, 1000, 3000, 5000, 10000, 20000],
-      chunkSize: CHUNK_SIZE,
-      uploadDataDuringCreation: true,
-      removeFingerprintOnSuccess: true,
+      endpoint:SUPABASE_URL + "/storage/v1/upload/resumable",
+      retryDelays:[0,1000,3000,5000,10000,20000],
+      chunkSize:CHUNK_SIZE,
+      uploadDataDuringCreation:true,
+      removeFingerprintOnSuccess:true,
 
-      headers: {
-        authorization: "Bearer " + session.access_token,
-        apikey: SUPABASE_KEY,
-        "x-upsert": "false"
+      headers:{
+        authorization:"Bearer " + session.access_token,
+        apikey:SUPABASE_KEY,
+        "x-upsert":"false"
       },
 
-      metadata: {
-        bucketName: BUCKET,
-        objectName: path,
-        contentType: "application/pdf",
-        cacheControl: "3600"
+      metadata:{
+        bucketName:BUCKET,
+        objectName:path,
+        contentType:"application/pdf",
+        cacheControl:"3600"
       },
 
       onProgress(sent, total) {
@@ -1318,16 +1339,16 @@ async function saveResourceRecord(data) {
   }
 
   const record = {
-    title: data.title,
-    description: data.description,
-    education_level: data.education_level,
-    subject: data.subject,
-    resource_type: data.resource_type,
-    curriculum: data.curriculum,
-    access_tier: data.access_tier,
-    status: "Draft",
-    storage_path: data.storage_path,
-    created_by: currentUser.id
+    title:data.title,
+    description:data.description,
+    education_level:data.education_level,
+    subject:data.subject,
+    resource_type:data.resource_type,
+    curriculum:data.curriculum,
+    access_tier:data.access_tier,
+    status:"Draft",
+    storage_path:data.storage_path,
+    created_by:currentUser.id
   };
 
   const {data:inserted, error} = await db.from("resources")
@@ -1407,10 +1428,10 @@ async function handleUpload(event) {
 
   const pending = {
     ...data,
-    storage_path: null,
-    object_path: path,
-    file_name: file.name,
-    file_size: file.size
+    storage_path:null,
+    object_path:path,
+    file_name:file.name,
+    file_size:file.size
   };
 
   savePendingUpload(pending);
@@ -1511,8 +1532,8 @@ $("resourceList").addEventListener("click", event => {
 document.querySelectorAll(".tabs button").forEach(button => {
   button.addEventListener("click", () => {
     const nextState = {
-      section: "resourcePanel",
-      tab: button.dataset.tab
+      section:"resourcePanel",
+      tab:button.dataset.tab
     };
 
     recordNavigation(nextState);
@@ -1549,9 +1570,7 @@ $("searchBox").addEventListener("input", () => {
 });
 
 $("refreshButton").addEventListener("click", loadResources);
-
 $("uploadForm").addEventListener("submit", handleUpload);
-
 $("retryUploadButton").addEventListener("click", retryUpload);
 
 
