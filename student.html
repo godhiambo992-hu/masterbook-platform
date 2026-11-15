@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#102b50">
+<meta name="description" content="MASTERBOOK Student Learning Centre. Access courses, lessons, assessments and learning resources.">
 <title>MASTERBOOK | Student Learning Centre</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -35,7 +36,7 @@ input,select,textarea{width:100%;padding:12px;border:1px solid #ccd5e0;border-ra
 .muted{color:#687789;font-size:14px}
 .hidden{display:none!important}
 #message{padding:12px;border-radius:7px;margin-bottom:15px;background:#e6f5eb;color:#17653a}
-.option{display:block;background:#f2f5fa;padding:12px;margin:9px 0;border-radius:7px}
+.option{display:block;background:#f2f5fa;padding:12px;margin:9px 0;border-radius:7px;cursor:pointer}
 .option input{width:auto;margin:0 8px 0 0}
 .progressbar{height:10px;background:#e3eaf2;border-radius:10px;overflow:hidden}
 .progressbar span{display:block;height:100%;background:#168348}
@@ -55,7 +56,8 @@ th,td{text-align:left;padding:10px;border-bottom:1px solid #e1e6ed}
 .empty{padding:18px;text-align:center;color:#687789;background:#f8fafc;border-radius:8px}
 a{color:#14518a}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7ab4ed;outline-offset:2px}
-
+#quizForm button[type="submit"]{width:100%;margin-top:15px}
+#quizResult{margin-top:15px}
 @media(max-width:600px){
  header{padding:16px}
  .panel{padding:15px}
@@ -63,6 +65,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7ab4
  th,td{padding:7px}
  .reader-content{padding:15px;font-size:16px}
  nav button{flex:1 1 42%}
+ .stat strong{font-size:23px}
 }
 </style>
 </head>
@@ -73,7 +76,6 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7ab4
 <h1>MASTERBOOK</h1>
 <p>Learning Without Boundaries.</p>
 <div id="signedIn" class="muted">Student Learning Centre</div>
-
 <nav>
 <button onclick="showSection('overview')">Dashboard</button>
 <button onclick="showSection('courses')">My Courses</button>
@@ -93,17 +95,14 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7ab4
 <section id="overview" class="panel">
 <h2>Welcome, <span id="studentName">Student</span>!</h2>
 <p class="muted">Your personal learning and academic performance centre.</p>
-
 <div class="grid">
 <div class="stat">Available courses<strong id="courseCount">0</strong></div>
 <div class="stat">My enrolments<strong id="enrollmentCount">0</strong></div>
 <div class="stat">Completed lessons<strong id="completedCount">0</strong></div>
 <div class="stat">Assessments taken<strong id="attemptCount">0</strong></div>
 </div>
-
 <h3>Learning activity</h3>
 <div id="recentActivity" class="muted">Loading your learning activity...</div>
-
 <div class="actions">
 <button class="primary" onclick="refreshDashboard()">Refresh dashboard</button>
 <button class="secondary" onclick="showSection('courses')">Explore courses</button>
@@ -238,6 +237,10 @@ let activeLessonIndex=0;
 let activeAssessment=null;
 let activeQuestions=[];
 
+let loadingDashboard=false;
+let quizSubmitting=false;
+let authRedirecting=false;
+
 const $=id=>document.getElementById(id);
 
 const sections=[
@@ -245,17 +248,15 @@ const sections=[
  "resources","assessments","quiz","progress","certificates"
 ];
 
-let loadingDashboard=false;
-let authRedirecting=false;
-
 /* =====================================================
    2. GENERAL HELPERS
 ===================================================== */
 
 function message(text,error=false){
- $("message").textContent=text;
- $("message").style.background=error?"#fde8e8":"#e6f5eb";
- $("message").style.color=error?"#a32222":"#17653a";
+ const box=$("message");
+ box.textContent=text;
+ box.style.background=error?"#fde8e8":"#e6f5eb";
+ box.style.color=error?"#a32222":"#17653a";
 }
 
 function escapeHTML(value){
@@ -294,7 +295,9 @@ function safeError(error,fallback){
 
 function setButtonLoading(button,text){
  if(!button)return;
- button.dataset.originalText=button.textContent;
+ if(!button.dataset.originalText){
+  button.dataset.originalText=button.textContent;
+ }
  button.disabled=true;
  button.textContent=text;
 }
@@ -302,7 +305,14 @@ function setButtonLoading(button,text){
 function restoreButton(button){
  if(!button)return;
  button.disabled=false;
- button.textContent=button.dataset.originalText||"Continue";
+ if(button.dataset.originalText){
+  button.textContent=button.dataset.originalText;
+  delete button.dataset.originalText;
+ }
+}
+
+function enrolled(course){
+ return enrollments.some(e=>e.course_id===course.id);
 }
 
 /* =====================================================
@@ -314,7 +324,6 @@ async function initialize(){
   message("Checking your student account...");
 
   const {data:{session},error}=await db.auth.getSession();
-
   if(error)throw error;
 
   if(!session){
@@ -336,7 +345,7 @@ async function initialize(){
    throw new Error("Your MASTERBOOK profile could not be found. Please contact the administrator.");
   }
 
-  if(profile.approval_status!=="approved"){
+  if(String(profile.approval_status||"").toLowerCase()!=="approved"){
    throw new Error("Your account is awaiting approval. Please contact the administrator.");
   }
 
@@ -377,7 +386,9 @@ function renderProfile(){
 ===================================================== */
 
 async function loadData(){
- if(!currentUser||loadingDashboard)return;
+
+ if(!currentUser)throw new Error("Your student session has expired.");
+ if(loadingDashboard)return;
 
  loadingDashboard=true;
 
@@ -455,6 +466,7 @@ async function refreshDashboard(){
   await loadData();
   message("Dashboard refreshed successfully.");
  }catch(error){
+  console.error("Dashboard refresh:",error);
   message(safeError(error,"Could not refresh your dashboard."),true);
  }
 }
@@ -482,10 +494,6 @@ function renderDashboard(){
   $("recentActivity").textContent=
    "No assessments completed yet. Enrol in a free course and begin learning.";
  }
-}
-
-function enrolled(course){
- return enrollments.some(e=>e.course_id===course.id);
 }
 
 /* =====================================================
@@ -522,29 +530,23 @@ function renderCourses(){
      ${escapeHTML(c.subject)} |
      ${escapeHTML(c.curriculum||"Kenyan CBC")}
     </p>
-
     <span class="badge ${free?"":"locked"}">
      ${free?"Free course":"Premium course — Locked"}
     </span>
-
     <div class="actions">
      ${free?`
-      <button class="primary" onclick="enrolCourse('${c.id}')">
+      <button class="primary" onclick="enrolCourse('${escapeHTML(c.id)}')">
        ${alreadyEnrolled?"Open course":"Enrol now"}
       </button>
      `:`
-      <button class="secondary" disabled>
-       Premium access unavailable
-      </button>
+      <button class="secondary" disabled>Premium access unavailable</button>
      `}
     </div>
-
     ${!free?`
      <p class="warning muted">
       Secure M-PESA payment is not yet activated. This course cannot currently be enrolled in or opened.
      </p>
     `:""}
-
    </div>`;
  }).join("");
 }
@@ -588,6 +590,7 @@ async function enrolCourse(id){
   await openCourse(id);
 
  }catch(error){
+  console.error("Course enrolment:",error);
   message(safeError(error,"Unable to enrol in this course."),true);
  }
 }
@@ -634,6 +637,7 @@ async function openCourse(id){
   renderLessons();
 
  }catch(error){
+  console.error("Course lessons:",error);
   message(safeError(error,"Unable to load course lessons."),true);
  }
 }
@@ -678,7 +682,7 @@ function renderLessons(){
     <div class="actions">
      <button class="primary" onclick="openLesson(${i})">Open lesson</button>
      ${l.resource_id?`
-      <button class="secondary" onclick="openLinkedResource('${l.resource_id}')">
+      <button class="secondary" onclick="openLinkedResource('${escapeHTML(l.resource_id)}')">
        Open learning material
       </button>`:""}
     </div>
@@ -691,6 +695,12 @@ function renderLessons(){
 ===================================================== */
 
 function openLesson(index){
+
+ if(!activeCourse||!enrolled(activeCourse)||!isFree(activeCourse.access_tier)){
+  message("You must be enrolled in this free course to open its lessons.",true);
+  showSection("courses");
+  return;
+ }
 
  if(index<0||index>=lessons.length)return;
 
@@ -729,7 +739,7 @@ function renderLessonReader(){
 
  if(lesson.resource_id){
   $("readerResource").innerHTML=`
-   <button class="secondary" onclick="openLinkedResource('${lesson.resource_id}')">
+   <button class="secondary" onclick="openLinkedResource('${escapeHTML(lesson.resource_id)}')">
     Open attached learning material
    </button>`;
  }else{
@@ -758,8 +768,12 @@ async function completeCurrentLesson(){
  const lesson=lessons[activeLessonIndex];
  if(!lesson)return;
 
- const button=$("completeLessonButton");
+ if(!activeCourse||!enrolled(activeCourse)){
+  message("You must be enrolled in this course first.",true);
+  return;
+ }
 
+ const button=$("completeLessonButton");
  setButtonLoading(button,"Saving progress...");
 
  try{
@@ -781,6 +795,7 @@ async function completeCurrentLesson(){
   message("Lesson completion recorded successfully.");
 
  }catch(error){
+  console.error("Lesson completion:",error);
   message(safeError(error,"Unable to save lesson progress."),true);
   restoreButton(button);
  }
@@ -829,9 +844,9 @@ function renderResources(){
     </p>
     <span class="badge">Free resource</span>
     <div class="actions">
-     <button class="primary" onclick="openPDF('${r.id}')">View PDF</button>
-     <button class="secondary" onclick="downloadPDF('${r.id}')">Download PDF</button>
-     <button class="secondary" onclick="completeResource('${r.id}')">
+     <button class="primary" onclick="openPDF('${escapeHTML(r.id)}')">View PDF</button>
+     <button class="secondary" onclick="downloadPDF('${escapeHTML(r.id)}')">Download PDF</button>
+     <button class="secondary" onclick="completeResource('${escapeHTML(r.id)}')">
       ${completed?"Completed ✓":"Mark completed"}
      </button>
     </div>
@@ -841,7 +856,6 @@ function renderResources(){
 
 /* =====================================================
    14. SECURE FREE PDF ACCESS
-   Opens a blank tab immediately to reduce popup blocking.
 ===================================================== */
 
 async function accessResource(id,download=false){
@@ -898,6 +912,7 @@ async function accessResource(id,download=false){
  }catch(error){
 
   newTab.close();
+  console.error("Resource access:",error);
   message(safeError(error,"Unable to open this learning material."),true);
  }
 }
@@ -932,6 +947,7 @@ async function completeResource(id){
   message("Resource marked as completed.");
 
  }catch(error){
+  console.error("Resource progress:",error);
   message(safeError(error,"Unable to update resource progress."),true);
  }
 }
@@ -973,7 +989,7 @@ function renderAssessments(){
     ${escapeHTML(a.total_marks)} marks |
     Pass mark ${escapeHTML(a.pass_percentage)}%
    </p>
-   <button class="primary" onclick="startQuiz('${a.id}')">Start assessment</button>
+   <button class="primary" onclick="startQuiz('${escapeHTML(a.id)}')">Start assessment</button>
   </div>
  `).join("");
 }
@@ -986,11 +1002,26 @@ async function startQuiz(id){
 
  try{
 
-  activeAssessment=assessments.find(a=>a.id===id);
+  const assessment=assessments.find(a=>a.id===id);
 
-  if(!activeAssessment){
+  if(!assessment){
    throw new Error("Assessment unavailable. Confirm that you are enrolled in its course.");
   }
+
+  const course=courses.find(c=>c.id===assessment.course_id);
+
+  if(!course||!isFree(course.access_tier)||!enrolled(course)){
+   throw new Error("You must be enrolled in the free course to attempt this assessment.");
+  }
+
+  activeAssessment=assessment;
+  activeQuestions=[];
+
+  $("quizResult").innerHTML="";
+  $("questionList").innerHTML="Loading questions...";
+  $("quizForm").classList.remove("hidden");
+
+  showSection("quiz");
 
   const {data,error}=await db.rpc("masterbook_get_quiz",{
    p_assessment_id:id
@@ -1002,14 +1033,11 @@ async function startQuiz(id){
 
   if(!quizData)throw new Error("No assessment data was returned.");
 
-  activeQuestions=quizData.questions||[];
+  activeQuestions=Array.isArray(quizData.questions)?quizData.questions:[];
 
-  $("quizTitle").textContent=quizData.title||activeAssessment.title;
+  $("quizTitle").textContent=quizData.title||assessment.title;
   $("quizDescription").textContent=
    quizData.description||"Answer all questions before submitting.";
-
-  $("quizResult").innerHTML="";
-  $("quizForm").classList.remove("hidden");
 
   if(!activeQuestions.length){
    throw new Error("This assessment has no questions.");
@@ -1025,7 +1053,6 @@ async function startQuiz(id){
     <div class="resource">
      <h3>${i+1}. ${escapeHTML(questionText)}</h3>
      <p class="muted">${escapeHTML(q.marks??1)} marks</p>
-
      ${options.map(o=>{
 
       const value=typeof o==="object"?
@@ -1038,52 +1065,74 @@ async function startQuiz(id){
        <label class="option">
         <input type="radio"
          name="question_${escapeHTML(q.id)}"
-         value="${escapeHTML(value)}">
+         value="${escapeHTML(value)}"
+         required>
         ${escapeHTML(label)}
        </label>`;
      }).join("")}
-
     </div>`;
   }).join("");
 
-  showSection("quiz");
+  message("Assessment loaded. Answer every question before submitting.");
 
  }catch(error){
+  console.error("Start assessment:",error);
+  $("questionList").innerHTML="";
   message(safeError(error,"Unable to start this assessment."),true);
  }
 }
 
 /* =====================================================
-   18. SUBMIT QUIZ
+   18. IMPROVED ASSESSMENT SUBMISSION
 ===================================================== */
 
 $("quizForm").addEventListener("submit",async event=>{
 
  event.preventDefault();
 
- if(!activeAssessment)return;
+ if(quizSubmitting)return;
 
- const answers={};
-
- activeQuestions.forEach(q=>{
-
-  const selected=document.querySelector(
-   'input[name="question_'+CSS.escape(String(q.id))+'"]:checked'
-  );
-
-  if(selected)answers[q.id]=selected.value;
- });
-
- if(Object.keys(answers).length!==activeQuestions.length){
-  message("Please answer every question before submitting.",true);
-  return;
- }
-
- const submitButton=$("quizForm").querySelector('button[type="submit"]');
-
- setButtonLoading(submitButton,"Marking assessment...");
+ const form=$("quizForm");
+ const submitButton=form.querySelector('button[type="submit"]');
 
  try{
+
+  if(!activeAssessment){
+   throw new Error("Please open an assessment first.");
+  }
+
+  if(!Array.isArray(activeQuestions)||activeQuestions.length===0){
+   throw new Error("No assessment questions were found.");
+  }
+
+  if(!currentUser){
+   throw new Error("Your student session has expired. Please sign in again.");
+  }
+
+  const answers={};
+
+  activeQuestions.forEach(q=>{
+
+   const selected=form.querySelector(
+    'input[name="question_'+String(q.id)+'"]:checked'
+   );
+
+   if(selected){
+    answers[q.id]=selected.value;
+   }
+
+  });
+
+  if(Object.keys(answers).length!==activeQuestions.length){
+   message("Please answer every question before submitting.",true);
+   return;
+  }
+
+  quizSubmitting=true;
+
+  setButtonLoading(submitButton,"Marking assessment...");
+
+  message("Submitting your answers. Please wait. Do not close this page.");
 
   const {data,error}=await db.rpc("masterbook_submit_quiz",{
    p_assessment_id:activeAssessment.id,
@@ -1094,17 +1143,20 @@ $("quizForm").addEventListener("submit",async event=>{
 
   const result=Array.isArray(data)?data[0]:data;
 
-  if(!result)throw new Error("The assessment result was not returned.");
-
-  $("quizForm").classList.add("hidden");
+  if(!result||result.success!==true){
+   throw new Error("The assessment result was not returned correctly.");
+  }
 
   const passed=result.passed===true;
+
+  $("quizForm").classList.add("hidden");
 
   $("quizResult").innerHTML=`
    <div class="resource">
     <h3>Assessment result</h3>
     <p><strong>Score:</strong>
-     ${escapeHTML(result.score??0)} / ${escapeHTML(result.total_marks??0)}
+     ${escapeHTML(result.score??0)} /
+     ${escapeHTML(result.total_marks??0)}
     </p>
     <p><strong>Percentage:</strong>
      ${escapeHTML(result.percentage??0)}%
@@ -1113,19 +1165,31 @@ $("quizForm").addEventListener("submit",async event=>{
      <strong>${passed?"PASSED":"NOT PASSED"}</strong>
     </p>
     <p>${escapeHTML(result.message||"Your assessment has been marked.")}</p>
+    <p class="muted">Your submitted result has been received by MASTERBOOK.</p>
     <button class="primary" onclick="finishQuiz()">Return to assessments</button>
    </div>`;
 
-  await loadData();
-
   message("Assessment submitted and marked successfully.");
+
+  /* Refresh dashboard separately.
+     A refresh failure must not undo a saved result. */
+
+  try{
+   await loadData();
+  }catch(refreshError){
+   console.error("Post-assessment dashboard refresh:",refreshError);
+   message("Your assessment result was saved. Dashboard refresh failed; use Refresh dashboard to try again.",true);
+  }
 
  }catch(error){
 
-  message(safeError(error,"Assessment submission failed."),true);
+  console.error("Assessment submission error:",error);
+
+  message(safeError(error,"Assessment submission failed. Your answers have not been confirmed."),true);
 
  }finally{
 
+  quizSubmitting=false;
   restoreButton(submitButton);
 
  }
@@ -1133,7 +1197,11 @@ $("quizForm").addEventListener("submit",async event=>{
 });
 
 function finishQuiz(){
+ activeAssessment=null;
+ activeQuestions=[];
+ $("quizForm").reset();
  $("quizForm").classList.remove("hidden");
+ $("questionList").innerHTML="";
  $("quizResult").innerHTML="";
  showSection("assessments");
 }
@@ -1169,7 +1237,6 @@ function renderProgress(){
   html+=progressRecords.map(p=>{
 
    const r=resources.find(x=>x.id===p.resource_id);
-
    const percentage=Math.max(0,Math.min(100,Number(p.progress_percentage)||0));
 
    return `
@@ -1275,7 +1342,7 @@ function renderCertificates(){
      </p>
      <p class="muted">Date issued: ${formatDate(certificate.issued_at)}</p>
      <div class="actions">
-      <button class="primary" onclick="printCertificate('${certificate.id}')">
+      <button class="primary" onclick="printCertificate('${escapeHTML(certificate.id)}')">
        Print / Save Certificate
       </button>
       <a href="verify.html" target="_blank" rel="noopener">Verify certificate</a>
@@ -1294,7 +1361,7 @@ function renderCertificates(){
      </p>
      <div class="actions">
       <button class="primary"
-       onclick="requestCourseCertificate('${course.id}',this)">
+       onclick="requestCourseCertificate('${escapeHTML(course.id)}',this)">
        Check eligibility and request certificate
       </button>
      </div>
@@ -1348,11 +1415,11 @@ async function requestCourseCertificate(courseId,button){
   await loadData();
 
   showSection("certificates");
-
   message("Congratulations! Your certificate has been issued.");
 
  }catch(error){
 
+  console.error("Certificate request:",error);
   message(safeError(error,"Certificate request failed."),true);
   restoreButton(button);
  }
@@ -1455,12 +1522,12 @@ async function logout(){
  try{
 
   const {error}=await db.auth.signOut();
-
   if(error)throw error;
 
   location.replace("auth.html");
 
  }catch(error){
+  console.error("Sign out:",error);
   message(safeError(error,"Unable to sign out."),true);
  }
 }
