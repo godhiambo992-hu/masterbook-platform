@@ -1,0 +1,286 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MASTERBOOK | Certificate Verification</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:#f1f5fa;
+ color:#203047;
+}
+header{
+ background:#102b50;
+ color:white;
+ padding:25px 18px;
+ text-align:center;
+}
+header h1{margin:0;font-size:30px;letter-spacing:2px}
+header p{color:#d5e2f2}
+main{
+ max-width:650px;
+ margin:45px auto;
+ padding:15px;
+}
+.card{
+ background:white;
+ padding:28px;
+ border-radius:12px;
+ box-shadow:0 4px 18px #00000012;
+}
+h2{color:#153b65}
+input{
+ width:100%;
+ padding:15px;
+ border:1px solid #cbd5e1;
+ border-radius:8px;
+ font-size:16px;
+ margin:12px 0;
+}
+button{
+ width:100%;
+ padding:14px;
+ border:0;
+ border-radius:8px;
+ background:#14518a;
+ color:white;
+ font-size:16px;
+ font-weight:bold;
+ cursor:pointer;
+}
+button:disabled{opacity:.6}
+#result{
+ margin-top:22px;
+}
+.valid{
+ background:#e8f7ee;
+ border-left:5px solid #168348;
+ padding:18px;
+ border-radius:8px;
+}
+.invalid{
+ background:#fdecec;
+ border-left:5px solid #bd3434;
+ padding:18px;
+ border-radius:8px;
+}
+.detail{
+ padding:11px 0;
+ border-bottom:1px solid #e1e6ed;
+}
+.detail strong{
+ display:block;
+ color:#52657b;
+ font-size:13px;
+ margin-bottom:5px;
+}
+.detail span{
+ font-size:16px;
+ overflow-wrap:anywhere;
+}
+.badge{
+ display:inline-block;
+ background:#168348;
+ color:white;
+ padding:6px 12px;
+ border-radius:20px;
+ font-size:12px;
+ font-weight:bold;
+}
+.muted{color:#718096;font-size:14px}
+footer{
+ text-align:center;
+ padding:25px;
+ color:#667789;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>MASTERBOOK</h1>
+<p>Learning Without Boundaries.</p>
+<h2 style="color:white">Certificate Verification Portal</h2>
+</header>
+
+<main>
+<div class="card">
+
+<h2>Verify a Certificate</h2>
+
+<p>
+Enter the unique certificate number printed on a MASTERBOOK certificate
+to verify its authenticity.
+</p>
+
+<form id="verifyForm">
+<label for="certificateCode">
+<strong>Certificate Number</strong>
+</label>
+
+<input
+ id="certificateCode"
+ type="text"
+ placeholder="Example: MB-XXXXXXXXXXXX"
+ maxlength="100"
+ required
+ autocomplete="off"
+>
+
+<button id="verifyButton" type="submit">
+Verify Certificate
+</button>
+</form>
+
+<div id="result" aria-live="polite"></div>
+
+<p class="muted">
+This verification service checks certificate records maintained
+by the MASTERBOOK learning platform.
+</p>
+
+</div>
+</main>
+
+<footer>
+MASTERBOOK | Learning Without Boundaries.
+</footer>
+
+<script>
+const SUPABASE_URL =
+"https://bxsrhvcqjjtdnflhoplu.supabase.co";
+
+/*
+Use the exact publishable key from your working
+MASTERBOOK student.html file.
+Never use a service-role or secret key here.
+*/
+const SUPABASE_KEY =
+"sb_publishable_Hgg2m91Ht2OOWCUHh7SGrw_mC9yCj7S";
+
+const db = supabase.createClient(
+ SUPABASE_URL,
+ SUPABASE_KEY
+);
+
+const form = document.getElementById("verifyForm");
+const input = document.getElementById("certificateCode");
+const button = document.getElementById("verifyButton");
+const result = document.getElementById("result");
+
+function safe(value){
+ return String(value ?? "").replace(/[&<>"']/g, char => ({
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#39;"
+ }[char]));
+}
+
+form.addEventListener("submit", async event => {
+
+ event.preventDefault();
+
+ const code = input.value.trim().toUpperCase();
+
+ result.innerHTML = "";
+
+ if(!code){
+  result.textContent = "Please enter a certificate number.";
+  return;
+ }
+
+ button.disabled = true;
+ button.textContent = "Verifying...";
+
+ try{
+
+  const {data,error} = await db.rpc(
+   "masterbook_verify_certificate",
+   {p_certificate_code:code}
+  );
+
+  if(error) throw error;
+
+  if(!data || data.valid !== true){
+
+   result.innerHTML = `
+    <div class="invalid">
+     <h3>Certificate Not Verified</h3>
+     <p>${safe(data?.message ||
+       "No matching certificate was found.")}</p>
+    </div>`;
+   return;
+  }
+
+  const issued = data.issued_at
+   ? new Date(data.issued_at).toLocaleDateString()
+   : "Not available";
+
+  result.innerHTML = `
+   <div class="valid">
+
+    <span class="badge">VALID CERTIFICATE</span>
+
+    <h2>Certificate Verified</h2>
+
+    <p>
+     This certificate matches an official record
+     in the MASTERBOOK database.
+    </p>
+
+    <div class="detail">
+     <strong>STUDENT NAME</strong>
+     <span>${safe(data.student_name)}</span>
+    </div>
+
+    <div class="detail">
+     <strong>COURSE COMPLETED</strong>
+     <span>${safe(data.course_title)}</span>
+    </div>
+
+    <div class="detail">
+     <strong>CERTIFICATE NUMBER</strong>
+     <span>${safe(data.certificate_code)}</span>
+    </div>
+
+    <div class="detail">
+     <strong>DATE ISSUED</strong>
+     <span>${safe(issued)}</span>
+    </div>
+
+    <p class="muted">
+     Issued electronically by ${safe(data.issuer)}.
+    </p>
+
+   </div>`;
+
+ }catch(error){
+
+  result.innerHTML = `
+   <div class="invalid">
+    <h3>Verification Unavailable</h3>
+    <p>${safe(error.message ||
+      "An unexpected error occurred. Please try again.")}</p>
+   </div>`;
+
+ }finally{
+
+  button.disabled = false;
+  button.textContent = "Verify Certificate";
+
+ }
+
+});
+</script>
+
+</body>
+</html>
