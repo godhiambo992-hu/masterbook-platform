@@ -54,7 +54,6 @@ input:focus,select:focus{outline:2px solid #176b63;border-color:transparent}
 </style>
 </head>
 <body>
-
 <div class="container">
 
  <div class="brand">
@@ -138,7 +137,7 @@ input:focus,select:focus{outline:2px solid #176b63;border-color:transparent}
 "use strict";
 
 const SUPABASE_URL="https://bxsrhvcqjjtdnflhoplu.supabase.co";
-const SUPABASE_KEY="sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+const SUPABASE_KEY="sb_publishable_Hgg2m91Ht2OOWCUHh7sGrw_mC9yCj7S";
 
 const client=window.supabase.createClient(
  SUPABASE_URL,
@@ -222,9 +221,12 @@ function getError(error){
   :"Something went wrong. Please try again.";
 }
 
-/* ROLE-BASED DASHBOARD NAVIGATION */
+/* MASTERBOOK ROLE-BASED LOGIN REDIRECTION */
 async function redirectUser(user){
- if(!user)throw new Error("Your login session could not be verified.");
+
+ if(!user){
+  throw new Error("Login session could not be verified.");
+ }
 
  const {data:profile,error}=await client
   .from("profiles")
@@ -235,37 +237,62 @@ async function redirectUser(user){
  if(error)throw error;
 
  if(!profile){
-  throw new Error("Your MASTERBOOK profile was not found. Contact the administrator.");
+  throw new Error("MASTERBOOK profile not found. Contact the administrator.");
  }
+
+ const role=String(profile.requested_role||"")
+  .trim()
+  .toLowerCase();
+
+ const approval=String(profile.approval_status||"")
+  .trim()
+  .toLowerCase();
 
  let destination="";
 
- if(profile.is_admin===true){
-  destination="admin.html";
- }else{
-  const role=String(profile.requested_role||"").toLowerCase();
-  const approval=String(profile.approval_status||"").toLowerCase();
+ /*
+  IMPORTANT:
+  STUDENT ROLE MUST BE CHECKED FIRST.
+  Even if is_admin is true, a student account
+  must open the main MASTERBOOK homepage.
+ */
+
+ if(role==="student"){
+
+  destination=BASE_URL;
+
+ }else if(role==="teacher"){
 
   if(approval!=="approved"){
-   throw new Error("Your account is awaiting administrator approval.");
+   throw new Error("Your teacher account is awaiting administrator approval.");
   }
 
-  if(role==="student"){
-   destination="student.html";
-  }else if(role==="teacher"){
-   destination="teacher.html";
-  }else if(role==="contributor"){
-   destination="contributor.html";
-  }else{
-   throw new Error("Your account role is not recognised. Contact the administrator.");
+  destination=BASE_URL+"teacher.html";
+
+ }else if(role==="contributor"){
+
+  if(approval!=="approved"){
+   throw new Error("Your contributor account is awaiting administrator approval.");
   }
+
+  destination=BASE_URL+"contributor.html";
+
+ }else if(profile.is_admin===true){
+
+  destination=BASE_URL+"admin.html";
+
+ }else{
+
+  throw new Error("Your account role is not recognised. Contact the administrator.");
+
  }
 
- window.location.replace(BASE_URL+destination);
+ window.location.replace(destination);
 }
 
 /* LOGIN */
 document.getElementById("loginForm").addEventListener("submit",async function(event){
+
  event.preventDefault();
  clearMessage();
  setButton("loginButton",true,"Signing in...");
@@ -274,6 +301,7 @@ document.getElementById("loginForm").addEventListener("submit",async function(ev
  const password=document.getElementById("loginPassword").value;
 
  try{
+
   const {data,error}=await client.auth.signInWithPassword({
    email,
    password
@@ -284,13 +312,17 @@ document.getElementById("loginForm").addEventListener("submit",async function(ev
   await redirectUser(data.user);
 
  }catch(error){
+
   showMessage(getError(error),"error");
   setButton("loginButton",false,"Login");
+
  }
+
 });
 
 /* REGISTRATION */
 document.getElementById("registerForm").addEventListener("submit",async function(event){
+
  event.preventDefault();
  clearMessage();
  setButton("registerButton",true,"Creating account...");
@@ -301,6 +333,7 @@ document.getElementById("registerForm").addEventListener("submit",async function
  const role=document.getElementById("accountRole").value;
 
  try{
+
   const {data,error}=await client.auth.signUp({
    email,
    password,
@@ -316,28 +349,38 @@ document.getElementById("registerForm").addEventListener("submit",async function
   if(error)throw error;
 
   if(data.session){
+
    showMessage(
     "Your account has been created. You can now log in.",
     "success"
    );
+
   }else{
+
    showMessage(
     "Registration received. Check your email for the confirmation link. Teacher and contributor accounts require administrator approval.",
     "success"
    );
+
   }
 
   document.getElementById("registerForm").reset();
 
  }catch(error){
+
   showMessage(getError(error),"error");
+
  }finally{
+
   setButton("registerButton",false,"Create Account");
+
  }
+
 });
 
 /* FORGOT PASSWORD */
 document.getElementById("forgotForm").addEventListener("submit",async function(event){
+
  event.preventDefault();
  clearMessage();
  setButton("forgotButton",true,"Sending reset link...");
@@ -345,6 +388,7 @@ document.getElementById("forgotForm").addEventListener("submit",async function(e
  const email=document.getElementById("forgotEmail").value.trim();
 
  try{
+
   const {error}=await client.auth.resetPasswordForEmail(email,{
    redirectTo:AUTH_URL
   });
@@ -357,14 +401,20 @@ document.getElementById("forgotForm").addEventListener("submit",async function(e
   );
 
  }catch(error){
+
   showMessage(getError(error),"error");
+
  }finally{
+
   setButton("forgotButton",false,"Send Reset Link");
+
  }
+
 });
 
 /* SAVE NEW PASSWORD */
 document.getElementById("recoveryForm").addEventListener("submit",async function(event){
+
  event.preventDefault();
  clearMessage();
 
@@ -384,7 +434,9 @@ document.getElementById("recoveryForm").addEventListener("submit",async function
  setButton("recoveryButton",true,"Saving password...");
 
  try{
+
   const {error}=await client.auth.updateUser({password});
+
   if(error)throw error;
 
   recoveryMode=false;
@@ -398,42 +450,57 @@ document.getElementById("recoveryForm").addEventListener("submit",async function
   await client.auth.signOut();
 
   setTimeout(()=>{
+
    window.history.replaceState({},document.title,AUTH_URL);
    showLogin();
+
    showMessage(
     "Password updated. Please log in using your new password.",
     "success"
    );
+
   },2000);
 
  }catch(error){
+
   showMessage(getError(error),"error");
+
  }finally{
+
   setButton("recoveryButton",false,"Save New Password");
+
  }
+
 });
 
 /* PASSWORD RECOVERY EVENT */
 client.auth.onAuthStateChange((event)=>{
+
  if(event==="PASSWORD_RECOVERY"){
   showRecovery();
  }
+
 });
 
 /* INITIALISE AUTHENTICATION PAGE */
 async function initializePage(){
+
  try{
+
   const params=new URLSearchParams(window.location.search);
+
   const hash=new URLSearchParams(
    window.location.hash.replace(/^#/,"")
   );
 
   const hasRecoveryCode=params.has("code");
+
   const hasRecoveryToken=
    hash.get("type")==="recovery"||
    hash.has("access_token");
 
   if(hasRecoveryCode||hasRecoveryToken){
+
    showMessage("Verifying your password-reset link...","success");
 
    const {data,error}=await client.auth.getSession();
@@ -441,31 +508,42 @@ async function initializePage(){
    if(error)throw error;
 
    if(data.session){
+
     showRecovery();
+
    }else{
+
     showLogin();
+
     showMessage(
      "This recovery link is invalid or expired. Request another password-reset email.",
      "error"
     );
+
    }
+
    return;
   }
 
   const {data,error}=await client.auth.getSession();
+
   if(error)throw error;
 
-  // Keep the login screen visible when the user opens auth.html.
-  // Do not automatically send users to the homepage.
+  // Keep the login screen visible when auth.html is opened.
+  // Login redirects are handled after successful sign-in.
   showLogin();
 
  }catch(error){
+
   showLogin();
   showMessage(getError(error),"error");
+
  }
+
 }
 
 initializePage();
+
 </script>
 </body>
 </html>
