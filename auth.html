@@ -227,74 +227,51 @@ function getError(error){
    STUDENT ROLE TAKES PRIORITY OVER ADMIN FLAG.
 ================================================= */
 
+
 async function redirectUser(user){
-
- if(!user){
-  throw new Error("Login session could not be verified.");
- }
-
- const {data:profile,error}=await client
-  .from("profiles")
-  .select("full_name,requested_role,approval_status,is_admin")
-  .eq("id",user.id)
-  .maybeSingle();
-
- if(error)throw error;
-
- if(!profile){
-  throw new Error("MASTERBOOK profile not found. Contact the administrator.");
- }
-
- const role=String(profile.requested_role||"")
-  .trim()
-  .toLowerCase();
-
- const approval=String(profile.approval_status||"")
-  .trim()
-  .toLowerCase();
-
- let destination="";
-
- /* STUDENT: MAIN HOMEPAGE */
- if(role==="student"){
-
-  destination=BASE_URL;
-
- }
- /* TEACHER */
- else if(role==="teacher"){
-
-  if(approval!=="approved"){
-   throw new Error("Your teacher account is awaiting administrator approval.");
+  if(!user) {
+    throw new Error("Your login session could not be verified.");
   }
 
-  destination=BASE_URL+"teacher.html";
+  const {data:profile,error}=await client
+    .from("profiles")
+    .select("full_name,requested_role,approval_status,is_admin")
+    .eq("id",user.id)
+    .maybeSingle();
 
- }
- /* CONTRIBUTOR */
- else if(role==="contributor"){
+  if(error) throw error;
 
-  if(approval!=="approved"){
-   throw new Error("Your contributor account is awaiting administrator approval.");
+  if(!profile){
+    throw new Error("Your MASTERBOOK profile was not found. Contact the administrator.");
   }
 
-  destination=BASE_URL+"contributor.html";
+  const role=String(profile.requested_role||"").trim().toLowerCase();
+  const approval=String(profile.approval_status||"").trim().toLowerCase();
 
- }
- /* ADMINISTRATOR */
- else if(profile.is_admin===true){
+  let destination="";
 
-  destination=BASE_URL+"admin.html";
+  // Give the selected account role priority.
+  if(role==="student"){
+    destination="student.html";
+  }else if(role==="teacher"){
+    if(approval!=="approved"){
+      throw new Error("Your teacher account is awaiting administrator approval.");
+    }
+    destination="teacher.html";
+  }else if(role==="contributor"){
+    if(approval!=="approved"){
+      throw new Error("Your contributor account is awaiting administrator approval.");
+    }
+    destination="contributor.html";
+  }else if(profile.is_admin===true){
+    destination="admin.html";
+  }else{
+    throw new Error("Your account role is not recognised. Contact the administrator.");
+  }
 
- }
- else{
-
-  throw new Error("Your account role is not recognised. Contact the administrator.");
-
- }
-
- window.location.replace(destination);
+  window.location.replace(BASE_URL+destination);
 }
+
 
 /* LOGIN */
 document.getElementById("loginForm").addEventListener("submit",async function(event){
