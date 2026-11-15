@@ -76,7 +76,6 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7ab4
 </head>
 
 <body>
-
 <header>
 <h1>MASTERBOOK</h1>
 <p>Learning Without Boundaries.</p>
@@ -89,18 +88,17 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7ab4
 <button onclick="showSection('progress')">My Progress</button>
 <button onclick="showSection('certificates')">Certificates</button>
 <button onclick="showSection('profile')">My Profile</button>
+<button onclick="showSection('security')">Account Security</button>
 <button onclick="logout()">Sign Out</button>
 </nav>
 </header>
 
 <main>
-
 <div id="message" role="status" aria-live="polite">Connecting to MASTERBOOK...</div>
 
 <section id="overview" class="panel">
 <h2>Welcome, <span id="studentName">Student</span>!</h2>
 <p class="muted">Your personal learning and academic performance centre.</p>
-
 <div class="grid">
 <div class="stat">Available courses<strong id="courseCount">0</strong></div>
 <div class="stat">My enrolments<strong id="enrollmentCount">0</strong></div>
@@ -109,13 +107,10 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7ab4
 <div class="stat">Assessments passed<strong id="passedCount">0</strong></div>
 <div class="stat">Average score<strong id="averageScore">0%</strong></div>
 </div>
-
 <h3>Assessment performance</h3>
 <div id="performanceSummary" class="resource muted">Your assessment performance will appear here.</div>
-
 <h3>Learning activity</h3>
 <div id="recentActivity" class="muted">Loading your learning activity...</div>
-
 <div class="actions">
 <button class="primary" onclick="refreshDashboard()">Refresh dashboard</button>
 <button class="secondary" onclick="showSection('courses')">Explore courses</button>
@@ -123,46 +118,59 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7ab4
 </div>
 </section>
 
-<!-- EDITABLE STUDENT PROFILE -->
 <section id="profile" class="panel hidden">
 <h2>My Student Profile</h2>
 <p class="muted">View and update your registered student information.</p>
-
 <form id="profileForm">
 <div class="resource">
 <label for="fullNameInput" class="profile-label">Full name</label>
-<input
- id="fullNameInput"
- type="text"
- maxlength="120"
- placeholder="Enter your full name"
- autocomplete="name"
- required
->
+<input id="fullNameInput" type="text" maxlength="120" placeholder="Enter your full name" autocomplete="name" required>
 <p class="muted">You can update the name displayed on your MASTERBOOK account and certificates.</p>
-
-<button type="submit" id="saveProfileButton" class="primary">
-Save profile
-</button>
+<button type="submit" id="saveProfileButton" class="primary">Save profile</button>
 </div>
 </form>
-
 <div class="resource">
 <p class="profile-label">Email address</p>
 <p id="profileEmail" class="profile-value">Loading...</p>
 <hr>
-
 <p class="profile-label">Account role</p>
 <p id="profileRole" class="profile-value">Student</p>
 <hr>
-
 <p class="profile-label">Account status</p>
 <p id="profileStatus" class="profile-value success">Approved</p>
 </div>
+<p class="muted">Your email address, account role and approval status are managed by MASTERBOOK administration and cannot be changed through this student dashboard.</p>
+</section>
 
-<p class="muted">
-Your email address, account role and approval status are managed by MASTERBOOK administration and cannot be changed through this student dashboard.
-</p>
+<!-- ACCOUNT SECURITY -->
+<section id="security" class="panel hidden">
+<h2>Account Security</h2>
+<p class="muted">Manage the security of your MASTERBOOK account.</p>
+
+<div class="resource">
+<h3>Change Password</h3>
+<p class="muted">Enter your current password, then choose a new password. Your new password must contain at least eight characters.</p>
+
+<form id="changePasswordForm">
+<label for="currentPassword">Current password</label>
+<input id="currentPassword" type="password" autocomplete="current-password" placeholder="Enter your current password" required>
+
+<label for="newPassword">New password</label>
+<input id="newPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Enter your new password" required>
+
+<label for="confirmNewPassword">Confirm new password</label>
+<input id="confirmNewPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Confirm your new password" required>
+
+<button type="submit" class="primary" id="changePasswordButton">Change Password</button>
+</form>
+<p class="muted">For security, MASTERBOOK will verify your current password before making the change.</p>
+</div>
+
+<div class="resource">
+<h3>Password Recovery</h3>
+<p class="muted">If you cannot remember your current password, sign out and use the Forgot Password option on the MASTERBOOK login page.</p>
+<button class="secondary" onclick="logout()">Sign Out</button>
+</div>
 </section>
 
 <section id="courses" class="panel hidden">
@@ -237,7 +245,6 @@ Your email address, account role and approval status are managed by MASTERBOOK a
 <p class="muted">Complete all published lessons and pass all published assessments in an enrolled course to qualify for a certificate.</p>
 <div id="certificateList">Loading certificates...</div>
 </section>
-
 </main>
 
 <footer>MASTERBOOK | Learning Without Boundaries.</footer>
@@ -245,20 +252,15 @@ Your email address, account role and approval status are managed by MASTERBOOK a
 <script>
 "use strict";
 
-/* =====================================================
-   1. SUPABASE CONNECTION
-===================================================== */
-
+/* 1. SUPABASE CONNECTION */
 const SUPABASE_URL="https://bxsrhvcqjjtdnflhoplu.supabase.co";
 const SUPABASE_KEY="sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
 const STORAGE_BUCKET="masterbook-resources";
 const SIGNED_URL_SECONDS=600;
-
 const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 let currentUser=null;
 let studentProfile=null;
-
 let courses=[];
 let lessons=[];
 let allLessons=[];
@@ -269,28 +271,24 @@ let lessonProgress=[];
 let assessments=[];
 let attempts=[];
 let certificates=[];
-
 let activeCourse=null;
 let activeLessonIndex=0;
 let activeAssessment=null;
 let activeQuestions=[];
-
 let loadingDashboard=false;
 let quizSubmitting=false;
 let profileSaving=false;
+let passwordChanging=false;
 let authRedirecting=false;
 
 const $=id=>document.getElementById(id);
 
 const sections=[
- "overview","profile","courses","courseDetail","lessonReader",
+ "overview","profile","security","courses","courseDetail","lessonReader",
  "resources","assessments","quiz","progress","certificates"
 ];
 
-/* =====================================================
-   2. GENERAL HELPERS
-===================================================== */
-
+/* 2. GENERAL HELPERS */
 function message(text,error=false){
  const box=$("message");
  box.textContent=text;
@@ -300,11 +298,7 @@ function message(text,error=false){
 
 function escapeHTML(value){
  return String(value??"").replace(/[&<>"']/g,c=>({
-  "&":"&amp;",
-  "<":"&lt;",
-  ">":"&gt;",
-  '"':"&quot;",
-  "'":"&#39;"
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
  }[c]));
 }
 
@@ -326,11 +320,9 @@ function formatDateTime(value){
 
 function showSection(id){
  if(!sections.includes(id))return;
-
  sections.forEach(section=>{
   $(section).classList.toggle("hidden",section!==id);
  });
-
  window.scrollTo({top:0,behavior:"smooth"});
 }
 
@@ -340,9 +332,7 @@ function safeError(error,fallback){
 
 function setButtonLoading(button,text){
  if(!button)return;
- if(!button.dataset.originalText){
-  button.dataset.originalText=button.textContent;
- }
+ if(!button.dataset.originalText)button.dataset.originalText=button.textContent;
  button.disabled=true;
  button.textContent=text;
 }
@@ -369,34 +359,17 @@ function getAttemptStats(){
  const total=attempts.length;
  const passed=attempts.filter(a=>a.passed===true).length;
  const failed=total-passed;
-
- const percentages=attempts
-  .map(a=>Number(a.percentage))
-  .filter(n=>Number.isFinite(n));
-
- const average=percentages.length
-  ?percentages.reduce((sum,n)=>sum+n,0)/percentages.length
-  :0;
-
- return {
-  total,
-  passed,
-  failed,
-  average:Math.round(average*100)/100
- };
+ const percentages=attempts.map(a=>Number(a.percentage)).filter(n=>Number.isFinite(n));
+ const average=percentages.length?percentages.reduce((sum,n)=>sum+n,0)/percentages.length:0;
+ return {total,passed,failed,average:Math.round(average*100)/100};
 }
 
-/* =====================================================
-   3. AUTHENTICATION AND STUDENT PROFILE
-===================================================== */
-
+/* 3. AUTHENTICATION AND STUDENT PROFILE */
 async function initialize(){
  try{
   message("Checking your student account...");
-
   const {data:{session},error}=await db.auth.getSession();
   if(error)throw error;
-
   if(!session){
    location.replace("auth.html");
    return;
@@ -404,72 +377,44 @@ async function initialize(){
 
   currentUser=session.user;
 
-  const {data:profile,error:profileError}=await db
-   .from("profiles")
+  const {data:profile,error:profileError}=await db.from("profiles")
    .select("id,full_name,email,requested_role,approval_status,is_admin,created_at,updated_at")
-   .eq("id",currentUser.id)
-   .maybeSingle();
+   .eq("id",currentUser.id).maybeSingle();
 
   if(profileError)throw profileError;
-
-  if(!profile){
-   throw new Error("Your MASTERBOOK profile could not be found. Please contact the administrator.");
-  }
-
-  if(String(profile.approval_status||"").toLowerCase()!=="approved"){
+  if(!profile)throw new Error("Your MASTERBOOK profile could not be found. Please contact the administrator.");
+  if(String(profile.approval_status||"").toLowerCase()!=="approved")
    throw new Error("Your account is awaiting approval. Please contact the administrator.");
-  }
-
-  if(profile.requested_role!=="student"&&profile.is_admin!==true){
+  if(profile.requested_role!=="student"&&profile.is_admin!==true)
    throw new Error("This dashboard is available to student accounts.");
-  }
 
   studentProfile=profile;
-
   renderProfile();
-
   await loadData();
-
   message("Your MASTERBOOK learning centre is ready.");
-
  }catch(error){
   console.error("MASTERBOOK initialization:",error);
   message(safeError(error,"Unable to load your dashboard."),true);
  }
-
 }
 
 function renderProfile(){
  if(!studentProfile)return;
-
  const displayName=studentProfile.full_name||currentUser?.email||"Student";
-
  $("studentName").textContent=displayName;
  $("signedIn").textContent="Signed in as "+displayName;
-
  $("fullNameInput").value=studentProfile.full_name||"";
  $("profileEmail").textContent=studentProfile.email||currentUser?.email||"Not provided";
  $("profileRole").textContent=studentProfile.requested_role||"Student";
  $("profileStatus").textContent=studentProfile.approval_status||"Unknown";
-
- $("profileStatus").className=
-  String(studentProfile.approval_status||"").toLowerCase()==="approved"
-   ?"profile-value success"
-   :"profile-value warning";
+ $("profileStatus").className=String(studentProfile.approval_status||"").toLowerCase()==="approved"
+  ?"profile-value success":"profile-value warning";
 }
 
-/* =====================================================
-   4. SAVE STUDENT PROFILE
-   Students can update full_name only.
-   Email, role, approval_status and is_admin are protected.
-===================================================== */
-
+/* 4. SAVE STUDENT PROFILE */
 $("profileForm").addEventListener("submit",async event=>{
-
  event.preventDefault();
-
  if(profileSaving)return;
-
  if(!currentUser||!studentProfile){
   message("Your student session is not ready. Please sign in again.",true);
   return;
@@ -477,13 +422,11 @@ $("profileForm").addEventListener("submit",async event=>{
 
  const fullName=$("fullNameInput").value.trim();
  const button=$("saveProfileButton");
-
  if(!fullName){
   message("Please enter your full name.",true);
   $("fullNameInput").focus();
   return;
  }
-
  if(fullName.length>120){
   message("Your full name must not exceed 120 characters.",true);
   return;
@@ -491,112 +434,124 @@ $("profileForm").addEventListener("submit",async event=>{
 
  profileSaving=true;
  setButtonLoading(button,"Saving profile...");
-
  try{
-
-  const {data,error}=await db
-   .from("profiles")
-   .update({
-    full_name:fullName,
-    updated_at:new Date().toISOString()
-   })
-   .eq("id",currentUser.id)
+  const {data,error}=await db.from("profiles").update({
+   full_name:fullName,
+   updated_at:new Date().toISOString()
+  }).eq("id",currentUser.id)
    .select("id,full_name,email,requested_role,approval_status,is_admin,updated_at")
    .single();
 
   if(error)throw error;
-
-  if(!data){
-   throw new Error("Your profile was not updated. Please try again.");
-  }
-
-  studentProfile={
-   ...studentProfile,
-   ...data
-  };
-
+  if(!data)throw new Error("Your profile was not updated. Please try again.");
+  studentProfile={...studentProfile,...data};
   renderProfile();
-
   message("Your student profile has been updated successfully.");
-
  }catch(error){
-
   console.error("Profile update:",error);
-
-  message(
-   safeError(error,"Unable to update your profile. Please try again."),
-   true
-  );
-
+  message(safeError(error,"Unable to update your profile. Please try again."),true);
  }finally{
-
   profileSaving=false;
   restoreButton(button);
-
  }
-
 });
 
-/* =====================================================
-   5. LOAD STUDENT DATA
-===================================================== */
+/* 5. CHANGE PASSWORD */
+$("changePasswordForm").addEventListener("submit",async event=>{
+ event.preventDefault();
 
+ if(passwordChanging)return;
+
+ if(!currentUser||!currentUser.email){
+  message("Your account session is unavailable. Please sign in again.",true);
+  return;
+ }
+
+ const currentPassword=$("currentPassword").value;
+ const newPassword=$("newPassword").value;
+ const confirmPassword=$("confirmNewPassword").value;
+ const button=$("changePasswordButton");
+
+ if(!currentPassword||!newPassword||!confirmPassword){
+  message("Please complete all password fields.",true);
+  return;
+ }
+
+ if(newPassword.length<8){
+  message("Your new password must contain at least eight characters.",true);
+  $("newPassword").focus();
+  return;
+ }
+
+ if(newPassword!==confirmPassword){
+  message("The new password and confirmation do not match.",true);
+  $("confirmNewPassword").focus();
+  return;
+ }
+
+ if(newPassword===currentPassword){
+  message("Your new password must be different from your current password.",true);
+  $("newPassword").focus();
+  return;
+ }
+
+ passwordChanging=true;
+ setButtonLoading(button,"Verifying and updating...");
+
+ try{
+  // Verify the current password by re-authenticating the signed-in user.
+  const {error:verifyError}=await db.auth.signInWithPassword({
+   email:currentUser.email,
+   password:currentPassword
+  });
+
+  if(verifyError){
+   throw new Error("Your current password is incorrect. Please check it and try again.");
+  }
+
+  // Update the password only after the current password is verified.
+  const {data,error:updateError}=await db.auth.updateUser({
+   password:newPassword
+  });
+
+  if(updateError)throw updateError;
+
+  if(!data?.user){
+   throw new Error("The password update could not be confirmed. Please sign in again to check your account.");
+  }
+
+  $("changePasswordForm").reset();
+  message("Your password has been changed successfully. Your account remains signed in.");
+
+ }catch(error){
+  console.error("Password change:",error);
+  message(safeError(error,"Unable to change your password. Please try again."),true);
+ }finally{
+  passwordChanging=false;
+  restoreButton(button);
+ }
+});
+
+/* 6. LOAD STUDENT DATA */
 async function loadData(){
-
  if(!currentUser)throw new Error("Your student session has expired.");
  if(loadingDashboard)return;
-
  loadingDashboard=true;
 
  try{
-
   const results=await Promise.all([
-
-   db.from("learning_courses")
-    .select("*")
-    .eq("status","Published")
-    .order("created_at",{ascending:false}),
-
-   db.from("resources")
-    .select("id,title,description,education_level,subject,resource_type,storage_path,access_tier,status")
-    .eq("status","Published")
-    .eq("access_tier","Free")
-    .order("created_at",{ascending:false}),
-
-   db.from("student_enrollments")
-    .select("*")
-    .eq("student_id",currentUser.id),
-
-   db.from("student_progress")
-    .select("*")
-    .eq("student_id",currentUser.id),
-
-   db.from("student_lesson_progress")
-    .select("*")
-    .eq("student_id",currentUser.id),
-
-   db.from("student_assessment_attempts")
-    .select("*")
-    .eq("student_id",currentUser.id)
-    .order("submitted_at",{ascending:false}),
-
-   db.from("student_certificates")
-    .select("*")
-    .eq("student_id",currentUser.id),
-
-   db.from("learning_lessons")
-    .select("id,title,course_id,lesson_order,status")
-    .eq("status","Published"),
-
-   db.from("learning_assessments")
-    .select("id,course_id,title,description,subject,total_marks,pass_percentage,status,created_at")
-    .eq("status","Published")
-    .order("created_at",{ascending:false})
+   db.from("learning_courses").select("*").eq("status","Published").order("created_at",{ascending:false}),
+   db.from("resources").select("id,title,description,education_level,subject,resource_type,storage_path,access_tier,status").eq("status","Published").eq("access_tier","Free").order("created_at",{ascending:false}),
+   db.from("student_enrollments").select("*").eq("student_id",currentUser.id),
+   db.from("student_progress").select("*").eq("student_id",currentUser.id),
+   db.from("student_lesson_progress").select("*").eq("student_id",currentUser.id),
+   db.from("student_assessment_attempts").select("*").eq("student_id",currentUser.id).order("submitted_at",{ascending:false}),
+   db.from("student_certificates").select("*").eq("student_id",currentUser.id),
+   db.from("learning_lessons").select("id,title,course_id,lesson_order,status").eq("status","Published"),
+   db.from("learning_assessments").select("id,course_id,title,description,subject,total_marks,pass_percentage,status,created_at").eq("status","Published").order("created_at",{ascending:false})
   ]);
 
-  results.forEach(result=>{
-   if(result.error)throw result.error;
-  });
+  results.forEach(result=>{if(result.error)throw result.error;});
 
   courses=results[0].data||[];
   resources=results[1].data||[];
@@ -606,10 +561,7 @@ async function loadData(){
   attempts=results[5].data||[];
   certificates=results[6].data||[];
   allLessons=results[7].data||[];
-
-  assessments=(results[8].data||[]).filter(a=>
-   enrollments.some(e=>e.course_id===a.course_id)
-  );
+  assessments=(results[8].data||[]).filter(a=>enrollments.some(e=>e.course_id===a.course_id));
 
   renderDashboard();
   renderCourses();
@@ -618,7 +570,6 @@ async function loadData(){
   renderHistory();
   renderCertificates();
   renderAssessments();
-
  }finally{
   loadingDashboard=false;
  }
@@ -635,82 +586,48 @@ async function refreshDashboard(){
  }
 }
 
-/* =====================================================
-   6. DASHBOARD AND ASSESSMENT ANALYTICS
-===================================================== */
-
+/* 7. DASHBOARD AND ASSESSMENT ANALYTICS */
 function renderDashboard(){
-
  $("courseCount").textContent=courses.length;
  $("enrollmentCount").textContent=enrollments.length;
-
  const completedLessons=lessonProgress.filter(p=>p.completed).length;
  const completedResources=progressRecords.filter(p=>p.completed).length;
-
  $("completedCount").textContent=completedLessons+completedResources;
 
  const stats=getAttemptStats();
-
  $("attemptCount").textContent=stats.total;
  $("passedCount").textContent=stats.passed;
  $("averageScore").textContent=stats.average.toFixed(2)+"%";
 
  if(stats.total){
-
   $("performanceSummary").innerHTML=`
    <div class="grid">
-    <div>
-     <strong>Total attempts</strong>
-     <p>${stats.total}</p>
-    </div>
-    <div>
-     <strong>Passed</strong>
-     <p class="success">${stats.passed}</p>
-    </div>
-    <div>
-     <strong>Not passed</strong>
-     <p class="warning">${stats.failed}</p>
-    </div>
-    <div>
-     <strong>Average percentage</strong>
-     <p>${stats.average.toFixed(2)}%</p>
-    </div>
+    <div><strong>Total attempts</strong><p>${stats.total}</p></div>
+    <div><strong>Passed</strong><p class="success">${stats.passed}</p></div>
+    <div><strong>Not passed</strong><p class="warning">${stats.failed}</p></div>
+    <div><strong>Average percentage</strong><p>${stats.average.toFixed(2)}%</p></div>
    </div>
    <p class="muted">Your average is calculated from all recorded assessment attempts.</p>`;
 
   const latest=attempts[0];
-
   $("recentActivity").innerHTML=`
    <div class="resource">
     <strong>Latest assessment: ${escapeHTML(assessmentTitle(latest))}</strong>
     <p>Score: ${escapeHTML(latest.score)} / ${escapeHTML(latest.total_marks)}</p>
     <p>Percentage: ${escapeHTML(latest.percentage)}%</p>
-    <p class="${latest.passed?"success":"warning"}">
-     ${latest.passed?"Passed":"Not passed"}
-    </p>
+    <p class="${latest.passed?"success":"warning"}">${latest.passed?"Passed":"Not passed"}</p>
     <p class="muted">Submitted: ${formatDateTime(latest.submitted_at)}</p>
    </div>`;
-
  }else{
-
   $("performanceSummary").textContent="You have not submitted any assessments yet.";
   $("recentActivity").textContent="No assessments completed yet. Enrol in a free course and begin learning.";
  }
 }
 
-/* =====================================================
-   7. COURSE CATALOGUE
-===================================================== */
-
+/* 8. COURSE CATALOGUE */
 function renderCourses(){
-
  const query=($("courseSearch").value||"").trim().toLowerCase();
-
- const filtered=courses.filter(c=>
-  (String(c.title||"")+" "+String(c.subject||"")+" "+String(c.education_level||"")+" "+String(c.description||""))
-   .toLowerCase().includes(query)
- );
-
+ const filtered=courses.filter(c=>(String(c.title||"")+" "+String(c.subject||"")+" "+String(c.education_level||"")+" "+String(c.description||"")).toLowerCase().includes(query));
  const list=$("courseList");
 
  if(!filtered.length){
@@ -719,149 +636,92 @@ function renderCourses(){
  }
 
  list.innerHTML=filtered.map(c=>{
-
   const free=isFree(c.access_tier);
   const alreadyEnrolled=enrolled(c);
-
   return `
    <div class="resource">
     <h3>${escapeHTML(c.title)}</h3>
     <p>${escapeHTML(c.description||"No course description available.")}</p>
-    <p class="muted">
-     ${escapeHTML(c.education_level)} |
-     ${escapeHTML(c.subject)} |
-     ${escapeHTML(c.curriculum||"Kenyan CBC")}
-    </p>
-    <span class="badge ${free?"":"locked"}">
-     ${free?"Free course":"Premium course — Locked"}
-    </span>
+    <p class="muted">${escapeHTML(c.education_level)} | ${escapeHTML(c.subject)} | ${escapeHTML(c.curriculum||"Kenyan CBC")}</p>
+    <span class="badge ${free?"":"locked"}">${free?"Free course":"Premium course — Locked"}</span>
     <div class="actions">
-     ${free?`
-      <button class="primary" onclick="enrolCourse('${escapeHTML(c.id)}')">
-       ${alreadyEnrolled?"Open course":"Enrol now"}
-      </button>
-     `:`
-      <button class="secondary" disabled>Premium access unavailable</button>
-     `}
+     ${free?`<button class="primary" onclick="enrolCourse('${escapeHTML(c.id)}')">${alreadyEnrolled?"Open course":"Enrol now"}</button>`:`<button class="secondary" disabled>Premium access unavailable</button>`}
     </div>
-    ${!free?`
-     <p class="warning muted">
-      Secure M-PESA payment is not yet activated. This course cannot currently be enrolled in or opened.
-     </p>
-    `:""}
+    ${!free?`<p class="warning muted">Secure M-PESA payment is not yet activated. This course cannot currently be enrolled in or opened.</p>`:""}
    </div>`;
  }).join("");
 }
 
-/* =====================================================
-   8. FREE COURSE ENROLMENT
-===================================================== */
-
+/* 9. FREE COURSE ENROLMENT */
 async function enrolCourse(id){
-
  const course=courses.find(c=>c.id===id);
  if(!course)return;
-
  if(!isFree(course.access_tier)){
   message("This is a premium course. Enrolment is locked until secure M-PESA payment verification is activated.",true);
   return;
  }
-
  if(enrolled(course)){
   await openCourse(id);
   return;
  }
-
  try{
-
   message("Processing your enrolment...");
-
   const {error}=await db.from("student_enrollments").insert({
-   student_id:currentUser.id,
-   course_id:course.id,
-   course_title:course.title,
-   subject:course.subject,
-   education_level:course.education_level
+   student_id:currentUser.id,course_id:course.id,course_title:course.title,
+   subject:course.subject,education_level:course.education_level
   });
-
   if(error)throw error;
-
   await loadData();
-
   message("Successfully enrolled in "+course.title+".");
   await openCourse(id);
-
  }catch(error){
   console.error("Course enrolment:",error);
   message(safeError(error,"Unable to enrol in this course."),true);
  }
 }
 
-/* =====================================================
-   9. OPEN COURSE AND LOAD LESSONS
-===================================================== */
-
+/* 10. OPEN COURSE AND LOAD LESSONS */
 async function openCourse(id){
-
  const course=courses.find(c=>c.id===id);
  if(!course)return;
-
  if(!isFree(course.access_tier)){
   message("Premium course access is locked pending verified payment.",true);
   return;
  }
-
  if(!enrolled(course)){
   message("Please enrol in this course first.",true);
   return;
  }
 
  activeCourse=course;
-
  $("detailTitle").textContent=course.title;
  $("detailDescription").textContent=course.description||"";
  $("lessonList").textContent="Loading lessons...";
  $("courseLessonProgress").textContent="";
-
  showSection("courseDetail");
 
  try{
-
-  const {data,error}=await db.from("learning_lessons")
-   .select("*")
-   .eq("course_id",id)
-   .eq("status","Published")
-   .order("lesson_order",{ascending:true});
-
+  const {data,error}=await db.from("learning_lessons").select("*")
+   .eq("course_id",id).eq("status","Published").order("lesson_order",{ascending:true});
   if(error)throw error;
-
   lessons=data||[];
   renderLessons();
-
  }catch(error){
   console.error("Course lessons:",error);
   message(safeError(error,"Unable to load course lessons."),true);
  }
 }
 
-/* =====================================================
-   10. COURSE LESSON LIST
-===================================================== */
-
+/* 11. COURSE LESSON LIST */
 function renderLessons(){
-
  const list=$("lessonList");
-
  if(!lessons.length){
   list.innerHTML='<div class="empty">No published lessons are available in this course yet.</div>';
   $("courseLessonProgress").textContent="";
   return;
  }
 
- const completed=lessons.filter(l=>
-  lessonProgress.some(p=>p.lesson_id===l.id&&p.completed)
- ).length;
-
+ const completed=lessons.filter(l=>lessonProgress.some(p=>p.lesson_id===l.id&&p.completed)).length;
  const percentage=Math.round((completed/lessons.length)*100);
 
  $("courseLessonProgress").innerHTML=`
@@ -872,130 +732,73 @@ function renderLessons(){
   </div>`;
 
  list.innerHTML=lessons.map((l,i)=>{
-
-  const done=lessonProgress.some(p=>
-   p.lesson_id===l.id&&p.completed
-  );
-
+  const done=lessonProgress.some(p=>p.lesson_id===l.id&&p.completed);
   return `
    <div class="resource">
     <h3>${i+1}. ${escapeHTML(l.title)}</h3>
     <p class="muted">${done?"Completed ✓":"Not yet completed"}</p>
     <div class="actions">
      <button class="primary" onclick="openLesson(${i})">Open lesson</button>
-     ${l.resource_id?`
-      <button class="secondary" onclick="openLinkedResource('${escapeHTML(l.resource_id)}')">
-       Open learning material
-      </button>`:""}
+     ${l.resource_id?`<button class="secondary" onclick="openLinkedResource('${escapeHTML(l.resource_id)}')">Open learning material</button>`:""}
     </div>
    </div>`;
  }).join("");
 }
 
-/* =====================================================
-   11. LESSON READER
-===================================================== */
-
+/* 12. LESSON READER */
 function openLesson(index){
-
  if(!activeCourse||!enrolled(activeCourse)||!isFree(activeCourse.access_tier)){
   message("You must be enrolled in this free course to open its lessons.",true);
   showSection("courses");
   return;
  }
-
  if(index<0||index>=lessons.length)return;
-
  activeLessonIndex=index;
  renderLessonReader();
  showSection("lessonReader");
 }
 
 function renderLessonReader(){
-
  const lesson=lessons[activeLessonIndex];
  if(!lesson)return;
-
  $("readerCourse").textContent=activeCourse?.title||"MASTERBOOK";
  $("readerTitle").textContent=lesson.title;
- $("readerPosition").textContent=
-  "Lesson "+(activeLessonIndex+1)+" of "+lessons.length;
-
- $("readerContent").textContent=
-  lesson.content||"Learning content will be added by the course administrator.";
-
- const done=lessonProgress.some(p=>
-  p.lesson_id===lesson.id&&p.completed
- );
-
- $("readerCompletionStatus").textContent=
-  done?"You have completed this lesson.":"This lesson is not yet completed.";
-
- $("completeLessonButton").textContent=
-  done?"Lesson completed ✓":"Mark lesson as complete";
-
+ $("readerPosition").textContent="Lesson "+(activeLessonIndex+1)+" of "+lessons.length;
+ $("readerContent").textContent=lesson.content||"Learning content will be added by the course administrator.";
+ const done=lessonProgress.some(p=>p.lesson_id===lesson.id&&p.completed);
+ $("readerCompletionStatus").textContent=done?"You have completed this lesson.":"This lesson is not yet completed.";
+ $("completeLessonButton").textContent=done?"Lesson completed ✓":"Mark lesson as complete";
  $("completeLessonButton").disabled=done;
-
  $("previousLesson").disabled=activeLessonIndex===0;
  $("nextLesson").disabled=activeLessonIndex===lessons.length-1;
-
- if(lesson.resource_id){
-  $("readerResource").innerHTML=`
-   <button class="secondary" onclick="openLinkedResource('${escapeHTML(lesson.resource_id)}')">
-    Open attached learning material
-   </button>`;
- }else{
-  $("readerResource").innerHTML="";
- }
+ $("readerResource").innerHTML=lesson.resource_id
+  ?`<button class="secondary" onclick="openLinkedResource('${escapeHTML(lesson.resource_id)}')">Open attached learning material</button>`:"";
 }
 
-function previousLesson(){
- if(activeLessonIndex>0)openLesson(activeLessonIndex-1);
-}
+function previousLesson(){if(activeLessonIndex>0)openLesson(activeLessonIndex-1);}
+function nextLesson(){if(activeLessonIndex<lessons.length-1)openLesson(activeLessonIndex+1);}
+function backToCourse(){showSection("courseDetail");}
 
-function nextLesson(){
- if(activeLessonIndex<lessons.length-1)openLesson(activeLessonIndex+1);
-}
-
-function backToCourse(){
- showSection("courseDetail");
-}
-
-/* =====================================================
-   12. SAVE LESSON COMPLETION
-===================================================== */
-
+/* 13. SAVE LESSON COMPLETION */
 async function completeCurrentLesson(){
-
  const lesson=lessons[activeLessonIndex];
  if(!lesson)return;
-
  if(!activeCourse||!enrolled(activeCourse)){
   message("You must be enrolled in this course first.",true);
   return;
  }
-
  const button=$("completeLessonButton");
  setButtonLoading(button,"Saving progress...");
-
  try{
-
   const {error}=await db.from("student_lesson_progress").upsert({
-   student_id:currentUser.id,
-   lesson_id:lesson.id,
-   completed:true,
-   completed_at:new Date().toISOString(),
-   updated_at:new Date().toISOString()
+   student_id:currentUser.id,lesson_id:lesson.id,completed:true,
+   completed_at:new Date().toISOString(),updated_at:new Date().toISOString()
   },{onConflict:"student_id,lesson_id"});
-
   if(error)throw error;
-
   await loadData();
   renderLessons();
   renderLessonReader();
-
   message("Lesson completion recorded successfully.");
-
  }catch(error){
   console.error("Lesson completion:",error);
   message(safeError(error,"Unable to save lesson progress."),true);
@@ -1003,279 +806,150 @@ async function completeCurrentLesson(){
  }
 }
 
-/* =====================================================
-   13. LINKED LEARNING RESOURCES
-===================================================== */
+/* 14. LINKED LEARNING RESOURCES */
+async function openLinkedResource(id){await accessResource(id,false);}
 
-async function openLinkedResource(id){
- await accessResource(id,false);
-}
-
-/* =====================================================
-   14. LIBRARY
-===================================================== */
-
+/* 15. LIBRARY */
 function renderResources(){
-
  const query=($("resourceSearch").value||"").trim().toLowerCase();
-
- const filtered=resources.filter(r=>
-  (String(r.title||"")+" "+String(r.subject||"")+" "+String(r.education_level||"")+" "+String(r.description||""))
-   .toLowerCase().includes(query)
- );
-
+ const filtered=resources.filter(r=>(String(r.title||"")+" "+String(r.subject||"")+" "+String(r.education_level||"")+" "+String(r.description||"")).toLowerCase().includes(query));
  if(!filtered.length){
   $("resourceList").innerHTML='<div class="empty">No matching free resources found.</div>';
   return;
  }
-
  $("resourceList").innerHTML=filtered.map(r=>{
-
-  const completed=progressRecords.some(p=>
-   p.resource_id===r.id&&p.completed
-  );
-
+  const completed=progressRecords.some(p=>p.resource_id===r.id&&p.completed);
   return `
    <div class="resource">
     <h3>${escapeHTML(r.title)}</h3>
     <p>${escapeHTML(r.description||"")}</p>
-    <p class="muted">
-     ${escapeHTML(r.education_level)} |
-     ${escapeHTML(r.subject)} |
-     ${escapeHTML(r.resource_type)}
-    </p>
+    <p class="muted">${escapeHTML(r.education_level)} | ${escapeHTML(r.subject)} | ${escapeHTML(r.resource_type)}</p>
     <span class="badge">Free resource</span>
     <div class="actions">
      <button class="primary" onclick="openPDF('${escapeHTML(r.id)}')">View PDF</button>
      <button class="secondary" onclick="downloadPDF('${escapeHTML(r.id)}')">Download PDF</button>
-     <button class="secondary" onclick="completeResource('${escapeHTML(r.id)}')">
-      ${completed?"Completed ✓":"Mark completed"}
-     </button>
+     <button class="secondary" onclick="completeResource('${escapeHTML(r.id)}')">${completed?"Completed ✓":"Mark completed"}</button>
     </div>
    </div>`;
  }).join("");
 }
 
-/* =====================================================
-   15. SECURE FREE PDF ACCESS
-===================================================== */
-
+/* 16. SECURE FREE PDF ACCESS */
 async function accessResource(id,download=false){
-
  const newTab=window.open("about:blank","_blank");
-
  if(!newTab){
   message("Your browser blocked the new tab. Allow pop-ups and try again.",true);
   return;
  }
-
  try{
-
   let resource=resources.find(r=>r.id===id);
-
   if(!resource){
-
-   const {data,error}=await db.from("resources")
-    .select("id,title,storage_path,access_tier,status")
-    .eq("id",id)
-    .eq("status","Published")
-    .eq("access_tier","Free")
-    .maybeSingle();
-
+   const {data,error}=await db.from("resources").select("id,title,storage_path,access_tier,status")
+    .eq("id",id).eq("status","Published").eq("access_tier","Free").maybeSingle();
    if(error)throw error;
    if(!data)throw new Error("This free learning material is unavailable.");
-
    resource=data;
   }
+  if(!isFree(resource.access_tier))throw new Error("Premium resource access is locked pending verified payment.");
+  if(!resource.storage_path)throw new Error("The PDF file is not available.");
 
-  if(!isFree(resource.access_tier)){
-   throw new Error("Premium resource access is locked pending verified payment.");
-  }
-
-  if(!resource.storage_path){
-   throw new Error("The PDF file is not available.");
-  }
-
-  const {data,error}=await db.storage
-   .from(STORAGE_BUCKET)
-   .createSignedUrl(
-    resource.storage_path,
-    SIGNED_URL_SECONDS,
-    download?{download:true}:{}
-   );
-
+  const {data,error}=await db.storage.from(STORAGE_BUCKET).createSignedUrl(
+   resource.storage_path,SIGNED_URL_SECONDS,download?{download:true}:{}
+  );
   if(error)throw error;
   if(!data?.signedUrl)throw new Error("Could not generate a secure file link.");
-
   newTab.location.href=data.signedUrl;
-
   message(download?"Your download is being prepared.":"Your learning material is opening.");
-
  }catch(error){
-
   newTab.close();
   console.error("Resource access:",error);
   message(safeError(error,"Unable to open this learning material."),true);
  }
 }
 
-async function openPDF(id){
- await accessResource(id,false);
-}
+async function openPDF(id){await accessResource(id,false);}
+async function downloadPDF(id){await accessResource(id,true);}
 
-async function downloadPDF(id){
- await accessResource(id,true);
-}
-
-/* =====================================================
-   16. MARK RESOURCE COMPLETED
-===================================================== */
-
+/* 17. MARK RESOURCE COMPLETED */
 async function completeResource(id){
-
  try{
-
   const {error}=await db.from("student_progress").upsert({
-   student_id:currentUser.id,
-   resource_id:id,
-   progress_percentage:100,
-   completed:true,
-   updated_at:new Date().toISOString()
+   student_id:currentUser.id,resource_id:id,progress_percentage:100,
+   completed:true,updated_at:new Date().toISOString()
   },{onConflict:"student_id,resource_id"});
-
   if(error)throw error;
-
   await loadData();
   message("Resource marked as completed.");
-
  }catch(error){
   console.error("Resource progress:",error);
   message(safeError(error,"Unable to update resource progress."),true);
  }
 }
 
-/* =====================================================
-   17. ASSESSMENTS
-===================================================== */
-
+/* 18. ASSESSMENTS */
 function renderAssessments(){
-
  if(!assessments.length){
-  $("assessmentList").innerHTML=
-   '<div class="empty">No assessments are currently available in your enrolled courses.</div>';
+  $("assessmentList").innerHTML='<div class="empty">No assessments are currently available in your enrolled courses.</div>';
   return;
  }
-
  $("assessmentList").innerHTML=assessments.map(a=>{
-
   const previousAttempts=attempts.filter(x=>x.assessment_id===a.id);
   const latest=previousAttempts[0];
-
   return `
    <div class="resource">
     <h3>${escapeHTML(a.title)}</h3>
     <p>${escapeHTML(a.description||"")}</p>
-    <p class="muted">
-     ${escapeHTML(a.subject)} |
-     ${escapeHTML(a.total_marks)} marks |
-     Pass mark ${escapeHTML(a.pass_percentage)}%
-    </p>
+    <p class="muted">${escapeHTML(a.subject)} | ${escapeHTML(a.total_marks)} marks | Pass mark ${escapeHTML(a.pass_percentage)}%</p>
     <p class="muted">Previous attempts: ${previousAttempts.length}</p>
-    ${latest?`
-     <p>Latest result: ${escapeHTML(latest.percentage)}%
-      <span class="${latest.passed?"success":"warning"}">
-       ${latest.passed?"Passed":"Not passed"}
-      </span>
-     </p>`:""}
+    ${latest?`<p>Latest result: ${escapeHTML(latest.percentage)}% <span class="${latest.passed?"success":"warning"}">${latest.passed?"Passed":"Not passed"}</span></p>`:""}
     <button class="primary" onclick="startQuiz('${escapeHTML(a.id)}')">Start assessment</button>
    </div>`;
  }).join("");
 }
 
-/* =====================================================
-   18. START QUIZ
-===================================================== */
-
+/* 19. START QUIZ */
 async function startQuiz(id){
-
  try{
-
   const assessment=assessments.find(a=>a.id===id);
-
-  if(!assessment){
-   throw new Error("Assessment unavailable. Confirm that you are enrolled in its course.");
-  }
-
+  if(!assessment)throw new Error("Assessment unavailable. Confirm that you are enrolled in its course.");
   const course=courses.find(c=>c.id===assessment.course_id);
-
-  if(!course||!isFree(course.access_tier)||!enrolled(course)){
+  if(!course||!isFree(course.access_tier)||!enrolled(course))
    throw new Error("You must be enrolled in the free course to attempt this assessment.");
-  }
 
   activeAssessment=assessment;
   activeQuestions=[];
-
   $("quizResult").innerHTML="";
   $("questionList").innerHTML="Loading questions...";
   $("quizForm").classList.remove("hidden");
-
   const submitButton=$("quizForm").querySelector('button[type="submit"]');
   submitButton.disabled=false;
-
   showSection("quiz");
 
-  const {data,error}=await db.rpc("masterbook_get_quiz",{
-   p_assessment_id:id
-  });
-
+  const {data,error}=await db.rpc("masterbook_get_quiz",{p_assessment_id:id});
   if(error)throw error;
-
   const quizData=Array.isArray(data)?data[0]:data;
-
   if(!quizData)throw new Error("No assessment data was returned.");
 
   activeQuestions=Array.isArray(quizData.questions)?quizData.questions:[];
-
   $("quizTitle").textContent=quizData.title||assessment.title;
-  $("quizDescription").textContent=
-   quizData.description||"Answer all questions before submitting.";
-
-  if(!activeQuestions.length){
-   throw new Error("This assessment has no questions.");
-  }
+  $("quizDescription").textContent=quizData.description||"Answer all questions before submitting.";
+  if(!activeQuestions.length)throw new Error("This assessment has no questions.");
 
   $("questionList").innerHTML=activeQuestions.map((q,i)=>{
-
    const options=Array.isArray(q.options)?q.options:[];
-
    const questionText=q.question||q.question_text||"Question";
-
    return `
     <div class="resource">
      <h3>${i+1}. ${escapeHTML(questionText)}</h3>
      <p class="muted">${escapeHTML(q.marks??1)} marks</p>
      ${options.map(o=>{
-
-      const value=typeof o==="object"?
-       (o.value??o.label??o.text??""):o;
-
-      const label=typeof o==="object"?
-       (o.label??o.text??o.value??""):o;
-
-      return `
-       <label class="option">
-        <input type="radio"
-         name="question_${escapeHTML(q.id)}"
-         value="${escapeHTML(value)}"
-         required>
-        ${escapeHTML(label)}
-       </label>`;
+      const value=typeof o==="object"?(o.value??o.label??o.text??""):o;
+      const label=typeof o==="object"?(o.label??o.text??o.value??""):o;
+      return `<label class="option"><input type="radio" name="question_${escapeHTML(q.id)}" value="${escapeHTML(value)}" required>${escapeHTML(label)}</label>`;
      }).join("")}
     </div>`;
   }).join("");
-
   message("Assessment loaded. Answer every question before submitting.");
-
  }catch(error){
   console.error("Start assessment:",error);
   $("questionList").innerHTML="";
@@ -1283,45 +957,22 @@ async function startQuiz(id){
  }
 }
 
-/* =====================================================
-   19. ASSESSMENT SUBMISSION AND RESULT DISPLAY
-===================================================== */
-
+/* 20. ASSESSMENT SUBMISSION AND RESULT DISPLAY */
 $("quizForm").addEventListener("submit",async event=>{
-
  event.preventDefault();
-
  if(quizSubmitting)return;
-
  const form=$("quizForm");
  const submitButton=form.querySelector('button[type="submit"]');
 
  try{
-
-  if(!activeAssessment){
-   throw new Error("Please open an assessment first.");
-  }
-
-  if(!Array.isArray(activeQuestions)||activeQuestions.length===0){
-   throw new Error("No assessment questions were found.");
-  }
-
-  if(!currentUser){
-   throw new Error("Your student session has expired. Please sign in again.");
-  }
+  if(!activeAssessment)throw new Error("Please open an assessment first.");
+  if(!Array.isArray(activeQuestions)||activeQuestions.length===0)throw new Error("No assessment questions were found.");
+  if(!currentUser)throw new Error("Your student session has expired. Please sign in again.");
 
   const answers={};
-
   activeQuestions.forEach(q=>{
-
-   const selected=form.querySelector(
-    'input[name="question_'+String(q.id)+'"]:checked'
-   );
-
-   if(selected){
-    answers[q.id]=selected.value;
-   }
-
+   const selected=form.querySelector('input[name="question_'+String(q.id)+'"]:checked');
+   if(selected)answers[q.id]=selected.value;
   });
 
   if(Object.keys(answers).length!==activeQuestions.length){
@@ -1330,43 +981,27 @@ $("quizForm").addEventListener("submit",async event=>{
   }
 
   quizSubmitting=true;
-
   setButtonLoading(submitButton,"Marking assessment...");
-
   message("Submitting your answers. Please wait. Do not close this page.");
 
   const {data,error}=await db.rpc("masterbook_submit_quiz",{
-   p_assessment_id:activeAssessment.id,
-   p_answers:answers
+   p_assessment_id:activeAssessment.id,p_answers:answers
   });
-
   if(error)throw error;
-
   const result=Array.isArray(data)?data[0]:data;
-
-  if(!result||result.success!==true){
-   throw new Error("The assessment result was not returned correctly.");
-  }
+  if(!result||result.success!==true)throw new Error("The assessment result was not returned correctly.");
 
   const passed=result.passed===true;
   const submittedTitle=activeAssessment.title;
-
   $("quizForm").classList.add("hidden");
 
   $("quizResult").innerHTML=`
    <div class="resource ${passed?"result-passed":"result-failed"}">
     <h3>Assessment result</h3>
     <h2>${escapeHTML(submittedTitle)}</h2>
-    <p class="result-score">
-     ${escapeHTML(result.percentage??0)}%
-    </p>
-    <p><strong>Score:</strong>
-     ${escapeHTML(result.score??0)} /
-     ${escapeHTML(result.total_marks??0)}
-    </p>
-    <p class="${passed?"success":"warning"}">
-     <strong>${passed?"PASSED":"NOT PASSED"}</strong>
-    </p>
+    <p class="result-score">${escapeHTML(result.percentage??0)}%</p>
+    <p><strong>Score:</strong> ${escapeHTML(result.score??0)} / ${escapeHTML(result.total_marks??0)}</p>
+    <p class="${passed?"success":"warning"}"><strong>${passed?"PASSED":"NOT PASSED"}</strong></p>
     <p>${escapeHTML(result.message||"Your assessment has been marked.")}</p>
     <p class="muted">Your submitted result has been received by MASTERBOOK.</p>
     <div class="actions">
@@ -1377,7 +1012,6 @@ $("quizForm").addEventListener("submit",async event=>{
    </div>`;
 
   message("Assessment submitted and marked successfully.");
-
   try{
    await loadData();
    message("Assessment result saved. Dashboard and assessment history updated.");
@@ -1385,20 +1019,13 @@ $("quizForm").addEventListener("submit",async event=>{
    console.error("Post-assessment dashboard refresh:",refreshError);
    message("Your assessment result was saved. Dashboard refresh failed; use Refresh dashboard to try again.",true);
   }
-
  }catch(error){
-
   console.error("Assessment submission error:",error);
-
   message(safeError(error,"Assessment submission failed. Your answers have not been confirmed."),true);
-
  }finally{
-
   quizSubmitting=false;
   restoreButton(submitButton);
-
  }
-
 });
 
 function finishQuiz(){
@@ -1411,14 +1038,9 @@ function finishQuiz(){
  showSection("assessments");
 }
 
-/* =====================================================
-   20. STUDENT LEARNING PROGRESS
-===================================================== */
-
+/* 21. STUDENT LEARNING PROGRESS */
 function renderProgress(){
-
  const list=$("progressList");
-
  const lessonDone=lessonProgress.filter(p=>p.completed).length;
  const resourceDone=progressRecords.filter(p=>p.completed).length;
  const stats=getAttemptStats();
@@ -1432,21 +1054,16 @@ function renderProgress(){
    <div class="stat">Average score<strong>${stats.average.toFixed(2)}%</strong></div>
   </div>`;
 
- if(!lessonProgress.length&&!progressRecords.length){
+ if(!lessonProgress.length&&!progressRecords.length)
   html+='<p class="muted">You have not recorded any learning progress yet.</p>';
- }
 
  html+="<h3>Resource progress</h3>";
-
  if(!progressRecords.length){
   html+='<p class="muted">No resource progress recorded.</p>';
  }else{
-
   html+=progressRecords.map(p=>{
-
    const r=resources.find(x=>x.id===p.resource_id);
    const percentage=Math.max(0,Math.min(100,Number(p.progress_percentage)||0));
-
    return `
     <div class="resource">
      <strong>${escapeHTML(r?.title||"Learning resource")}</strong>
@@ -1458,38 +1075,21 @@ function renderProgress(){
  }
 
  html+="<h3>Lesson progress</h3>";
-
  if(!lessonProgress.length){
   html+='<p class="muted">No lesson progress recorded.</p>';
  }else{
-
   html+=lessonProgress.map(p=>{
-
    const known=allLessons.find(x=>x.id===p.lesson_id);
-   const title=known?.title||"Learning lesson";
-
-   return `
-    <div class="resource">
-     <strong>${escapeHTML(title)}</strong>
-     <p class="${p.completed?"success":"muted"}">
-      ${p.completed?"Completed":"In progress"}
-     </p>
-    </div>`;
+   return `<div class="resource"><strong>${escapeHTML(known?.title||"Learning lesson")}</strong><p class="${p.completed?"success":"muted"}">${p.completed?"Completed":"In progress"}</p></div>`;
   }).join("");
  }
-
  list.innerHTML=html;
 }
 
-/* =====================================================
-   21. DETAILED ASSESSMENT HISTORY
-===================================================== */
-
+/* 22. DETAILED ASSESSMENT HISTORY */
 function renderHistory(){
-
  if(!attempts.length){
-  $("assessmentHistory").innerHTML=
-   '<div class="empty">No assessment attempts recorded yet. Your submitted assessments will appear here.</div>';
+  $("assessmentHistory").innerHTML='<div class="empty">No assessment attempts recorded yet. Your submitted assessments will appear here.</div>';
   return;
  }
 
@@ -1501,18 +1101,9 @@ function renderHistory(){
    <p>Not passed: <strong class="warning">${attempts.filter(a=>a.passed!==true).length}</strong></p>
    <p>Average score: <strong>${getAttemptStats().average.toFixed(2)}%</strong></p>
   </div>
-
   <div style="overflow-x:auto">
    <table>
-    <thead>
-     <tr>
-      <th>Assessment</th>
-      <th>Score</th>
-      <th>Percentage</th>
-      <th>Result</th>
-      <th>Date submitted</th>
-     </tr>
-    </thead>
+    <thead><tr><th>Assessment</th><th>Score</th><th>Percentage</th><th>Result</th><th>Date submitted</th></tr></thead>
     <tbody>
      ${attempts.map(a=>`
       <tr>
@@ -1521,160 +1112,104 @@ function renderHistory(){
        <td>${escapeHTML(a.percentage)}%</td>
        <td class="${a.passed?"success":"warning"}">${a.passed?"Passed":"Not passed"}</td>
        <td>${formatDateTime(a.submitted_at)}</td>
-      </tr>
-     `).join("")}
+      </tr>`).join("")}
     </tbody>
    </table>
   </div>`;
 }
 
-/* =====================================================
-   22. CERTIFICATES
-===================================================== */
-
+/* 23. CERTIFICATES */
 function renderCertificates(){
-
  const list=$("certificateList");
  const enrolledCourses=courses.filter(c=>enrolled(c)&&isFree(c.access_tier));
-
  if(!enrolledCourses.length){
-  list.innerHTML=
-   '<div class="empty">Enrol in a free course to work towards a certificate.</div>';
+  list.innerHTML='<div class="empty">Enrol in a free course to work towards a certificate.</div>';
   return;
  }
 
  let html="";
-
  enrolledCourses.forEach(course=>{
-
   const certificate=certificates.find(c=>c.course_id===course.id);
-
   if(certificate){
-
    html+=`
     <div class="resource certificate-card">
      <h3>${escapeHTML(course.title)}</h3>
      <span class="badge">Certificate issued</span>
-     <p><strong>Certificate number:</strong>
-      ${escapeHTML(certificate.certificate_code)}
-     </p>
+     <p><strong>Certificate number:</strong> ${escapeHTML(certificate.certificate_code)}</p>
      <p class="muted">Date issued: ${formatDate(certificate.issued_at)}</p>
      <div class="actions">
-      <button class="primary" onclick="printCertificate('${escapeHTML(certificate.id)}')">
-       Print / Save Certificate
-      </button>
+      <button class="primary" onclick="printCertificate('${escapeHTML(certificate.id)}')">Print / Save Certificate</button>
       <a href="verify.html" target="_blank" rel="noopener">Verify certificate</a>
      </div>
     </div>`;
-
   }else{
-
    html+=`
     <div class="resource certificate-card">
      <h3>${escapeHTML(course.title)}</h3>
      <span class="badge">Not yet issued</span>
-     <p class="muted">
-      Complete all published lessons and pass all published assessments
-      to qualify for this course certificate.
-     </p>
+     <p class="muted">Complete all published lessons and pass all published assessments to qualify for this course certificate.</p>
      <div class="actions">
-      <button class="primary"
-       onclick="requestCourseCertificate('${escapeHTML(course.id)}',this)">
-       Check eligibility and request certificate
-      </button>
+      <button class="primary" onclick="requestCourseCertificate('${escapeHTML(course.id)}',this)">Check eligibility and request certificate</button>
      </div>
     </div>`;
   }
  });
-
  list.innerHTML=html;
 }
 
-/* =====================================================
-   23. REQUEST CERTIFICATE
-===================================================== */
-
+/* 24. REQUEST CERTIFICATE */
 async function requestCourseCertificate(courseId,button){
-
  if(!currentUser){
   message("Please sign in again.",true);
   return;
  }
-
  const course=courses.find(c=>c.id===courseId);
-
  if(!course||!isFree(course.access_tier)){
   message("Certificate access is unavailable for this course.",true);
   return;
  }
-
  if(!enrolled(course)){
   message("You must be enrolled in the course first.",true);
   return;
  }
-
  setButtonLoading(button,"Checking eligibility...");
-
  try{
-
-  const {data,error}=await db.rpc(
-   "masterbook_issue_certificate",
-   {p_course_id:courseId}
-  );
-
+  const {data,error}=await db.rpc("masterbook_issue_certificate",{p_course_id:courseId});
   if(error)throw error;
-
   const issued=Array.isArray(data)?data[0]:data;
-
-  if(!issued||!issued.certificate_code){
+  if(!issued||!issued.certificate_code)
    throw new Error("No certificate was returned. Please check eligibility or contact the administrator.");
-  }
-
   await loadData();
-
   showSection("certificates");
   message("Congratulations! Your certificate has been issued.");
-
  }catch(error){
-
   console.error("Certificate request:",error);
   message(safeError(error,"Certificate request failed."),true);
   restoreButton(button);
  }
 }
 
-/* =====================================================
-   24. PRINT AND SAVE CERTIFICATE
-===================================================== */
-
+/* 25. PRINT AND SAVE CERTIFICATE */
 function printCertificate(certificateId){
-
  const certificate=certificates.find(c=>c.id===certificateId);
-
  if(!certificate){
   message("Certificate not found.",true);
   return;
  }
-
  const course=courses.find(c=>c.id===certificate.course_id);
-
  if(!course){
   message("Course information could not be found.",true);
   return;
  }
-
  const name=$("studentName").textContent||"MASTERBOOK Student";
  const issuedDate=formatDate(certificate.issued_at);
-
  const printWindow=window.open("","_blank");
-
  if(!printWindow){
   message("Allow pop-ups in your browser to print the certificate.",true);
   return;
  }
 
  printWindow.document.open();
-
  printWindow.document.write(`
  <!DOCTYPE html>
  <html lang="en">
@@ -1717,56 +1252,36 @@ function printCertificate(certificateId){
    <br>
    <strong>Date Issued:</strong> ${escapeHTML(issuedDate)}
   </div>
-  <div class="footer">
-   MASTERBOOK | Learning Without Boundaries.
-   <br>
-   Issued electronically by the MASTERBOOK Learning Platform.
-  </div>
+  <div class="footer">MASTERBOOK | Learning Without Boundaries.<br>Issued electronically by the MASTERBOOK Learning Platform.</div>
  </div>
  <button class="print-button" onclick="window.print()">Print / Save as PDF</button>
  </body>
  </html>
  `);
-
  printWindow.document.close();
 }
 
-/* =====================================================
-   25. SIGN OUT
-===================================================== */
-
+/* 26. SIGN OUT */
 async function logout(){
-
  try{
-
   const {error}=await db.auth.signOut();
   if(error)throw error;
-
   location.replace("auth.html");
-
  }catch(error){
   console.error("Sign out:",error);
   message(safeError(error,"Unable to sign out."),true);
  }
 }
 
-/* =====================================================
-   26. AUTH SESSION MONITOR
-===================================================== */
-
+/* 27. AUTH SESSION MONITOR */
 db.auth.onAuthStateChange(event=>{
-
  if(event==="SIGNED_OUT"&&!authRedirecting){
   authRedirecting=true;
   location.replace("auth.html");
  }
-
 });
 
-/* =====================================================
-   27. START APPLICATION
-===================================================== */
-
+/* 28. START APPLICATION */
 initialize();
 
 </script>
