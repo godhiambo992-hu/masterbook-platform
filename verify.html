@@ -4,201 +4,208 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Official MASTERBOOK certificate verification portal. Verify certificates issued by MASTERBOOK.">
 <meta name="theme-color" content="#102b50">
+<meta name="description" content="Official MASTERBOOK certificate verification portal.">
 
 <title>MASTERBOOK | Certificate Verification</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-* {
-  box-sizing: border-box;
+*{box-sizing:border-box}
+
+body{
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:#f1f5fa;
+ color:#203047;
+ line-height:1.6;
 }
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f1f5fa;
-  color: #203047;
-  line-height: 1.6;
+header{
+ background:linear-gradient(135deg,#102b50,#174d7c);
+ color:white;
+ padding:22px 16px;
+ text-align:center;
 }
 
-header {
-  background: linear-gradient(135deg, #102b50, #174d7c);
-  color: white;
-  text-align: center;
-  padding: 30px 16px;
+header h1{
+ margin:0;
+ font-size:29px;
+ letter-spacing:2px;
 }
 
-header h1 {
-  margin: 0;
-  font-size: 30px;
-  letter-spacing: 2px;
+header p{
+ margin:3px 0;
+ color:#d5e2f2;
 }
 
-header p {
-  margin: 5px 0 12px;
-  color: #d5e2f2;
+nav{
+ background:#fff;
+ display:flex;
+ flex-wrap:wrap;
+ justify-content:center;
+ gap:10px;
+ padding:13px 10px;
+ box-shadow:0 2px 8px #00000012;
 }
 
-header h2 {
-  color: white;
-  font-size: 20px;
-  margin: 8px 0 0;
+nav a{
+ text-decoration:none;
+ color:#164574;
+ padding:9px 14px;
+ border-radius:7px;
+ font-weight:bold;
+ font-size:14px;
 }
 
-main {
-  width: 100%;
-  max-width: 680px;
-  margin: 35px auto;
-  padding: 15px;
+nav a:hover{
+ background:#e8f1fa;
 }
 
-.card {
-  background: white;
-  padding: 28px;
-  border-radius: 14px;
-  box-shadow: 0 5px 22px #00000012;
+nav .primary{
+ background:#14518a;
+ color:white;
 }
 
-.card h2 {
-  color: #153b65;
-  margin-top: 0;
+nav .primary:hover{
+ background:#0d3d6b;
 }
 
-input {
-  display: block;
-  width: 100%;
-  padding: 15px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 16px;
-  margin: 12px 0 16px;
-  text-transform: uppercase;
+main{
+ max-width:700px;
+ margin:35px auto;
+ padding:15px;
 }
 
-input:focus {
-  outline: 2px solid #3b82f6;
-  border-color: #3b82f6;
+.card{
+ background:white;
+ padding:28px;
+ border-radius:13px;
+ box-shadow:0 5px 22px #00000012;
 }
 
-button {
-  width: 100%;
-  padding: 14px;
-  border: 0;
-  border-radius: 8px;
-  background: #14518a;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 5px;
+.card h2{
+ color:#153b65;
+ margin-top:0;
 }
 
-button:hover {
-  background: #0d3d6b;
+input{
+ width:100%;
+ padding:15px;
+ border:1px solid #cbd5e1;
+ border-radius:8px;
+ font-size:16px;
+ margin:12px 0 16px;
+ text-transform:uppercase;
 }
 
-button:disabled {
-  opacity: .6;
-  cursor: not-allowed;
+input:focus{
+ outline:2px solid #3b82f6;
+ border-color:#3b82f6;
 }
 
-.secondary {
-  background: #64748b;
-  margin-top: 10px;
+button{
+ width:100%;
+ padding:14px;
+ border:0;
+ border-radius:8px;
+ background:#14518a;
+ color:white;
+ font-size:16px;
+ font-weight:bold;
+ cursor:pointer;
 }
 
-.secondary:hover {
-  background: #475569;
+button:disabled{
+ opacity:.6;
+ cursor:not-allowed;
 }
 
-#result {
-  margin-top: 24px;
+.secondary{
+ background:#64748b;
+ margin-top:10px;
 }
 
-.valid {
-  background: #e8f7ee;
-  border-left: 5px solid #168348;
-  padding: 20px;
-  border-radius: 9px;
+#result{
+ margin-top:24px;
 }
 
-.invalid {
-  background: #fdecec;
-  border-left: 5px solid #bd3434;
-  padding: 20px;
-  border-radius: 9px;
+.valid{
+ background:#e8f7ee;
+ border-left:5px solid #168348;
+ padding:20px;
+ border-radius:9px;
 }
 
-.loading {
-  background: #eff6ff;
-  border-left: 5px solid #2563eb;
-  padding: 16px;
-  border-radius: 8px;
+.invalid{
+ background:#fdecec;
+ border-left:5px solid #bd3434;
+ padding:20px;
+ border-radius:9px;
 }
 
-.badge {
-  display: inline-block;
-  background: #168348;
-  color: white;
-  padding: 6px 13px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: bold;
+.loading{
+ background:#eff6ff;
+ border-left:5px solid #2563eb;
+ padding:16px;
+ border-radius:8px;
 }
 
-.invalid .badge {
-  background: #bd3434;
+.badge{
+ display:inline-block;
+ background:#168348;
+ color:white;
+ padding:6px 13px;
+ border-radius:20px;
+ font-size:12px;
+ font-weight:bold;
 }
 
-.detail {
-  padding: 12px 0;
-  border-bottom: 1px solid #d8e2dc;
+.invalid .badge{
+ background:#bd3434;
 }
 
-.detail strong {
-  display: block;
-  color: #52657b;
-  font-size: 12px;
-  margin-bottom: 4px;
+.detail{
+ padding:12px 0;
+ border-bottom:1px solid #d8e2dc;
 }
 
-.detail span {
-  font-size: 16px;
-  font-weight: 600;
-  overflow-wrap: anywhere;
+.detail strong{
+ display:block;
+ color:#52657b;
+ font-size:12px;
+ margin-bottom:4px;
 }
 
-.muted {
-  color: #718096;
-  font-size: 13px;
+.detail span{
+ font-size:16px;
+ font-weight:600;
+ overflow-wrap:anywhere;
 }
 
-.hidden {
-  display: none;
+.muted{
+ color:#718096;
+ font-size:13px;
 }
 
-footer {
-  text-align: center;
-  padding: 25px 15px;
-  color: #667789;
+footer{
+ text-align:center;
+ padding:28px 15px;
+ color:#667789;
 }
 
-footer a {
-  color: #14518a;
-  text-decoration: none;
+footer a{
+ color:#14518a;
+ text-decoration:none;
+ font-weight:bold;
 }
 
-@media(max-width:480px) {
-  header h1 {
-    font-size: 25px;
-  }
-
-  .card {
-    padding: 20px;
-  }
+@media(max-width:480px){
+ header h1{font-size:25px}
+ nav{gap:5px}
+ nav a{padding:8px;font-size:12px}
+ .card{padding:20px}
 }
 </style>
 </head>
@@ -206,317 +213,361 @@ footer a {
 <body>
 
 <header>
-  <h1>MASTERBOOK</h1>
-  <p>Learning Without Boundaries.</p>
-  <h2>Certificate Verification Portal</h2>
+ <h1>MASTERBOOK</h1>
+ <p>Learning Without Boundaries.</p>
+ <p>Certificate Verification Portal</p>
 </header>
 
+<!-- PERMANENT NAVIGATION -->
+
+<nav aria-label="Main navigation">
+
+ <a href="https://godhiambo992-hu.github.io/masterbook-platform/">
+  Home
+ </a>
+
+ <a href="https://godhiambo992-hu.github.io/masterbook-platform/auth.html">
+  Student Login
+ </a>
+
+ <a class="primary"
+ href="https://godhiambo992-hu.github.io/masterbook-platform/student.html">
+  My Certificates
+ </a>
+
+ <a href="https://godhiambo992-hu.github.io/masterbook-platform/library.html">
+  Library
+ </a>
+
+</nav>
+
 <main>
-  <section class="card">
 
-    <h2>Verify a Certificate</h2>
+<section class="card">
 
-    <p>
-      Enter the unique certificate number printed on a
-      MASTERBOOK certificate to confirm its authenticity.
-    </p>
+ <h2>Verify a Certificate</h2>
 
-    <form id="verifyForm">
+ <p>
+ Enter the unique certificate number printed on a
+ MASTERBOOK certificate to verify its authenticity.
+ </p>
 
-      <label for="certificateCode">
-        <strong>Certificate Number</strong>
-      </label>
+ <form id="verifyForm">
 
-      <input
-        id="certificateCode"
-        type="text"
-        placeholder="MB-XXXXXXXXXXXX"
-        maxlength="100"
-        autocomplete="off"
-        autocapitalize="characters"
-        required
-      >
+  <label for="certificateCode">
+   <strong>Certificate Number</strong>
+  </label>
 
-      <button id="verifyButton" type="submit">
-        Verify Certificate
-      </button>
+  <input
+   id="certificateCode"
+   type="text"
+   placeholder="MB-XXXXXXXXXXXX"
+   maxlength="100"
+   required
+   autocomplete="off"
+  >
 
-      <button
-        id="clearButton"
-        class="secondary"
-        type="button"
-      >
-        Clear
-      </button>
+  <button id="verifyButton" type="submit">
+   Verify Certificate
+  </button>
 
-    </form>
+  <button
+   id="clearButton"
+   class="secondary"
+   type="button">
+   Clear
+  </button>
 
-    <div id="result" aria-live="polite"></div>
+ </form>
 
-    <p class="muted">
-      This portal checks certificate records maintained
-      by the MASTERBOOK learning platform.
-    </p>
+ <div id="result" aria-live="polite"></div>
 
-  </section>
+ <hr style="border:0;border-top:1px solid #e2e8f0;margin:25px 0">
+
+ <h3 style="color:#153b65">Are you a MASTERBOOK student?</h3>
+
+ <p>
+ Access your learning dashboard to view, download
+ and print certificates you have earned.
+ </p>
+
+ <a href="https://godhiambo992-hu.github.io/masterbook-platform/student.html"
+ style="display:block;text-decoration:none">
+
+  <button type="button">
+   Go to My Certificates
+  </button>
+
+ </a>
+
+ <p class="muted">
+ Your student account login may be required.
+ </p>
+
+</section>
+
 </main>
 
 <footer>
-  <strong>MASTERBOOK</strong><br>
-  Learning Without Boundaries.<br>
-  <span class="muted">
-    Official Certificate Verification Service
-  </span>
+
+ <strong>MASTERBOOK</strong><br>
+
+ Learning Without Boundaries.<br>
+
+ <a href="https://godhiambo992-hu.github.io/masterbook-platform/">
+  Return to MASTERBOOK Home
+ </a>
+
+ <p class="muted">
+ Official Certificate Verification Service
+ </p>
+
 </footer>
 
 <script>
 "use strict";
 
-/* MASTERBOOK SUPABASE CONNECTION */
+/* SUPABASE CONNECTION */
 
 const SUPABASE_URL =
-  "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+ "https://bxsrhvcqjjtdnflhoplu.supabase.co";
 
 const SUPABASE_KEY =
-  "sb_publishable_Hgg2m91Ht2OOWCUHh7SGrw_mC9yCj7S";
+ "sb_publishable_Hgg2m91Ht2OOWCUHh7SGrw_mC9yCj7S";
 
-const form = document.getElementById("verifyForm");
-const input = document.getElementById("certificateCode");
-const button = document.getElementById("verifyButton");
-const clearButton = document.getElementById("clearButton");
-const result = document.getElementById("result");
+const form =
+ document.getElementById("verifyForm");
+
+const input =
+ document.getElementById("certificateCode");
+
+const button =
+ document.getElementById("verifyButton");
+
+const clearButton =
+ document.getElementById("clearButton");
+
+const result =
+ document.getElementById("result");
 
 let db = null;
 
-/* SAFE HTML OUTPUT */
-
-function safe(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  }[char]));
-}
-
-/* INITIALIZE DATABASE */
+/* DATABASE INITIALIZATION */
 
 try {
-  if (!window.supabase) {
-    throw new Error("Supabase library could not be loaded.");
-  }
 
-  db = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+ if(!window.supabase){
+  throw new Error("Supabase library could not be loaded.");
+ }
 
-} catch (error) {
+ db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+ );
 
-  result.innerHTML = `
-    <div class="invalid">
-      <strong>Connection unavailable</strong>
-      <p>${safe(error.message)}</p>
-      <p>Please refresh the page and try again.</p>
-    </div>
-  `;
+} catch(error){
+
+ result.innerHTML = `
+  <div class="invalid">
+   <strong>Connection unavailable</strong>
+   <p>${safe(error.message)}</p>
+  </div>
+ `;
+
+}
+
+/* SAFE OUTPUT */
+
+function safe(value){
+
+ return String(value ?? "").replace(/[&<>"']/g,char=>({
+  "&":"&amp;",
+  "<":"&lt;",
+  ">":"&gt;",
+  '"':"&quot;",
+  "'":"&#39;"
+ }[char]));
+
 }
 
 /* DATE FORMAT */
 
-function formatDate(value) {
+function formatDate(value){
 
-  if (!value) return "Not available";
+ if(!value) return "Not available";
 
-  const date = new Date(value);
+ const date = new Date(value);
 
-  if (Number.isNaN(date.getTime())) {
-    return "Not available";
-  }
+ if(Number.isNaN(date.getTime())){
+  return "Not available";
+ }
 
-  return date.toLocaleDateString("en-KE", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric"
-  });
+ return date.toLocaleDateString("en-KE",{
+  day:"2-digit",
+  month:"long",
+  year:"numeric"
+ });
+
 }
 
-/* DISPLAY INVALID CERTIFICATE */
+/* INVALID RESULT */
 
-function showInvalid(message) {
+function showInvalid(message){
 
-  result.innerHTML = `
-    <div class="invalid">
+ result.innerHTML = `
+  <div class="invalid">
 
-      <span class="badge">NOT VERIFIED</span>
+   <span class="badge">NOT VERIFIED</span>
 
-      <h2>Certificate Not Verified</h2>
+   <h2>Certificate Not Verified</h2>
 
-      <p>${safe(message)}</p>
+   <p>${safe(message)}</p>
 
-      <p class="muted">
-        Check the certificate number and try again.
-      </p>
+   <p class="muted">
+    Please check the certificate number and try again.
+   </p>
 
-    </div>
-  `;
+  </div>
+ `;
+
 }
 
-/* DISPLAY VALID CERTIFICATE */
+/* VALID RESULT */
 
-function showValid(data) {
+function showValid(data){
 
-  const issued = formatDate(data.issued_at);
+ result.innerHTML = `
+  <div class="valid">
 
-  result.innerHTML = `
-    <div class="valid">
+   <span class="badge">✓ VALID CERTIFICATE</span>
 
-      <span class="badge">
-        ✓ VALID CERTIFICATE
-      </span>
+   <h2>Certificate Successfully Verified</h2>
 
-      <h2>Certificate Successfully Verified</h2>
+   <p>
+    This certificate matches an official record
+    maintained by MASTERBOOK.
+   </p>
 
-      <p>
-        This certificate matches an official record
-        maintained by MASTERBOOK.
-      </p>
+   <div class="detail">
+    <strong>STUDENT NAME</strong>
+    <span>${safe(data.student_name)}</span>
+   </div>
 
-      <div class="detail">
-        <strong>STUDENT NAME</strong>
-        <span>${safe(data.student_name)}</span>
-      </div>
+   <div class="detail">
+    <strong>COURSE COMPLETED</strong>
+    <span>${safe(data.course_title)}</span>
+   </div>
 
-      <div class="detail">
-        <strong>COURSE COMPLETED</strong>
-        <span>${safe(data.course_title)}</span>
-      </div>
+   <div class="detail">
+    <strong>CERTIFICATE NUMBER</strong>
+    <span>${safe(data.certificate_code)}</span>
+   </div>
 
-      <div class="detail">
-        <strong>CERTIFICATE NUMBER</strong>
-        <span>${safe(data.certificate_code)}</span>
-      </div>
+   <div class="detail">
+    <strong>DATE ISSUED</strong>
+    <span>${safe(formatDate(data.issued_at))}</span>
+   </div>
 
-      <div class="detail">
-        <strong>DATE ISSUED</strong>
-        <span>${safe(issued)}</span>
-      </div>
+   <p class="muted">
+    Issued electronically by ${safe(data.issuer || "MASTERBOOK")}.
+   </p>
 
-      <p class="muted">
-        Issued electronically by ${safe(data.issuer || "MASTERBOOK")}.
-      </p>
+  </div>
+ `;
 
-    </div>
-  `;
 }
 
-/* VERIFY CERTIFICATE */
+/* CERTIFICATE VERIFICATION */
 
-form.addEventListener("submit", async function(event) {
+form.addEventListener("submit",async function(event){
 
-  event.preventDefault();
+ event.preventDefault();
 
-  const code = input.value.trim().toUpperCase();
+ const code = input.value.trim().toUpperCase();
 
-  result.innerHTML = "";
+ result.innerHTML = "";
 
-  if (!code) {
-    showInvalid("Please enter a certificate number.");
-    return;
+ if(!code){
+  showInvalid("Please enter a certificate number.");
+  return;
+ }
+
+ if(!db){
+  showInvalid("Database connection unavailable. Refresh the page and try again.");
+  return;
+ }
+
+ button.disabled = true;
+ clearButton.disabled = true;
+ button.textContent = "Verifying...";
+
+ result.innerHTML = `
+  <div class="loading">
+   Checking MASTERBOOK certificate records...
+  </div>
+ `;
+
+ try{
+
+  const {data,error} = await db.rpc(
+   "masterbook_verify_certificate",
+   {
+    p_certificate_code:code
+   }
+  );
+
+  if(error) throw error;
+
+  if(!data || data.valid !== true){
+
+   showInvalid(
+    data?.message ||
+    "No matching certificate was found."
+   );
+
+   return;
   }
 
-  if (code.length > 100) {
-    showInvalid("The certificate number is too long.");
-    return;
-  }
+  showValid(data);
 
-  if (!db) {
-    showInvalid("Database connection is unavailable. Please refresh and try again.");
-    return;
-  }
+ }catch(error){
 
-  button.disabled = true;
-  clearButton.disabled = true;
-  button.textContent = "Verifying certificate...";
+  console.error("Certificate verification error:",error);
 
   result.innerHTML = `
-    <div class="loading">
-      Checking the MASTERBOOK certificate database...
-    </div>
+   <div class="invalid">
+    <h3>Verification Unavailable</h3>
+    <p>
+     ${safe(error.message || "Please try again later.")}
+    </p>
+   </div>
   `;
 
-  try {
+ }finally{
 
-    const { data, error } = await db.rpc(
-      "masterbook_verify_certificate",
-      {
-        p_certificate_code: code
-      }
-    );
+  button.disabled = false;
+  clearButton.disabled = false;
+  button.textContent = "Verify Certificate";
 
-    if (error) {
-      throw error;
-    }
-
-    if (!data || data.valid !== true) {
-
-      showInvalid(
-        data?.message ||
-        "No matching certificate was found in the MASTERBOOK database."
-      );
-
-      return;
-    }
-
-    showValid(data);
-
-  } catch (error) {
-
-    console.error("MASTERBOOK verification error:", error);
-
-    result.innerHTML = `
-      <div class="invalid">
-
-        <strong>Verification Unavailable</strong>
-
-        <p>
-          The verification service could not complete
-          your request.
-        </p>
-
-        <p class="muted">
-          ${safe(error.message || "Please try again later.")}
-        </p>
-
-      </div>
-    `;
-
-  } finally {
-
-    button.disabled = false;
-    clearButton.disabled = false;
-    button.textContent = "Verify Certificate";
-
-  }
+ }
 
 });
 
-/* CLEAR FORM */
+/* CLEAR */
 
-clearButton.addEventListener("click", function() {
+clearButton.addEventListener("click",function(){
 
-  form.reset();
-  result.innerHTML = "";
-  input.focus();
+ form.reset();
+ result.innerHTML = "";
+ input.focus();
 
 });
 
-/* ENTER KEY SUPPORT */
+/* AUTOMATIC UPPERCASE */
 
-input.addEventListener("input", function() {
+input.addEventListener("input",function(){
 
-  this.value = this.value.toUpperCase();
+ this.value = this.value.toUpperCase();
 
 });
 
