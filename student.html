@@ -61,6 +61,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7ab4
 .result-score{font-size:30px;font-weight:bold;color:#14518a}
 .result-passed{background:#e6f5eb;border-left:5px solid #168348}
 .result-failed{background:#fff0d9;border-left:5px solid #a45b00}
+.profile-label{font-weight:bold;margin-bottom:5px}
+.profile-value{margin-top:5px;overflow-wrap:anywhere}
 @media(max-width:600px){
  header{padding:16px}
  .panel{padding:15px}
@@ -121,23 +123,46 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7ab4
 </div>
 </section>
 
+<!-- EDITABLE STUDENT PROFILE -->
 <section id="profile" class="panel hidden">
 <h2>My Student Profile</h2>
-<p class="muted">Your registered MASTERBOOK account information.</p>
+<p class="muted">View and update your registered student information.</p>
+
+<form id="profileForm">
 <div class="resource">
-<p><strong>Full name</strong></p>
-<p id="profileName">Loading...</p>
-<hr>
-<p><strong>Email address</strong></p>
-<p id="profileEmail">Loading...</p>
-<hr>
-<p><strong>Account role</strong></p>
-<p id="profileRole">Student</p>
-<hr>
-<p><strong>Account status</strong></p>
-<p id="profileStatus" class="success">Approved</p>
+<label for="fullNameInput" class="profile-label">Full name</label>
+<input
+ id="fullNameInput"
+ type="text"
+ maxlength="120"
+ placeholder="Enter your full name"
+ autocomplete="name"
+ required
+>
+<p class="muted">You can update the name displayed on your MASTERBOOK account and certificates.</p>
+
+<button type="submit" id="saveProfileButton" class="primary">
+Save profile
+</button>
 </div>
-<p class="muted">For changes to your registered name or email, contact the MASTERBOOK administrator.</p>
+</form>
+
+<div class="resource">
+<p class="profile-label">Email address</p>
+<p id="profileEmail" class="profile-value">Loading...</p>
+<hr>
+
+<p class="profile-label">Account role</p>
+<p id="profileRole" class="profile-value">Student</p>
+<hr>
+
+<p class="profile-label">Account status</p>
+<p id="profileStatus" class="profile-value success">Approved</p>
+</div>
+
+<p class="muted">
+Your email address, account role and approval status are managed by MASTERBOOK administration and cannot be changed through this student dashboard.
+</p>
 </section>
 
 <section id="courses" class="panel hidden">
@@ -252,6 +277,7 @@ let activeQuestions=[];
 
 let loadingDashboard=false;
 let quizSubmitting=false;
+let profileSaving=false;
 let authRedirecting=false;
 
 const $=id=>document.getElementById(id);
@@ -380,7 +406,7 @@ async function initialize(){
 
   const {data:profile,error:profileError}=await db
    .from("profiles")
-   .select("full_name,email,requested_role,approval_status,is_admin,created_at")
+   .select("id,full_name,email,requested_role,approval_status,is_admin,created_at,updated_at")
    .eq("id",currentUser.id)
    .maybeSingle();
 
@@ -400,11 +426,6 @@ async function initialize(){
 
   studentProfile=profile;
 
-  const displayName=profile.full_name||currentUser.email||"Student";
-
-  $("studentName").textContent=displayName;
-  $("signedIn").textContent="Signed in as "+displayName;
-
   renderProfile();
 
   await loadData();
@@ -415,19 +436,109 @@ async function initialize(){
   console.error("MASTERBOOK initialization:",error);
   message(safeError(error,"Unable to load your dashboard."),true);
  }
+
 }
 
 function renderProfile(){
  if(!studentProfile)return;
 
- $("profileName").textContent=studentProfile.full_name||"Not provided";
+ const displayName=studentProfile.full_name||currentUser?.email||"Student";
+
+ $("studentName").textContent=displayName;
+ $("signedIn").textContent="Signed in as "+displayName;
+
+ $("fullNameInput").value=studentProfile.full_name||"";
  $("profileEmail").textContent=studentProfile.email||currentUser?.email||"Not provided";
  $("profileRole").textContent=studentProfile.requested_role||"Student";
  $("profileStatus").textContent=studentProfile.approval_status||"Unknown";
+
+ $("profileStatus").className=
+  String(studentProfile.approval_status||"").toLowerCase()==="approved"
+   ?"profile-value success"
+   :"profile-value warning";
 }
 
 /* =====================================================
-   4. LOAD STUDENT DATA
+   4. SAVE STUDENT PROFILE
+   Students can update full_name only.
+   Email, role, approval_status and is_admin are protected.
+===================================================== */
+
+$("profileForm").addEventListener("submit",async event=>{
+
+ event.preventDefault();
+
+ if(profileSaving)return;
+
+ if(!currentUser||!studentProfile){
+  message("Your student session is not ready. Please sign in again.",true);
+  return;
+ }
+
+ const fullName=$("fullNameInput").value.trim();
+ const button=$("saveProfileButton");
+
+ if(!fullName){
+  message("Please enter your full name.",true);
+  $("fullNameInput").focus();
+  return;
+ }
+
+ if(fullName.length>120){
+  message("Your full name must not exceed 120 characters.",true);
+  return;
+ }
+
+ profileSaving=true;
+ setButtonLoading(button,"Saving profile...");
+
+ try{
+
+  const {data,error}=await db
+   .from("profiles")
+   .update({
+    full_name:fullName,
+    updated_at:new Date().toISOString()
+   })
+   .eq("id",currentUser.id)
+   .select("id,full_name,email,requested_role,approval_status,is_admin,updated_at")
+   .single();
+
+  if(error)throw error;
+
+  if(!data){
+   throw new Error("Your profile was not updated. Please try again.");
+  }
+
+  studentProfile={
+   ...studentProfile,
+   ...data
+  };
+
+  renderProfile();
+
+  message("Your student profile has been updated successfully.");
+
+ }catch(error){
+
+  console.error("Profile update:",error);
+
+  message(
+   safeError(error,"Unable to update your profile. Please try again."),
+   true
+  );
+
+ }finally{
+
+  profileSaving=false;
+  restoreButton(button);
+
+ }
+
+});
+
+/* =====================================================
+   5. LOAD STUDENT DATA
 ===================================================== */
 
 async function loadData(){
@@ -525,7 +636,7 @@ async function refreshDashboard(){
 }
 
 /* =====================================================
-   5. DASHBOARD AND ASSESSMENT ANALYTICS
+   6. DASHBOARD AND ASSESSMENT ANALYTICS
 ===================================================== */
 
 function renderDashboard(){
@@ -588,7 +699,7 @@ function renderDashboard(){
 }
 
 /* =====================================================
-   6. COURSE CATALOGUE
+   7. COURSE CATALOGUE
 ===================================================== */
 
 function renderCourses(){
@@ -643,7 +754,7 @@ function renderCourses(){
 }
 
 /* =====================================================
-   7. FREE COURSE ENROLMENT
+   8. FREE COURSE ENROLMENT
 ===================================================== */
 
 async function enrolCourse(id){
@@ -687,7 +798,7 @@ async function enrolCourse(id){
 }
 
 /* =====================================================
-   8. OPEN COURSE AND LOAD LESSONS
+   9. OPEN COURSE AND LOAD LESSONS
 ===================================================== */
 
 async function openCourse(id){
@@ -734,7 +845,7 @@ async function openCourse(id){
 }
 
 /* =====================================================
-   9. COURSE LESSON LIST
+   10. COURSE LESSON LIST
 ===================================================== */
 
 function renderLessons(){
@@ -782,7 +893,7 @@ function renderLessons(){
 }
 
 /* =====================================================
-   10. LESSON READER
+   11. LESSON READER
 ===================================================== */
 
 function openLesson(index){
@@ -851,7 +962,7 @@ function backToCourse(){
 }
 
 /* =====================================================
-   11. SAVE LESSON COMPLETION
+   12. SAVE LESSON COMPLETION
 ===================================================== */
 
 async function completeCurrentLesson(){
@@ -893,7 +1004,7 @@ async function completeCurrentLesson(){
 }
 
 /* =====================================================
-   12. LINKED LEARNING RESOURCES
+   13. LINKED LEARNING RESOURCES
 ===================================================== */
 
 async function openLinkedResource(id){
@@ -901,7 +1012,7 @@ async function openLinkedResource(id){
 }
 
 /* =====================================================
-   13. LIBRARY
+   14. LIBRARY
 ===================================================== */
 
 function renderResources(){
@@ -946,7 +1057,7 @@ function renderResources(){
 }
 
 /* =====================================================
-   14. SECURE FREE PDF ACCESS
+   15. SECURE FREE PDF ACCESS
 ===================================================== */
 
 async function accessResource(id,download=false){
@@ -1017,7 +1128,7 @@ async function downloadPDF(id){
 }
 
 /* =====================================================
-   15. MARK RESOURCE COMPLETED
+   16. MARK RESOURCE COMPLETED
 ===================================================== */
 
 async function completeResource(id){
@@ -1044,7 +1155,7 @@ async function completeResource(id){
 }
 
 /* =====================================================
-   16. ASSESSMENTS
+   17. ASSESSMENTS
 ===================================================== */
 
 function renderAssessments(){
@@ -1082,7 +1193,7 @@ function renderAssessments(){
 }
 
 /* =====================================================
-   17. START QUIZ
+   18. START QUIZ
 ===================================================== */
 
 async function startQuiz(id){
@@ -1173,7 +1284,7 @@ async function startQuiz(id){
 }
 
 /* =====================================================
-   18. ASSESSMENT SUBMISSION AND RESULT DISPLAY
+   19. ASSESSMENT SUBMISSION AND RESULT DISPLAY
 ===================================================== */
 
 $("quizForm").addEventListener("submit",async event=>{
@@ -1267,12 +1378,6 @@ $("quizForm").addEventListener("submit",async event=>{
 
   message("Assessment submitted and marked successfully.");
 
-  /*
-   Refresh saved assessment history and dashboard.
-   A refresh error does not change a successfully
-   returned assessment result.
-  */
-
   try{
    await loadData();
    message("Assessment result saved. Dashboard and assessment history updated.");
@@ -1307,7 +1412,7 @@ function finishQuiz(){
 }
 
 /* =====================================================
-   19. STUDENT LEARNING PROGRESS
+   20. STUDENT LEARNING PROGRESS
 ===================================================== */
 
 function renderProgress(){
@@ -1377,7 +1482,7 @@ function renderProgress(){
 }
 
 /* =====================================================
-   20. DETAILED ASSESSMENT HISTORY
+   21. DETAILED ASSESSMENT HISTORY
 ===================================================== */
 
 function renderHistory(){
@@ -1424,7 +1529,7 @@ function renderHistory(){
 }
 
 /* =====================================================
-   21. CERTIFICATES
+   22. CERTIFICATES
 ===================================================== */
 
 function renderCertificates(){
@@ -1486,7 +1591,7 @@ function renderCertificates(){
 }
 
 /* =====================================================
-   22. REQUEST CERTIFICATE
+   23. REQUEST CERTIFICATE
 ===================================================== */
 
 async function requestCourseCertificate(courseId,button){
@@ -1539,7 +1644,7 @@ async function requestCourseCertificate(courseId,button){
 }
 
 /* =====================================================
-   23. PRINT AND SAVE CERTIFICATE
+   24. PRINT AND SAVE CERTIFICATE
 ===================================================== */
 
 function printCertificate(certificateId){
@@ -1627,7 +1732,7 @@ function printCertificate(certificateId){
 }
 
 /* =====================================================
-   24. SIGN OUT
+   25. SIGN OUT
 ===================================================== */
 
 async function logout(){
@@ -1646,7 +1751,7 @@ async function logout(){
 }
 
 /* =====================================================
-   25. AUTH SESSION MONITOR
+   26. AUTH SESSION MONITOR
 ===================================================== */
 
 db.auth.onAuthStateChange(event=>{
@@ -1659,7 +1764,7 @@ db.auth.onAuthStateChange(event=>{
 });
 
 /* =====================================================
-   26. START APPLICATION
+   27. START APPLICATION
 ===================================================== */
 
 initialize();
