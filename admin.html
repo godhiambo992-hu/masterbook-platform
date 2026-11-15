@@ -133,6 +133,22 @@ label{display:block;font-weight:bold;margin:13px 0 7px}
 .navigation .home{background:var(--blue)}
 .navigation .section-btn{background:white;color:var(--navy)}
 .navigation .section-btn.active{background:var(--blue);color:white}
+
+/* NEW: Pricing Catalogue navigation link */
+.navigation .pricing-link{
+  display:inline-block;
+  background:var(--green);
+  color:white;
+  padding:11px 14px;
+  border-radius:7px;
+  text-decoration:none;
+  font-weight:bold;
+  text-align:center;
+}
+.navigation .pricing-link:hover{
+  background:#116b3b;
+}
+
 .nav-info{font-size:13px;color:var(--muted);margin-left:auto}
 .message{
   padding:13px;
@@ -166,6 +182,7 @@ footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
   .full{grid-column:auto}
   .nav-info{width:100%;margin-left:0}
   .navigation button{flex:1}
+  .navigation .pricing-link{flex:1}
 }
 </style>
 </head>
@@ -190,6 +207,11 @@ footer{text-align:center;color:var(--muted);padding:25px;font-size:12px}
   <button class="section-btn" data-section="applicationsPanel" type="button">Applications</button>
   <button class="section-btn" data-section="uploadPanel" type="button">Upload</button>
   <button class="section-btn" data-section="resourcePanel" type="button">Resources</button>
+
+  <!-- NEW: Opens the separate Pricing Catalogue page -->
+  <a class="pricing-link" href="pricing.html">
+    Manage Pricing Catalogue
+  </a>
 
   <span id="navigationInfo" class="nav-info">Dashboard Overview</span>
 </section>
