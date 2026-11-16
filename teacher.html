@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#102b50">
+<meta name="description" content="MASTERBOOK Teacher Portal: manage courses, lessons and educational resources.">
 <title>Teacher Portal | MASTERBOOK</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -13,154 +14,206 @@
 *{box-sizing:border-box}
 
 body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f3f6fb;
-  color:#17243a;
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:#f3f6fb;
+ color:#17243a;
 }
 
 header{
-  background:#102b50;
-  color:white;
-  padding:18px 5%;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:12px;
+ background:#102b50;
+ color:white;
+ padding:18px 5%;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ flex-wrap:wrap;
+ gap:12px;
 }
 
 header h2{margin:0}
 
 nav{
-  display:flex;
-  gap:15px;
-  flex-wrap:wrap;
+ display:flex;
+ gap:15px;
+ flex-wrap:wrap;
 }
 
 nav a{
-  color:white;
-  text-decoration:none;
+ color:white;
+ text-decoration:none;
 }
 
 nav a:hover{text-decoration:underline}
 
 main{
-  max-width:1050px;
-  margin:28px auto;
-  padding:0 16px;
+ max-width:1100px;
+ margin:28px auto;
+ padding:0 16px;
 }
 
 .card{
-  background:white;
-  border-radius:12px;
-  padding:22px;
-  margin-bottom:20px;
-  box-shadow:0 3px 14px #0000000d;
+ background:white;
+ border-radius:12px;
+ padding:22px;
+ margin-bottom:20px;
+ box-shadow:0 3px 14px #0000000d;
 }
 
-h1,h2{color:#15365e}
+h1,h2,h3{color:#15365e}
 
 input,select,textarea{
-  width:100%;
-  padding:12px;
-  margin:8px 0 15px;
-  border:1px solid #ccd5e0;
-  border-radius:7px;
-  font-size:15px;
+ width:100%;
+ padding:12px;
+ margin:8px 0 15px;
+ border:1px solid #ccd5e0;
+ border-radius:7px;
+ font-size:15px;
+ font-family:Arial,sans-serif;
 }
 
+textarea{resize:vertical}
+
 button{
-  background:#145da0;
-  color:white;
-  border:0;
-  border-radius:7px;
-  padding:12px 18px;
-  cursor:pointer;
-  font-weight:bold;
+ background:#145da0;
+ color:white;
+ border:0;
+ border-radius:7px;
+ padding:12px 18px;
+ cursor:pointer;
+ font-weight:bold;
+ margin:4px 4px 4px 0;
 }
 
 button:disabled{
-  opacity:.6;
-  cursor:not-allowed;
+ opacity:.6;
+ cursor:not-allowed;
 }
 
 .secondary{background:#52657c}
+.danger{background:#a12626}
+.success-button{background:#176b38}
 
 .status{
-  padding:12px;
-  border-radius:7px;
-  background:#edf3fa;
-  margin:12px 0;
-  overflow-wrap:anywhere;
+ padding:12px;
+ border-radius:7px;
+ background:#edf3fa;
+ margin:12px 0;
+ overflow-wrap:anywhere;
 }
 
-.resource{
-  border-bottom:1px solid #e4e9ef;
-  padding:14px 0;
+.resource,.course,.lesson{
+ border-bottom:1px solid #e4e9ef;
+ padding:15px 0;
 }
 
-.resource:last-child{border:0}
+.resource:last-child,.course:last-child,.lesson:last-child{
+ border:0;
+}
 
 small{color:#64748b}
 
 .hidden{display:none!important}
 
 .grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:15px;
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+ gap:15px;
 }
 
-footer{
-  text-align:center;
-  padding:20px;
-  color:#64748b;
+.course{
+ padding:18px 0;
 }
 
-/* MASTERBOOK LOADING SCREEN */
+.course h3{margin:0 0 8px}
+
+.lesson{
+ margin-left:12px;
+ padding:12px;
+ background:#f7f9fc;
+ border-radius:8px;
+ margin-top:10px;
+}
+
+.lesson-content{
+ white-space:pre-wrap;
+ overflow-wrap:anywhere;
+ line-height:1.6;
+ margin:10px 0;
+}
+
+.section-note{
+ color:#64748b;
+ font-size:14px;
+ line-height:1.6;
+}
+
+.tag{
+ display:inline-block;
+ background:#e8f0fa;
+ color:#15365e;
+ border-radius:20px;
+ padding:5px 10px;
+ font-size:12px;
+ margin:3px;
+}
+
+.course-form,.lesson-form{
+ background:#f7f9fc;
+ border:1px solid #e2e8f0;
+ border-radius:9px;
+ padding:16px;
+ margin-top:15px;
+}
 
 .loader-wrap{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  padding:12px 0;
+ display:flex;
+ align-items:center;
+ gap:14px;
+ padding:12px 0;
 }
 
 .loader{
-  width:32px;
-  height:32px;
-  border:4px solid #dce6f2;
-  border-top:4px solid #145da0;
-  border-radius:50%;
-  animation:masterbookSpin .8s linear infinite;
-  flex-shrink:0;
+ width:32px;
+ height:32px;
+ border:4px solid #dce6f2;
+ border-top:4px solid #145da0;
+ border-radius:50%;
+ animation:masterbookSpin .8s linear infinite;
+ flex-shrink:0;
 }
 
 @keyframes masterbookSpin{
-  to{transform:rotate(360deg)}
+ to{transform:rotate(360deg)}
 }
 
 .loading-title{
-  font-weight:bold;
-  color:#15365e;
+ font-weight:bold;
+ color:#15365e;
 }
 
 .loading-subtitle{
-  color:#64748b;
-  font-size:13px;
-  margin-top:5px;
-  line-height:1.5;
+ color:#64748b;
+ font-size:13px;
+ margin-top:5px;
+ line-height:1.5;
 }
 
 .success{color:#176b38}
 .error{color:#a12626}
 
+footer{
+ text-align:center;
+ padding:20px;
+ color:#64748b;
+}
+
 @media(max-width:600px){
-  header{padding:16px}
-  nav{gap:10px}
-  main{margin:18px auto}
-  .card{padding:17px}
+ header{padding:16px}
+ nav{gap:10px}
+ main{margin:18px auto}
+ .card{padding:17px}
+ button{max-width:100%}
 }
 </style>
 </head>
@@ -168,525 +221,1081 @@ footer{
 <body>
 
 <header>
-  <h2>MASTERBOOK</h2>
-
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="library.html">Library</a>
-    <a href="student.html">Student Portal</a>
-    <a href="teacher.html">Teacher Portal</a>
-    <a href="admin.html">Administration</a>
-  </nav>
+ <h2>MASTERBOOK</h2>
+ <nav>
+  <a href="index.html">Home</a>
+  <a href="library.html">Library</a>
+  <a href="student.html">Student Portal</a>
+  <a href="teacher.html">Teacher Portal</a>
+  <a href="admin.html">Administration</a>
+ </nav>
 </header>
 
 <main>
 
-  <!-- LOADING SCREEN -->
-  <section id="loading" class="card" aria-live="polite">
-    <div class="loader-wrap">
-      <div class="loader"></div>
-      <div>
-        <div class="loading-title">
-          Connecting to MASTERBOOK
-        </div>
-        <div class="loading-subtitle">
-          Verifying your account and teacher permissions.
-          Please wait...
-        </div>
-      </div>
-    </div>
-  </section>
+<section id="loading" class="card" aria-live="polite">
+ <div class="loader-wrap">
+  <div class="loader"></div>
+  <div>
+   <div class="loading-title">Connecting to MASTERBOOK</div>
+   <div class="loading-subtitle">
+    Verifying your account and teacher permissions. Please wait...
+   </div>
+  </div>
+ </div>
+</section>
 
-  <!-- ACCESS DENIED -->
-  <section id="denied" class="card hidden">
-    <h2>Teacher access unavailable</h2>
-    <p id="deniedMessage"></p>
-    <button onclick="logout()">Sign out</button>
-    <a href="index.html">Return to Home</a>
-  </section>
+<section id="denied" class="card hidden">
+ <h2>Teacher access unavailable</h2>
+ <p id="deniedMessage"></p>
+ <button onclick="logout()">Sign out</button>
+ <a href="index.html">Return to Home</a>
+</section>
 
-  <!-- TEACHER PORTAL -->
-  <section id="portal" class="hidden">
+<section id="portal" class="hidden">
 
-    <div class="card">
-      <h1>Teacher Portal</h1>
+ <div class="card">
+  <h1>Teacher Portal</h1>
+  <p>Welcome, <strong id="teacherName">Teacher</strong>.</p>
+  <p>Manage courses, lessons and educational resources through MASTERBOOK.</p>
+  <button class="secondary" onclick="logout()">Sign out</button>
+ </div>
 
-      <p>
-        Welcome, <strong id="teacherName">Teacher</strong>.
-      </p>
+ <!-- COURSE MANAGEMENT -->
 
-      <p>
-        Manage and share educational resources through MASTERBOOK.
-      </p>
+ <div class="card">
+  <h2>Course Management</h2>
+  <p class="section-note">
+   Create and organise your courses. New courses are saved as Draft
+   until an administrator publishes them.
+  </p>
 
-      <button class="secondary" onclick="logout()">
-        Sign out
-      </button>
-    </div>
+  <button id="showCourseFormButton" onclick="toggleCourseForm()">
+   + Create new course
+  </button>
 
-    <!-- UPLOAD RESOURCE -->
-    <div class="card">
-      <h2>Upload learning resource</h2>
+  <div id="courseForm" class="course-form hidden">
 
-      <label for="title">Resource title</label>
-      <input
-        id="title"
-        placeholder="Enter resource title"
-        maxlength="200"
-      >
+   <h3>Create a course</h3>
 
-      <div class="grid">
+   <label for="courseTitle">Course title</label>
+   <input id="courseTitle" maxlength="200"
+    placeholder="e.g. Grade 12 Geography">
 
-        <div>
-          <label for="level">Education level</label>
-          <select id="level">
-            <option>Primary</option>
-            <option>Junior School</option>
-            <option>Senior School</option>
-            <option>University</option>
-            <option>Professional</option>
-          </select>
-        </div>
+   <label for="courseDescription">Course description</label>
+   <textarea id="courseDescription" rows="4"
+    placeholder="Describe what learners will study"></textarea>
 
-        <div>
-          <label for="subject">Subject</label>
-          <input
-            id="subject"
-            placeholder="e.g. Geography"
-            maxlength="100"
-          >
-        </div>
+   <div class="grid">
 
-        <div>
-          <label for="type">Resource type</label>
-          <select id="type">
-            <option>Notes</option>
-            <option>Revision Paper</option>
-            <option>Coursebook</option>
-            <option>Lesson Plan</option>
-            <option>Research</option>
-            <option>Video</option>
-            <option>Other</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="curriculum">Curriculum</label>
-          <select id="curriculum">
-            <option>Kenyan CBC</option>
-            <option>Kenyan 8-4-4</option>
-            <option>International</option>
-            <option>Other</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="tier">Access tier</label>
-          <select id="tier">
-            <option>Free</option>
-            <option>Premium</option>
-          </select>
-        </div>
-
-      </div>
-
-      <label for="description">Description</label>
-      <textarea
-        id="description"
-        rows="4"
-        placeholder="Describe this learning resource"
-      ></textarea>
-
-      <label for="pdf">Select PDF file (maximum 50 MB)</label>
-      <input
-        id="pdf"
-        type="file"
-        accept=".pdf,application/pdf"
-      >
-
-      <button id="uploadButton" onclick="uploadResource()">
-        Upload resource
-      </button>
-
-      <div id="uploadMessage" class="status" aria-live="polite">
-        Uploaded resources are initially saved as Draft
-        for administrator review.
-      </div>
+    <div>
+     <label for="courseLevel">Education level</label>
+     <select id="courseLevel">
+      <option>Primary</option>
+      <option>Junior School</option>
+      <option>Senior School</option>
+      <option>University</option>
+      <option>Professional</option>
+     </select>
     </div>
 
-    <!-- TEACHER RESOURCES -->
-    <div class="card">
-      <h2>My uploaded resources</h2>
-
-      <button
-        class="secondary"
-        id="refreshButton"
-        onclick="loadResources()"
-      >
-        Refresh resources
-      </button>
-
-      <div id="resourceList" aria-live="polite">
-        Your resources will appear here.
-      </div>
+    <div>
+     <label for="courseSubject">Subject</label>
+     <input id="courseSubject" maxlength="100"
+      placeholder="e.g. Geography">
     </div>
 
-  </section>
+    <div>
+     <label for="courseCurriculum">Curriculum</label>
+     <select id="courseCurriculum">
+      <option>Kenyan CBC</option>
+      <option>Kenyan 8-4-4</option>
+      <option>International</option>
+      <option>Other</option>
+     </select>
+    </div>
+
+    <div>
+     <label for="courseTier">Access tier</label>
+     <select id="courseTier">
+      <option>Free</option>
+      <option>Premium</option>
+     </select>
+    </div>
+
+   </div>
+
+   <button id="saveCourseButton" onclick="createCourse()">
+    Save course as Draft
+   </button>
+
+   <button class="secondary" onclick="toggleCourseForm()">
+    Cancel
+   </button>
+
+   <div id="courseMessage" class="status" aria-live="polite">
+    Complete the course details above.
+   </div>
+  </div>
+
+  <hr>
+
+  <h3>My courses</h3>
+
+  <button class="secondary" id="refreshCoursesButton"
+   onclick="loadCourses()">Refresh courses</button>
+
+  <div id="courseList" aria-live="polite">
+   Your courses will appear here.
+  </div>
+ </div>
+
+ <!-- RESOURCE UPLOAD -->
+
+ <div class="card">
+  <h2>Upload learning resource</h2>
+
+  <label for="title">Resource title</label>
+  <input id="title" placeholder="Enter resource title" maxlength="200">
+
+  <div class="grid">
+   <div>
+    <label for="level">Education level</label>
+    <select id="level">
+     <option>Primary</option>
+     <option>Junior School</option>
+     <option>Senior School</option>
+     <option>University</option>
+     <option>Professional</option>
+    </select>
+   </div>
+
+   <div>
+    <label for="subject">Subject</label>
+    <input id="subject" placeholder="e.g. Geography" maxlength="100">
+   </div>
+
+   <div>
+    <label for="type">Resource type</label>
+    <select id="type">
+     <option>Notes</option>
+     <option>Revision Paper</option>
+     <option>Coursebook</option>
+     <option>Lesson Plan</option>
+     <option>Research</option>
+     <option>Video</option>
+     <option>Other</option>
+    </select>
+   </div>
+
+   <div>
+    <label for="curriculum">Curriculum</label>
+    <select id="curriculum">
+     <option>Kenyan CBC</option>
+     <option>Kenyan 8-4-4</option>
+     <option>International</option>
+     <option>Other</option>
+    </select>
+   </div>
+
+   <div>
+    <label for="tier">Access tier</label>
+    <select id="tier">
+     <option>Free</option>
+     <option>Premium</option>
+    </select>
+   </div>
+  </div>
+
+  <label for="description">Description</label>
+  <textarea id="description" rows="4"
+   placeholder="Describe this learning resource"></textarea>
+
+  <label for="pdf">Select PDF file (maximum 50 MB)</label>
+  <input id="pdf" type="file" accept=".pdf,application/pdf">
+
+  <button id="uploadButton" onclick="uploadResource()">
+   Upload resource
+  </button>
+
+  <div id="uploadMessage" class="status" aria-live="polite">
+   Uploaded resources are initially saved as Draft for administrator review.
+  </div>
+ </div>
+
+ <!-- RESOURCE LIST -->
+
+ <div class="card">
+  <h2>My uploaded resources</h2>
+
+  <button class="secondary" id="refreshButton"
+   onclick="loadResources()">Refresh resources</button>
+
+  <div id="resourceList" aria-live="polite">
+   Your resources will appear here.
+  </div>
+ </div>
+
+</section>
 </main>
 
 <footer>
-  MASTERBOOK — Learning Without Boundaries.
-  <br>© 2026 G.O. Odhiambo
+ MASTERBOOK — Learning Without Boundaries.
+ <br>© 2026 G.O. Odhiambo
 </footer>
 
 <script>
-/* MASTERBOOK SUPABASE CONNECTION */
+
+/* SUPABASE CONNECTION */
 
 const SUPABASE_URL =
-  "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+ "https://bxsrhvcqjjtdnflhoplu.supabase.co";
 
 const SUPABASE_KEY =
-  "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+ "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
 
 const db = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
+ SUPABASE_URL,
+ SUPABASE_KEY
 );
 
 let currentUser = null;
+let currentProfile = null;
+let isAdmin = false;
 
-/* MESSAGE HELPER */
+/* BASIC HELPERS */
 
-function setMessage(id, message){
-  const element = document.getElementById(id);
-  if(element){
-    element.textContent = message;
-  }
+function el(id){
+ return document.getElementById(id);
 }
 
-/* SHOW ACCESS DENIED */
-
-function showDenied(message){
-  document.getElementById("loading").classList.add("hidden");
-  document.getElementById("portal").classList.add("hidden");
-  document.getElementById("denied").classList.remove("hidden");
-
-  setMessage("deniedMessage", message);
+function message(id,text){
+ const target = el(id);
+ if(target) target.textContent = text;
 }
 
-/* VERIFY USER AND LOAD PORTAL */
+function makeElement(tag,className,text){
+ const node = document.createElement(tag);
+ if(className) node.className = className;
+ if(text !== undefined) node.textContent = text;
+ return node;
+}
+
+function makeButton(text,callback,className=""){
+ const button = makeElement("button",className,text);
+ button.type = "button";
+ button.addEventListener("click",callback);
+ return button;
+}
+
+function showDenied(text){
+ el("loading").classList.add("hidden");
+ el("portal").classList.add("hidden");
+ el("denied").classList.remove("hidden");
+ message("deniedMessage",text);
+}
+
+/* ACCOUNT VERIFICATION */
 
 async function startPortal(){
 
-  try{
+ try{
 
-    // Check the existing login session.
-    const {data, error} = await db.auth.getSession();
+  const {data,error} = await db.auth.getSession();
 
-    if(error) throw error;
+  if(error) throw error;
 
-    if(!data.session){
-      location.replace("auth.html");
-      return;
-    }
-
-    currentUser = data.session.user;
-
-    // Verify the user's MASTERBOOK profile.
-    const {data:profile, error:profileError} = await db
-      .from("profiles")
-      .select(
-        "full_name,email,requested_role,approval_status,is_admin"
-      )
-      .eq("id", currentUser.id)
-      .single();
-
-    if(profileError) throw profileError;
-
-    const isAdmin = profile.is_admin === true;
-
-    const approvedTeacher =
-      profile.requested_role === "teacher" &&
-      profile.approval_status === "approved";
-
-    if(!isAdmin && !approvedTeacher){
-
-      showDenied(
-        profile.requested_role === "teacher"
-        ? "Your teacher application is awaiting administrator approval."
-        : "This portal is available to approved teachers and administrators."
-      );
-
-      return;
-    }
-
-    // Display the portal immediately after verification.
-    document.getElementById("loading").classList.add("hidden");
-    document.getElementById("portal").classList.remove("hidden");
-
-    setMessage(
-      "teacherName",
-      profile.full_name || profile.email || "Teacher"
-    );
-
-    // Load resources separately so the portal is visible
-    // while the resource request is being processed.
-    loadResources();
-
-  }catch(error){
-
-    console.error("MASTERBOOK portal error:", error);
-
-    setMessage(
-      "loading",
-      "Unable to load the portal: " + error.message
-    );
-
+  if(!data.session){
+   location.replace("auth.html");
+   return;
   }
+
+  currentUser = data.session.user;
+
+  const {data:profile,error:profileError} = await db
+   .from("profiles")
+   .select("full_name,email,requested_role,approval_status,is_admin")
+   .eq("id",currentUser.id)
+   .single();
+
+  if(profileError) throw profileError;
+
+  currentProfile = profile;
+  isAdmin = profile.is_admin === true;
+
+  const approvedTeacher =
+   profile.requested_role === "teacher" &&
+   profile.approval_status === "approved";
+
+  if(!isAdmin && !approvedTeacher){
+
+   showDenied(
+    profile.requested_role === "teacher"
+    ? "Your teacher application is awaiting administrator approval."
+    : "This portal is available to approved teachers and administrators."
+   );
+
+   return;
+  }
+
+  el("loading").classList.add("hidden");
+  el("portal").classList.remove("hidden");
+
+  message(
+   "teacherName",
+   profile.full_name || profile.email || "Teacher"
+  );
+
+  loadCourses();
+  loadResources();
+
+ }catch(error){
+
+  console.error("MASTERBOOK portal error:",error);
+
+  message(
+   "loading",
+   "Unable to load the portal: " + error.message
+  );
+ }
 }
 
-/* UPLOAD A LEARNING RESOURCE */
+/* COURSE FORM */
+
+function toggleCourseForm(){
+ el("courseForm").classList.toggle("hidden");
+}
+
+async function createCourse(){
+
+ const button = el("saveCourseButton");
+
+ const title = el("courseTitle").value.trim();
+ const subject = el("courseSubject").value.trim();
+
+ if(!title || !subject){
+  message("courseMessage","Enter both the course title and subject.");
+  return;
+ }
+
+ button.disabled = true;
+ message("courseMessage","Saving your course...");
+
+ try{
+
+  const course = {
+   title,
+   description:el("courseDescription").value.trim(),
+   education_level:el("courseLevel").value,
+   subject,
+   curriculum:el("courseCurriculum").value,
+   access_tier:el("courseTier").value,
+   status:"Draft",
+   created_by:currentUser.id
+  };
+
+  const {error} = await db
+   .from("learning_courses")
+   .insert(course);
+
+  if(error) throw error;
+
+  message("courseMessage","Course successfully saved as Draft.");
+
+  el("courseTitle").value = "";
+  el("courseDescription").value = "";
+  el("courseSubject").value = "";
+
+  el("courseForm").classList.add("hidden");
+
+  await loadCourses();
+
+ }catch(error){
+
+  console.error("Course creation error:",error);
+
+  message("courseMessage","Could not save course: " + error.message);
+
+ }finally{
+  button.disabled = false;
+ }
+}
+
+/* LOAD COURSES */
+
+async function loadCourses(){
+
+ const list = el("courseList");
+ const button = el("refreshCoursesButton");
+
+ list.replaceChildren(
+  makeElement("p","","Loading courses...")
+ );
+
+ button.disabled = true;
+
+ try{
+
+  let query = db
+   .from("learning_courses")
+   .select("id,title,description,education_level,subject,curriculum,access_tier,status,created_by,created_at")
+   .order("created_at",{ascending:false});
+
+  if(!isAdmin){
+   query = query.eq("created_by",currentUser.id);
+  }
+
+  const {data,error} = await query;
+
+  if(error) throw error;
+
+  list.replaceChildren();
+
+  if(!data || data.length === 0){
+   list.textContent = "No courses found. Create your first course above.";
+   return;
+  }
+
+  data.forEach(course => renderCourse(course,list));
+
+ }catch(error){
+
+  console.error("Course loading error:",error);
+
+  list.textContent = "Could not load courses: " + error.message;
+
+ }finally{
+  button.disabled = false;
+ }
+}
+
+/* DISPLAY ONE COURSE */
+
+function renderCourse(course,list){
+
+ const card = makeElement("div","course");
+
+ const heading = makeElement("h3","",course.title);
+
+ const details = makeElement(
+  "p",
+  "",
+  course.education_level + " · " +
+  course.subject + " · " +
+  course.curriculum
+ );
+
+ const description = makeElement(
+  "p",
+  "section-note",
+  course.description || "No course description provided."
+ );
+
+ const tags = makeElement("div");
+
+ tags.append(
+  makeElement("span","tag","Status: " + course.status),
+  makeElement("span","tag","Access: " + course.access_tier)
+ );
+
+ card.append(heading,details,description,tags);
+
+ const actions = makeElement("div");
+
+ if(course.status === "Draft" &&
+    (isAdmin || course.created_by === currentUser.id)){
+
+  actions.append(
+   makeButton("Edit course",()=>editCourse(course),"secondary"),
+   makeButton("Delete course",()=>deleteCourse(course),"danger")
+  );
+
+  actions.append(
+   makeButton("Add lesson",()=>showLessonForm(course.id,card))
+  );
+ }
+
+ card.append(actions);
+
+ const lessonArea = makeElement("div");
+ lessonArea.id = "lessons-" + course.id;
+
+ card.append(lessonArea);
+
+ list.append(card);
+
+ loadLessons(course.id,lessonArea);
+}
+
+/* EDIT COURSE */
+
+async function editCourse(course){
+
+ const title = prompt("Course title:",course.title);
+ if(title === null) return;
+
+ const subject = prompt("Course subject:",course.subject);
+ if(subject === null) return;
+
+ const description = prompt(
+  "Course description:",
+  course.description || ""
+ );
+ if(description === null) return;
+
+ const educationLevel = prompt(
+  "Education level:",
+  course.education_level
+ );
+ if(educationLevel === null) return;
+
+ const curriculum = prompt(
+  "Curriculum:",
+  course.curriculum || "Kenyan CBC"
+ );
+ if(curriculum === null) return;
+
+ const tier = prompt(
+  "Access tier (Free or Premium):",
+  course.access_tier
+ );
+ if(tier === null) return;
+
+ if(!title.trim() || !subject.trim()){
+  alert("Course title and subject are required.");
+  return;
+ }
+
+ if(!["Free","Premium"].includes(tier.trim())){
+  alert("Access tier must be Free or Premium.");
+  return;
+ }
+
+ try{
+
+  const {error} = await db
+   .from("learning_courses")
+   .update({
+    title:title.trim(),
+    subject:subject.trim(),
+    description:description.trim(),
+    education_level:educationLevel.trim(),
+    curriculum:curriculum.trim(),
+    access_tier:tier.trim(),
+    updated_at:new Date().toISOString()
+   })
+   .eq("id",course.id)
+   .eq("status","Draft");
+
+  if(error) throw error;
+
+  alert("Course updated successfully.");
+
+  await loadCourses();
+
+ }catch(error){
+
+  alert("Course update failed: " + error.message);
+ }
+}
+
+/* DELETE COURSE */
+
+async function deleteCourse(course){
+
+ if(!confirm(
+  "Delete this course and all its lessons?\n\n" + course.title
+ )) return;
+
+ try{
+
+  const {error} = await db
+   .from("learning_courses")
+   .delete()
+   .eq("id",course.id)
+   .eq("status","Draft");
+
+  if(error) throw error;
+
+  alert("Course deleted successfully.");
+
+  await loadCourses();
+
+ }catch(error){
+
+  alert("Course deletion failed: " + error.message);
+ }
+}
+
+/* LESSON CREATION FORM */
+
+function showLessonForm(courseId,card){
+
+ const old = card.querySelector(".lesson-form");
+ if(old){
+  old.remove();
+  return;
+ }
+
+ const form = makeElement("div","lesson-form");
+
+ form.append(
+  makeElement("h3","","Add a lesson")
+ );
+
+ const titleLabel = makeElement("label","","Lesson title");
+ const titleInput = makeElement("input");
+ titleInput.maxLength = 200;
+ titleInput.placeholder = "Enter lesson title";
+
+ const contentLabel = makeElement("label","","Lesson content");
+ const contentInput = makeElement("textarea");
+ contentInput.rows = 8;
+ contentInput.placeholder = "Write the lesson content here...";
+
+ const orderLabel = makeElement("label","","Lesson order");
+ const orderInput = makeElement("input");
+ orderInput.type = "number";
+ orderInput.min = "1";
+ orderInput.step = "1";
+ orderInput.value = "1";
+
+ const status = makeElement("div","status","New lessons are saved as Draft.");
+
+ const saveButton = makeButton(
+  "Save lesson",
+  ()=>createLesson(
+   courseId,
+   titleInput,
+   contentInput,
+   orderInput,
+   saveButton,
+   status
+  )
+ );
+
+ const cancelButton = makeButton(
+  "Cancel",
+  ()=>form.remove(),
+  "secondary"
+ );
+
+ form.append(
+  titleLabel,titleInput,
+  contentLabel,contentInput,
+  orderLabel,orderInput,
+  saveButton,cancelButton,status
+ );
+
+ card.append(form);
+
+ form.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+/* CREATE LESSON */
+
+async function createLesson(
+ courseId,titleInput,contentInput,orderInput,button,status
+){
+
+ const title = titleInput.value.trim();
+ const content = contentInput.value.trim();
+ const order = Number(orderInput.value);
+
+ if(!title){
+  status.textContent = "Enter the lesson title.";
+  return;
+ }
+
+ if(!Number.isInteger(order) || order < 1){
+  status.textContent = "Lesson order must be a positive whole number.";
+  return;
+ }
+
+ button.disabled = true;
+ status.textContent = "Saving lesson...";
+
+ try{
+
+  const {error} = await db
+   .from("learning_lessons")
+   .insert({
+    course_id:courseId,
+    title,
+    content,
+    lesson_order:order,
+    status:"Draft"
+   });
+
+  if(error) throw error;
+
+  status.textContent = "Lesson successfully saved.";
+
+  await loadCourses();
+
+ }catch(error){
+
+  console.error("Lesson creation error:",error);
+
+  status.textContent = "Could not save lesson: " + error.message;
+
+  button.disabled = false;
+ }
+}
+
+/* LOAD LESSONS */
+
+async function loadLessons(courseId,container){
+
+ container.replaceChildren(
+  makeElement("p","section-note","Loading lessons...")
+ );
+
+ try{
+
+  const {data,error} = await db
+   .from("learning_lessons")
+   .select("id,course_id,title,content,lesson_order,status,created_at")
+   .eq("course_id",courseId)
+   .order("lesson_order",{ascending:true});
+
+  if(error) throw error;
+
+  container.replaceChildren();
+
+  container.append(
+   makeElement("h4","","Course lessons")
+  );
+
+  if(!data || data.length === 0){
+   container.append(
+    makeElement("p","section-note","No lessons have been added yet.")
+   );
+   return;
+  }
+
+  data.forEach(lesson=>{
+   renderLesson(lesson,container);
+  });
+
+ }catch(error){
+
+  console.error("Lesson loading error:",error);
+
+  container.textContent =
+   "Could not load lessons: " + error.message;
+ }
+}
+
+/* DISPLAY LESSON */
+
+function renderLesson(lesson,container){
+
+ const item = makeElement("div","lesson");
+
+ const heading = makeElement(
+  "strong",
+  "",
+  lesson.lesson_order + ". " + lesson.title
+ );
+
+ const status = makeElement(
+  "small",
+  "",
+  "Status: " + (lesson.status || "Draft")
+ );
+
+ const content = makeElement(
+  "div",
+  "lesson-content",
+  lesson.content || "No lesson content added."
+ );
+
+ item.append(heading,status,content);
+
+ if(lesson.status === "Draft"){
+
+  item.append(
+   makeButton(
+    "Edit lesson",
+    ()=>editLesson(lesson),
+    "secondary"
+   ),
+   makeButton(
+    "Delete lesson",
+    ()=>deleteLesson(lesson),
+    "danger"
+   )
+  );
+ }
+
+ container.append(item);
+}
+
+/* EDIT LESSON */
+
+async function editLesson(lesson){
+
+ const title = prompt("Lesson title:",lesson.title);
+ if(title === null) return;
+
+ const content = prompt(
+  "Lesson content:",
+  lesson.content || ""
+ );
+ if(content === null) return;
+
+ const order = prompt(
+  "Lesson order:",
+  String(lesson.lesson_order || 1)
+ );
+ if(order === null) return;
+
+ const number = Number(order);
+
+ if(!title.trim() || !Number.isInteger(number) || number < 1){
+  alert("Enter a valid title and positive lesson order.");
+  return;
+ }
+
+ try{
+
+  const {error} = await db
+   .from("learning_lessons")
+   .update({
+    title:title.trim(),
+    content,
+    lesson_order:number,
+    updated_at:new Date().toISOString()
+   })
+   .eq("id",lesson.id)
+   .eq("status","Draft");
+
+  if(error) throw error;
+
+  alert("Lesson updated successfully.");
+
+  await loadCourses();
+
+ }catch(error){
+
+  alert("Lesson update failed: " + error.message);
+ }
+}
+
+/* DELETE LESSON */
+
+async function deleteLesson(lesson){
+
+ if(!confirm("Delete lesson: " + lesson.title + "?")) return;
+
+ try{
+
+  const {error} = await db
+   .from("learning_lessons")
+   .delete()
+   .eq("id",lesson.id)
+   .eq("status","Draft");
+
+  if(error) throw error;
+
+  alert("Lesson deleted successfully.");
+
+  await loadCourses();
+
+ }catch(error){
+
+  alert("Lesson deletion failed: " + error.message);
+ }
+}
+
+/* UPLOAD RESOURCE */
 
 async function uploadResource(){
 
-  const button = document.getElementById("uploadButton");
+ const button = el("uploadButton");
 
-  const title =
-    document.getElementById("title").value.trim();
+ const title = el("title").value.trim();
+ const subject = el("subject").value.trim();
+ const file = el("pdf").files[0];
 
-  const subject =
-    document.getElementById("subject").value.trim();
+ if(!title || !subject || !file){
+  message(
+   "uploadMessage",
+   "Enter the resource title and subject, and select a PDF file."
+  );
+  return;
+ }
 
-  const file =
-    document.getElementById("pdf").files[0];
+ if(
+  file.type !== "application/pdf" &&
+  !file.name.toLowerCase().endsWith(".pdf")
+ ){
+  message("uploadMessage","Only PDF files are accepted.");
+  return;
+ }
 
-  if(!title || !subject || !file){
+ if(file.size > 50 * 1024 * 1024){
+  message("uploadMessage","The file exceeds the 50 MB limit.");
+  return;
+ }
 
-    setMessage(
-      "uploadMessage",
-      "Enter the resource title and subject, and select a PDF file."
-    );
+ button.disabled = true;
 
-    return;
-  }
+ message(
+  "uploadMessage",
+  "Uploading your PDF to MASTERBOOK. Please wait..."
+ );
 
-  if(
-    file.type !== "application/pdf" &&
-    !file.name.toLowerCase().endsWith(".pdf")
-  ){
+ let path = null;
 
-    setMessage(
-      "uploadMessage",
-      "Only PDF files are accepted."
-    );
+ try{
 
-    return;
-  }
-
-  if(file.size > 50 * 1024 * 1024){
-
-    setMessage(
-      "uploadMessage",
-      "The file exceeds the 50 MB limit."
-    );
-
-    return;
-  }
-
-  button.disabled = true;
-
-  setMessage(
-    "uploadMessage",
-    "Uploading your PDF to MASTERBOOK. Please wait..."
+  const safeName = file.name.replace(
+   /[^a-zA-Z0-9._-]/g,
+   "_"
   );
 
-  let path = null;
+  path =
+   currentUser.id + "/" +
+   crypto.randomUUID() + "-" +
+   safeName;
 
-  try{
+  const {error:storageError} = await db.storage
+   .from("masterbook-resources")
+   .upload(path,file,{
+    contentType:"application/pdf",
+    upsert:false
+   });
 
-    const safeName = file.name.replace(
-      /[^a-zA-Z0-9._-]/g,
-      "_"
-    );
+  if(storageError) throw storageError;
 
-    path =
-      currentUser.id + "/" +
-      crypto.randomUUID() + "-" +
-      safeName;
+  const resource = {
+   title,
+   description:el("description").value.trim(),
+   education_level:el("level").value,
+   subject,
+   resource_type:el("type").value,
+   curriculum:el("curriculum").value,
+   access_tier:el("tier").value,
+   status:"Draft",
+   storage_path:path,
+   created_by:currentUser.id
+  };
 
-    // Upload PDF to MASTERBOOK private storage.
-    const {error:storageError} = await db.storage
-      .from("masterbook-resources")
-      .upload(path, file, {
-        contentType:"application/pdf",
-        upsert:false
-      });
+  const {error:insertError} = await db
+   .from("resources")
+   .insert(resource);
 
-    if(storageError) throw storageError;
+  if(insertError){
 
-    // Save resource details in the database.
-    const resource = {
+   await db.storage
+    .from("masterbook-resources")
+    .remove([path]);
 
-      title:title,
+   path = null;
 
-      description:
-        document.getElementById("description").value.trim(),
-
-      education_level:
-        document.getElementById("level").value,
-
-      subject:subject,
-
-      resource_type:
-        document.getElementById("type").value,
-
-      curriculum:
-        document.getElementById("curriculum").value,
-
-      access_tier:
-        document.getElementById("tier").value,
-
-      status:"Draft",
-
-      storage_path:path,
-
-      created_by:currentUser.id
-
-    };
-
-    const {error:insertError} = await db
-      .from("resources")
-      .insert(resource);
-
-    if(insertError){
-
-      // Remove the uploaded file if database saving fails.
-      await db.storage
-        .from("masterbook-resources")
-        .remove([path]);
-
-      path = null;
-
-      throw insertError;
-    }
-
-    setMessage(
-      "uploadMessage",
-      "SUCCESS! Your resource has been uploaded and saved as Draft for administrator review."
-    );
-
-    document.getElementById("title").value = "";
-    document.getElementById("subject").value = "";
-    document.getElementById("description").value = "";
-    document.getElementById("pdf").value = "";
-
-    await loadResources();
-
-  }catch(error){
-
-    console.error("Resource upload error:", error);
-
-    setMessage(
-      "uploadMessage",
-      "Upload failed: " + error.message
-    );
-
-  }finally{
-
-    button.disabled = false;
-
+   throw insertError;
   }
+
+  message(
+   "uploadMessage",
+   "SUCCESS! Your resource has been uploaded and saved as Draft for administrator review."
+  );
+
+  el("title").value = "";
+  el("subject").value = "";
+  el("description").value = "";
+  el("pdf").value = "";
+
+  await loadResources();
+
+ }catch(error){
+
+  console.error("Resource upload error:",error);
+
+  message("uploadMessage","Upload failed: " + error.message);
+
+ }finally{
+  button.disabled = false;
+ }
 }
 
-/* LOAD ONLY THE CURRENT USER'S RESOURCES */
+/* LOAD RESOURCES */
 
 async function loadResources(){
 
-  const list = document.getElementById("resourceList");
-  const refreshButton = document.getElementById("refreshButton");
+ const list = el("resourceList");
+ const button = el("refreshButton");
 
-  list.textContent = "Loading your resources...";
+ list.textContent = "Loading your resources...";
+ button.disabled = true;
 
-  if(refreshButton){
-    refreshButton.disabled = true;
+ try{
+
+  const {data,error} = await db
+   .from("resources")
+   .select("id,title,subject,resource_type,status,created_at")
+   .eq("created_by",currentUser.id)
+   .order("created_at",{ascending:false});
+
+  if(error) throw error;
+
+  list.replaceChildren();
+
+  if(!data || data.length === 0){
+   list.textContent = "You have not uploaded any resources yet.";
+   return;
   }
 
-  try{
+  data.forEach(item=>{
 
-    const {data, error} = await db
-      .from("resources")
-      .select(
-        "id,title,subject,resource_type,status,created_at"
-      )
-      .eq("created_by", currentUser.id)
-      .order("created_at", {ascending:false});
+   const entry = makeElement("div","resource");
 
-    if(error) throw error;
+   entry.append(
+    makeElement("strong","",item.title),
+    makeElement(
+     "p",
+     "",
+     item.subject + " · " + item.resource_type
+    ),
+    makeElement(
+     "small",
+     "",
+     "Publication status: " + item.status
+    )
+   );
 
-    list.replaceChildren();
+   list.append(entry);
+  });
 
-    if(!data || data.length === 0){
+ }catch(error){
 
-      list.textContent =
-        "You have not uploaded any resources yet.";
+  console.error("Resource loading error:",error);
 
-      return;
-    }
+  list.textContent =
+   "Could not load resources: " + error.message;
 
-    data.forEach(item => {
-
-      const entry = document.createElement("div");
-      entry.className = "resource";
-
-      const heading = document.createElement("strong");
-      heading.textContent = item.title;
-
-      const details = document.createElement("p");
-      details.textContent =
-        item.subject + " · " + item.resource_type;
-
-      const status = document.createElement("small");
-      status.textContent =
-        "Publication status: " + item.status;
-
-      entry.append(heading, details, status);
-      list.appendChild(entry);
-
-    });
-
-  }catch(error){
-
-    console.error("Resource loading error:", error);
-
-    list.textContent =
-      "Could not load resources: " + error.message;
-
-  }finally{
-
-    if(refreshButton){
-      refreshButton.disabled = false;
-    }
-
-  }
+ }finally{
+  button.disabled = false;
+ }
 }
 
 /* SIGN OUT */
 
 async function logout(){
 
-  const {error} = await db.auth.signOut();
+ const {error} = await db.auth.signOut();
 
-  if(error){
+ if(error){
+  alert("Sign out failed: " + error.message);
+  return;
+ }
 
-    alert("Sign out failed: " + error.message);
-    return;
-
-  }
-
-  location.replace("auth.html");
+ location.replace("auth.html");
 }
 
-/* START MASTERBOOK TEACHER PORTAL */
+/* START PORTAL */
 
 startPortal();
 
