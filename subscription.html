@@ -1,0 +1,339 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#102b50">
+<title>Subscriptions | MASTERBOOK</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:#f3f6fb;
+ color:#172b4d;
+}
+header{
+ background:#102b50;
+ color:white;
+ padding:20px;
+}
+.header-inner{
+ max-width:1100px;
+ margin:auto;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:12px;
+ flex-wrap:wrap;
+}
+header h2{margin:0;font-size:23px}
+header p{margin:6px 0 0;color:#d8e5f5}
+main{max-width:1100px;margin:28px auto;padding:0 16px}
+.navigation{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+button,.nav-link{
+ border:0;
+ border-radius:7px;
+ padding:11px 16px;
+ background:#174c85;
+ color:white;
+ cursor:pointer;
+ font-weight:bold;
+ text-decoration:none;
+}
+button:disabled{background:#9aa8b8;cursor:not-allowed}
+.panel{
+ background:white;
+ border-radius:12px;
+ padding:20px;
+ margin-bottom:22px;
+ box-shadow:0 3px 14px rgba(0,0,0,.06);
+}
+h3{margin-top:0}
+.plans{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+ gap:18px;
+}
+.plan{
+ background:white;
+ border:1px solid #dce4ee;
+ border-radius:12px;
+ padding:22px;
+ box-shadow:0 3px 12px rgba(0,0,0,.05);
+}
+.plan h3{color:#174c85}
+.price{font-size:30px;font-weight:bold;margin:15px 0}
+.duration{color:#68778a}
+.status{
+ display:inline-block;
+ padding:6px 10px;
+ border-radius:20px;
+ background:#fff0d6;
+ color:#805400;
+ font-size:12px;
+ font-weight:bold;
+}
+.status.active{background:#d9f5e5;color:#17663a}
+.muted{color:#68778a;line-height:1.6}
+#message{margin:15px 0;padding:12px;border-radius:8px;background:#e8f1fb}
+.error{background:#ffe8e8!important;color:#a32222}
+input{
+ width:100%;
+ padding:12px;
+ border:1px solid #ccd5e0;
+ border-radius:7px;
+ margin-top:8px;
+}
+footer{text-align:center;color:#778398;padding:25px}
+@media(max-width:600px){
+ header h2{font-size:20px}
+ main{margin-top:18px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <div class="header-inner">
+  <div>
+   <h2>MASTERBOOK</h2>
+   <p>Student Subscription Centre</p>
+  </div>
+  <span>Learning without limits</span>
+ </div>
+</header>
+
+<main>
+
+ <div class="navigation">
+  <a class="nav-link" href="student.html">Student Portal</a>
+  <a class="nav-link" href="index.html">Main Dashboard</a>
+  <button onclick="signOut()">Sign Out</button>
+ </div>
+
+ <section class="panel">
+  <h3>Welcome to your subscription centre</h3>
+  <p id="studentEmail" class="muted">Checking your account...</p>
+  <div id="message">Connecting to MASTERBOOK...</div>
+ </section>
+
+ <section class="panel">
+  <h3>Your subscription status</h3>
+  <div id="subscriptionStatus" class="muted">
+   Checking your subscription...
+  </div>
+ </section>
+
+ <section>
+  <h3>Choose your subscription plan</h3>
+  <p class="muted">
+   Subscribe to access premium MASTERBOOK learning materials.
+  </p>
+  <div id="plans" class="plans">
+   <div class="plan">Loading subscription plans...</div>
+  </div>
+ </section>
+
+ <section class="panel" style="margin-top:25px">
+  <h3>M-Pesa payments</h3>
+  <p class="muted">
+   M-Pesa subscription payments will be enabled after the payment
+   confirmation and automatic subscription activation system is completed.
+  </p>
+  <button disabled>Payments coming soon</button>
+ </section>
+
+</main>
+
+<footer>
+ © <span id="year"></span> MASTERBOOK. All rights reserved.
+</footer>
+
+<script>
+const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+const SUPABASE_KEY = "sb_publishable_DSUz-W5eeLBioVBQ1HywoQ_Rp4f3nur";
+
+const db = window.supabase.createClient(
+ SUPABASE_URL,
+ SUPABASE_KEY
+);
+
+let currentUser = null;
+
+document.getElementById("year").textContent =
+ new Date().getFullYear();
+
+function showMessage(message,error=false){
+ const box=document.getElementById("message");
+ box.textContent=message;
+ box.className=error?"error":"";
+}
+
+function formatKES(amount){
+ return "KSh "+Number(amount).toLocaleString("en-KE");
+}
+
+async function initialise(){
+ try{
+  const {data,error}=await db.auth.getSession();
+
+  if(error) throw error;
+
+  const session=data.session;
+
+  if(!session){
+   window.location.href="auth.html";
+   return;
+  }
+
+  currentUser=session.user;
+
+  document.getElementById("studentEmail").textContent=
+   "Logged in as: "+(currentUser.email||"Student");
+
+  showMessage("Your MASTERBOOK account is connected.");
+
+  await Promise.all([
+   loadPlans(),
+   loadSubscription()
+  ]);
+
+ }catch(error){
+  console.error(error);
+  showMessage("Unable to load your account: "+error.message,true);
+ }
+}
+
+async function loadPlans(){
+ const container=document.getElementById("plans");
+
+ const {data,error}=await db
+  .from("masterbook_products")
+  .select("id,product_code,product_name,description,product_type,plan_code,price_kes,currency,duration_days,is_active")
+  .eq("product_type","subscription")
+  .order("price_kes",{ascending:true});
+
+ if(error){
+  container.innerHTML=
+   '<div class="plan">Unable to load subscription plans. Please try again.</div>';
+  console.error(error);
+  return;
+ }
+
+ if(!data||data.length===0){
+  container.innerHTML=
+   '<div class="plan">Subscription plans are being prepared. Please check again later.</div>';
+  return;
+ }
+
+ container.innerHTML="";
+
+ data.forEach(product=>{
+  const available=product.is_active===true;
+
+  const plan=document.createElement("div");
+  plan.className="plan";
+
+  const heading=document.createElement("h3");
+  heading.textContent=product.product_name;
+
+  const price=document.createElement("div");
+  price.className="price";
+  price.textContent=formatKES(product.price_kes);
+
+  const duration=document.createElement("p");
+  duration.className="duration";
+  duration.textContent=product.duration_days+" days of access";
+
+  const description=document.createElement("p");
+  description.className="muted";
+  description.textContent=product.description||
+   "Access premium MASTERBOOK learning resources.";
+
+  const status=document.createElement("span");
+  status.className="status";
+  status.textContent=available?"Available":"Coming soon";
+
+  const action=document.createElement("p");
+  action.className="muted";
+  action.textContent=available
+   ?"Payment activation is being prepared."
+   :"This subscription plan is not yet available.";
+
+  plan.append(
+   heading,price,duration,description,status,action
+  );
+
+  container.appendChild(plan);
+ });
+}
+
+async function loadSubscription(){
+ const container=document.getElementById("subscriptionStatus");
+
+ const {data,error}=await db
+  .from("masterbook_entitlements")
+  .select("id,entitlement_status,starts_at,expires_at")
+  .eq("student_id",currentUser.id)
+  .eq("entitlement_status","active")
+  .order("expires_at",{ascending:false});
+
+ if(error){
+  container.textContent="Unable to retrieve subscription information.";
+  console.error(error);
+  return;
+ }
+
+ const now=new Date();
+
+ const active=(data||[]).filter(item=>
+  !item.expires_at||new Date(item.expires_at)>now
+ );
+
+ if(active.length===0){
+  container.textContent=
+   "You currently have no active premium subscription. You can continue using free learning resources.";
+  return;
+ }
+
+ container.innerHTML="";
+
+ active.forEach(item=>{
+  const box=document.createElement("div");
+  box.style.marginBottom="14px";
+
+  const heading=document.createElement("strong");
+  heading.textContent="Premium access: Active";
+
+  const expiry=document.createElement("p");
+  expiry.className="muted";
+  expiry.textContent=item.expires_at
+   ?"Expires: "+new Date(item.expires_at).toLocaleString()
+   :"No expiry date recorded.";
+
+  box.append(heading,expiry);
+  container.appendChild(box);
+ });
+}
+
+async function signOut(){
+ const {error}=await db.auth.signOut();
+
+ if(error){
+  alert("Unable to sign out: "+error.message);
+  return;
+ }
+
+ window.location.href="auth.html";
+}
+
+initialise();
+</script>
+
+</body>
+</html>
