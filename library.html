@@ -4,8 +4,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>MASTERBOOK Digital Library | Free Learning Resources and Revision Notes</title>
+
+<meta name="description" content="Explore the MASTERBOOK Digital Library for educational resources, revision notes, coursebooks and learning materials across primary, junior school, senior school, university and professional education.">
+
+<meta name="keywords" content="MASTERBOOK library, free learning resources Kenya, CBC learning materials, revision notes, Geography notes, Mathematics notes, Grade 10 learning resources, Grade 12 revision materials, university resources, educational books">
+
+<meta name="author" content="G.O. Odhiambo">
+<meta name="robots" content="index, follow">
 <meta name="theme-color" content="#10243e">
-<title>MASTERBOOK | Digital Library</title>
+
+<link rel="canonical" href="https://godhiambo992-hu.github.io/masterbook-platform/library.html">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="MASTERBOOK Digital Library | Educational Resources">
+<meta property="og:description" content="Discover learning materials, revision notes, coursebooks and educational resources for every stage of education.">
+<meta property="og:url" content="https://godhiambo992-hu.github.io/masterbook-platform/library.html">
+<meta property="og:site_name" content="MASTERBOOK">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MASTERBOOK Digital Library">
+<meta name="twitter:description" content="Explore educational resources, revision materials and coursebooks on MASTERBOOK.">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -563,11 +583,6 @@ async function openResource(resource, downloadFile, button) {
     return;
   }
 
-  /*
-    Open a blank tab immediately during the button click.
-    This avoids most browser popup-blocking problems while
-    the signed URL is being prepared.
-  */
   let pdfWindow = null;
 
   if (!downloadFile) {
@@ -616,10 +631,6 @@ async function openResource(resource, downloadFile, button) {
     }
 
     if (downloadFile) {
-      /*
-        The signed URL includes download disposition.
-        Opening it separately leaves the Library page intact.
-      */
       const link = document.createElement("a");
       link.href = data.signedUrl;
       link.target = "_blank";
