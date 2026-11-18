@@ -1,14 +1,12 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#10243e">
 
 <title>MASTERBOOK | Administration</title>
-
 <meta name="description" content="Secure MASTERBOOK administrator dashboard for managing educational resources, teacher applications, contributor approvals and platform operations.">
 <meta name="author" content="G.O. Odhiambo">
 <meta name="robots" content="noindex, nofollow, noarchive">
@@ -18,10 +16,374 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
 
-<!-- Existing page styles continue below -->
+<style>
+:root {
+  --navy:#10243e;
+  --blue:#1769aa;
+  --light:#f3f6fa;
+  --white:#fff;
+  --text:#253449;
+  --muted:#68778a;
+  --border:#dce3eb;
+  --green:#16834b;
+  --red:#bd3030;
+  --orange:#a86608;
+  --shadow:0 3px 14px rgba(16,36,62,.07);
+}
+
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  background:var(--light);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  line-height:1.55;
+}
+
+header {
+  background:var(--navy);
+  color:white;
+  padding:22px 5%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  flex-wrap:wrap;
+}
+
+header h1 {
+  margin:0;
+  font-size:clamp(21px,4vw,29px);
+}
+
+header p {
+  margin:4px 0 0;
+  color:#d5e2f0;
+}
+
+main {
+  width:min(1200px,94%);
+  margin:25px auto 50px;
+}
+
+button,a,input,textarea,select {
+  font:inherit;
+}
+
+button {
+  border:0;
+  border-radius:7px;
+  padding:10px 15px;
+  cursor:pointer;
+  font-weight:600;
+  transition:background .2s,opacity .2s;
+}
+
+button:disabled {
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+button:focus-visible,a:focus-visible,input:focus-visible,
+textarea:focus-visible,select:focus-visible {
+  outline:3px solid #74b8f0;
+  outline-offset:2px;
+}
+
+.primary,.home {
+  background:var(--blue);
+  color:white;
+}
+
+.primary:hover,.home:hover { background:#10558d; }
+
+.logout {
+  background:#dce8f5;
+  color:var(--navy);
+}
+
+.approve {
+  background:#e0f4e8;
+  color:#126b3c;
+}
+
+.reject {
+  background:#fde7e7;
+  color:#a52222;
+}
+
+.edit {
+  background:#e5eef9;
+  color:#174f88;
+}
+
+.panel {
+  background:white;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:22px;
+  margin:20px 0;
+  box-shadow:var(--shadow);
+  scroll-margin-top:15px;
+}
+
+.panel h2 {
+  color:var(--navy);
+  margin:0 0 14px;
+  font-size:21px;
+}
+
+.panel h3 {
+  color:var(--navy);
+}
+
+.navigation {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:9px;
+  margin:15px 0;
+}
+
+.navigation button {
+  background:#e6edf5;
+  color:var(--navy);
+}
+
+.navigation button:disabled {
+  opacity:.45;
+}
+
+.navigation .home {
+  background:var(--blue);
+  color:white;
+}
+
+.navigation .section-btn.active {
+  background:var(--navy);
+  color:white;
+}
+
+.navigation a {
+  display:inline-block;
+  text-decoration:none;
+  padding:10px 13px;
+  border-radius:7px;
+  font-weight:600;
+  color:white;
+}
+
+.pricing-link { background:#7650a6; }
+.subscription-link { background:#137b68; }
+
+.nav-info {
+  color:var(--muted);
+  font-size:13px;
+  margin-left:auto;
+}
+
+.small,.meta {
+  color:var(--muted);
+  font-size:13px;
+}
+
+.message {
+  padding:11px 13px;
+  margin:12px 0;
+  background:#edf3fa;
+  border-radius:7px;
+  overflow-wrap:anywhere;
+}
+
+.message.success {
+  background:#e4f5eb;
+  color:#126b3c;
+}
+
+.message.error {
+  background:#fde9e9;
+  color:#a52222;
+}
+
+.stats {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
+  gap:13px;
+  margin:20px 0;
+}
+
+.stat {
+  background:white;
+  padding:17px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  box-shadow:var(--shadow);
+  color:var(--muted);
+  font-size:13px;
+}
+
+.stat strong {
+  display:block;
+  font-size:27px;
+  color:var(--navy);
+  margin-top:5px;
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:15px;
+}
+
+.full { grid-column:1/-1; }
+
+label {
+  display:block;
+  font-weight:600;
+  font-size:14px;
+  margin-bottom:6px;
+}
+
+input,textarea,select {
+  width:100%;
+  padding:11px;
+  border:1px solid #cbd5e1;
+  border-radius:7px;
+  background:white;
+  color:var(--text);
+  margin-bottom:12px;
+  min-width:0;
+}
+
+textarea {
+  min-height:95px;
+  resize:vertical;
+}
+
+input[type=file] {
+  padding:9px;
+}
+
+.tabs {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:18px 0;
+}
+
+.tabs button {
+  background:#e8edf4;
+  color:var(--navy);
+}
+
+.tabs button.active {
+  background:var(--navy);
+  color:white;
+}
+
+.toolbar {
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.toolbar input { flex:1; }
+
+.resource,.application {
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:17px;
+  margin:14px 0;
+  overflow-wrap:anywhere;
+}
+
+.resource.selected {
+  border:2px solid var(--blue);
+  background:#f6faff;
+}
+
+.resource h3,.application h3 {
+  margin:0 0 10px;
+}
+
+.meta {
+  line-height:1.8;
+  overflow-wrap:anywhere;
+}
+
+.status {
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:20px;
+  margin:10px 0;
+  font-size:12px;
+  font-weight:700;
+}
+
+.status.pending {
+  color:#8b5900;
+  background:#fff0ce;
+}
+
+.status.published {
+  color:#126b3c;
+  background:#e0f4e8;
+}
+
+.status.rejected {
+  color:#a52222;
+  background:#fde7e7;
+}
+
+.actions {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+
+.progress-wrap {
+  height:12px;
+  background:#e6ebf1;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.progress-bar {
+  width:0;
+  height:100%;
+  background:var(--blue);
+  transition:width .2s;
+}
+
+.hidden { display:none !important; }
+
+footer {
+  background:var(--navy);
+  color:#d5e2f0;
+  text-align:center;
+  padding:20px;
+  font-size:13px;
+}
+
+@media(max-width:650px) {
+  header { padding:18px 4%; }
+  main { width:94%; margin-top:15px; }
+  .panel { padding:15px; }
+  .grid { grid-template-columns:1fr; }
+  .full { grid-column:auto; }
+  .toolbar { flex-direction:column; align-items:stretch; }
+  .toolbar button { width:100%; }
+  .nav-info { width:100%; margin-left:0; }
+  .navigation a { flex:1 1 100%; text-align:center; }
+}
+</style>
 </head>
 
 <body>
+
 <header>
   <div>
     <h1>MASTERBOOK Administration</h1>
@@ -42,13 +404,8 @@
   <button class="section-btn" data-section="uploadPanel" type="button">Upload</button>
   <button class="section-btn" data-section="resourcePanel" type="button">Resources</button>
 
-  <a class="pricing-link" href="pricing.html">
-    Manage Pricing Catalogue
-  </a>
-
-  <a class="subscription-link" href="admin-subscriptions.html">
-    Manage Subscriptions &amp; Payments
-  </a>
+  <a class="pricing-link" href="pricing.html">Manage Pricing Catalogue</a>
+  <a class="subscription-link" href="admin-subscriptions.html">Manage Subscriptions &amp; Payments</a>
 
   <span id="navigationInfo" class="nav-info">Dashboard Overview</span>
 </section>
@@ -69,27 +426,17 @@
 
 <section class="panel" id="applicationsPanel">
   <h2>Teacher and Contributor Applications</h2>
-  <p class="small">
-    Review applications from people requesting Teacher or Contributor access.
-    Approving an application changes its account approval status.
-  </p>
+  <p class="small">Review applications from people requesting Teacher or Contributor access. Approval changes their account approval status.</p>
 
-  <button class="primary" id="refreshApplications" type="button">
-    Refresh Applications
-  </button>
+  <button class="primary" id="refreshApplications" type="button">Refresh Applications</button>
 
-  <div id="applicationsMessage" class="message">
-    Applications have not yet been loaded.
-  </div>
-
+  <div id="applicationsMessage" class="message">Applications have not yet been loaded.</div>
   <div id="applicationsList"></div>
 </section>
 
 <section class="panel" id="uploadPanel">
   <h2>Upload a Resource</h2>
-  <p class="small">
-    Administrator uploads are saved as drafts for review and publication.
-  </p>
+  <p class="small">Administrator uploads are saved as drafts for review and publication.</p>
 
   <form id="uploadForm">
     <div class="grid">
@@ -168,9 +515,7 @@
     </div>
 
     <button class="primary" id="uploadButton" type="submit">Upload Resource</button>
-    <button class="edit hidden" id="retryUploadButton" type="button">
-      Retry Saving Resource Record
-    </button>
+    <button class="edit hidden" id="retryUploadButton" type="button">Retry Saving Resource Record</button>
   </form>
 </section>
 
@@ -205,6 +550,8 @@
 <footer>MASTERBOOK Administration | G.O. Odhiambo</footer>
 
 <script>
+"use strict";
+
 const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
 const SUPABASE_KEY = "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
 
@@ -227,6 +574,7 @@ let currentResourceIndex = 0;
 let navigationHistory = [];
 let navigationForward = [];
 let applyingNavigation = false;
+let administratorVerified = false;
 
 const $ = id => document.getElementById(id);
 
@@ -257,8 +605,7 @@ function setApplicationsMessage(text, type = "normal") {
 function setBusy(value) {
   busy = value;
   $("uploadButton").disabled = value;
-  $("uploadButton").textContent =
-    value ? "Upload in progress..." : "Upload Resource";
+  $("uploadButton").textContent = value ? "Upload in progress..." : "Upload Resource";
 }
 
 function showProgress(percent, label) {
@@ -269,15 +616,26 @@ function showProgress(percent, label) {
 }
 
 function makeId() {
-  return crypto.randomUUID
-    ? crypto.randomUUID()
-    : Date.now().toString(36) + Math.random().toString(36).slice(2);
+  if (window.crypto && typeof window.crypto.randomUUID === "function") {
+    return window.crypto.randomUUID();
+  }
+  return Date.now().toString(36) + Math.random().toString(36).slice(2);
 }
 
 function isValidUUID(value) {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-    String(value || "")
-  );
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ""));
+}
+
+function formatDate(value) {
+  if (!value) return "Not recorded";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "Not recorded" : date.toLocaleString();
+}
+
+function requireAdmin() {
+  if (!administratorVerified || !currentUser) {
+    throw new Error("Administrator access has not been verified.");
+  }
 }
 
 /* DASHBOARD NAVIGATION */
@@ -285,8 +643,8 @@ function isValidUUID(value) {
 function getNavigationState() {
   const section = document.querySelector(".section-btn.active");
   return {
-    section: section ? section.dataset.section : "workspace",
-    tab: activeTab
+    section:section ? section.dataset.section : "workspace",
+    tab:activeTab
   };
 }
 
@@ -317,8 +675,8 @@ function updateNavigationInfo() {
   };
 
   $("navigationInfo").textContent =
-    (names[state.section] || "Dashboard") +
-    " | " + (tabNames[activeTab] || "Dashboard");
+    (names[state.section] || "Dashboard") + " | " +
+    (tabNames[activeTab] || "Dashboard");
 }
 
 function recordNavigation(state) {
@@ -354,7 +712,7 @@ function applyNavigationState(state) {
   updateNavigationInfo();
 
   const target = $(section);
-  if (target) target.scrollIntoView({behavior:"smooth", block:"start"});
+  if (target) target.scrollIntoView({behavior:"smooth",block:"start"});
 
   applyingNavigation = false;
   updateNavigationButtons();
@@ -375,94 +733,118 @@ function goForward() {
 }
 
 function goHome() {
-  const homeState = {section:"workspace", tab:"pending"};
+  const homeState = {section:"workspace",tab:"pending"};
   recordNavigation(homeState);
 
-  if (!sameNavigationState(getNavigationState(), homeState)) {
+  if (!sameNavigationState(getNavigationState(),homeState)) {
     applyNavigationState(homeState);
   } else {
-    $("workspace").scrollIntoView({behavior:"smooth", block:"start"});
+    $("workspace").scrollIntoView({behavior:"smooth",block:"start"});
   }
 }
 
 function goToSection(sectionId) {
   if (!$(sectionId)) return;
 
-  const nextState = {section:sectionId, tab:activeTab};
-  if (!sameNavigationState(getNavigationState(), nextState)) {
+  const nextState = {section:sectionId,tab:activeTab};
+  if (!sameNavigationState(getNavigationState(),nextState)) {
     recordNavigation(nextState);
   }
 
   document.querySelectorAll(".section-btn").forEach(button => {
-    button.classList.toggle("active", button.dataset.section === sectionId);
+    button.classList.toggle("active",button.dataset.section === sectionId);
   });
 
-  $(sectionId).scrollIntoView({behavior:"smooth", block:"start"});
+  $(sectionId).scrollIntoView({behavior:"smooth",block:"start"});
   updateNavigationInfo();
   updateNavigationButtons();
 }
 
-$("backBtn").addEventListener("click", goBack);
-$("forwardBtn").addEventListener("click", goForward);
-$("homeBtn").addEventListener("click", goHome);
+$("backBtn").addEventListener("click",goBack);
+$("forwardBtn").addEventListener("click",goForward);
+$("homeBtn").addEventListener("click",goHome);
 
 document.querySelectorAll(".section-btn").forEach(button => {
-  button.addEventListener("click", () => goToSection(button.dataset.section));
+  button.addEventListener("click",() => goToSection(button.dataset.section));
 });
 
 /* ADMINISTRATOR AUTHENTICATION */
 
 async function initialise() {
   try {
-    const {data:{session}, error} = await db.auth.getSession();
+    const {data:{session},error} = await db.auth.getSession();
     if (error) throw error;
 
     if (!session) {
-      location.href = "auth.html";
+      location.replace("auth.html");
       return;
     }
 
     currentUser = session.user;
 
-    const {data:isAdmin, error:adminError} =
+    const {data:isAdmin,error:adminError} =
       await db.rpc("masterbook_admin_is_admin");
 
     if (adminError) throw adminError;
 
     if (isAdmin !== true) {
-      notify("Access denied. Administrator privileges are required.", "error");
       $("identity").textContent = "Administrator access denied.";
+      notify("Access denied. Administrator privileges are required.","error");
       return;
     }
+
+    administratorVerified = true;
 
     $("identity").textContent =
       "Administrator access verified: " + currentUser.email;
 
     restorePendingUpload();
 
-    await Promise.all([loadResources(), loadApplications()]);
+    const results = await Promise.allSettled([
+      loadResources(),
+      loadApplications()
+    ]);
+
+    const failures = results.filter(result => result.status === "rejected");
 
     navigationHistory = [getNavigationState()];
     navigationForward = [];
     updateNavigationButtons();
     updateNavigationInfo();
 
-    notify("Administrator access verified. Dashboard is ready.", "success");
+    if (failures.length) {
+      notify("Administrator verified, but one or more dashboard sections could not load. Check the individual section messages.","error");
+    } else {
+      notify("Administrator access verified. Dashboard is ready.","success");
+    }
 
   } catch (error) {
     console.error(error);
-    notify("Administrator verification failed: " + error.message, "error");
+    administratorVerified = false;
+    notify("Administrator verification failed: " + error.message,"error");
   }
 }
+
+/* SESSION EXPIRY AND SIGN OUT EVENTS */
+
+db.auth.onAuthStateChange((event,session) => {
+  if (event === "SIGNED_OUT" || (event === "USER_DELETED" && !session)) {
+    administratorVerified = false;
+    currentUser = null;
+    location.replace("auth.html");
+  }
+});
 
 /* APPLICATION MANAGEMENT */
 
 async function loadApplications() {
+  requireAdmin();
+
   $("applicationsList").textContent = "Loading applications...";
   setApplicationsMessage("Retrieving pending applications...");
 
   try {
-    const {data, error} = await db.rpc("masterbook_admin_pending_applications");
+    const {data,error} = await db.rpc("masterbook_admin_pending_applications");
     if (error) throw error;
 
     applications = data || [];
@@ -471,14 +853,11 @@ async function loadApplications() {
     if (!applications.length) {
       $("applicationsList").innerHTML =
         "<p class='small'>There are currently no pending Teacher or Contributor applications.</p>";
-      setApplicationsMessage("Application records are up to date.", "success");
+      setApplicationsMessage("Application records are up to date.","success");
       return;
     }
 
-    setApplicationsMessage(
-      applications.length + " pending application(s) found.",
-      "success"
-    );
+    setApplicationsMessage(applications.length + " pending application(s) found.","success");
 
     $("applicationsList").innerHTML = applications.map(app => {
       const applicantId = app.user_id;
@@ -489,15 +868,11 @@ async function loadApplications() {
           <h3>${escapeHTML(app.full_name || "Name not provided")}</h3>
           <div class="meta">
             <strong>Email:</strong> ${escapeHTML(app.email || "Not provided")}<br>
-            <strong>Requested role:</strong>
-            ${escapeHTML(app.requested_role || "Not specified")}<br>
-            <strong>Application date:</strong>
-            ${app.created_at ? new Date(app.created_at).toLocaleString() : "Not recorded"}
+            <strong>Requested role:</strong> ${escapeHTML(app.requested_role || "Not specified")}<br>
+            <strong>Application date:</strong> ${escapeHTML(formatDate(app.created_at))}
           </div>
           <span class="status pending">Awaiting approval</span>
-          ${!validId
-            ? `<p class="message error">This application has no valid user UUID. Approval is disabled until the database record is checked.</p>`
-            : ""}
+          ${!validId ? "<p class='message error'>This application has no valid user UUID. Approval is disabled.</p>" : ""}
           <div class="actions">
             <button class="approve"
               data-application-action="approve"
@@ -513,22 +888,25 @@ async function loadApplications() {
     }).join("");
 
   } catch (error) {
-    console.error("Application loading failed:", error);
+    console.error("Application loading failed:",error);
     applications = [];
     $("applicationCount").textContent = "—";
     $("applicationsList").textContent = "Applications could not be loaded.";
-    setApplicationsMessage("Application loading failed: " + error.message, "error");
+    setApplicationsMessage("Application loading failed: " + error.message,"error");
+    throw error;
   }
 }
 
-async function reviewApplication(userId, decision, button) {
+async function reviewApplication(userId,decision,button) {
+  requireAdmin();
+
   if (!isValidUUID(userId)) {
-    notify("Invalid applicant UUID. Refresh applications and try again.", "error");
+    notify("Invalid applicant UUID. Refresh applications and try again.","error");
     return;
   }
 
-  if (!["approved", "rejected"].includes(decision)) {
-    notify("Invalid application decision.", "error");
+  if (!["approved","rejected"].includes(decision)) {
+    notify("Invalid application decision.","error");
     return;
   }
 
@@ -538,9 +916,9 @@ async function reviewApplication(userId, decision, button) {
   if (button) button.disabled = true;
 
   try {
-    const {data, error} = await db.rpc(
+    const {data,error} = await db.rpc(
       "masterbook_admin_review_application",
-      {p_user_id:userId, p_decision:decision}
+      {p_user_id:userId,p_decision:decision}
     );
 
     if (error) throw error;
@@ -558,67 +936,73 @@ async function reviewApplication(userId, decision, button) {
     await loadApplications();
 
   } catch (error) {
-    console.error("Application review failed:", error);
-    notify("Application review failed: " + error.message, "error");
+    console.error("Application review failed:",error);
+    notify("Application review failed: " + error.message,"error");
     if (button) button.disabled = false;
   }
 }
 
-$("applicationsList").addEventListener("click", event => {
+$("applicationsList").addEventListener("click",event => {
   const button = event.target.closest("button[data-application-action]");
   if (!button || button.disabled) return;
 
   const userId = button.dataset.userId;
   const action = button.dataset.applicationAction;
 
-  if (!isValidUUID(userId)) {
-    notify("Applicant UUID is missing or invalid.", "error");
-    return;
-  }
-
   const decision =
     action === "approve" ? "approved" :
     action === "reject" ? "rejected" : null;
 
-  if (!decision) {
-    notify("Unknown application action.", "error");
+  if (!decision || !isValidUUID(userId)) {
+    notify("Applicant information or action is invalid.","error");
     return;
   }
 
-  reviewApplication(userId, decision, button);
+  reviewApplication(userId,decision,button);
 });
 
-$("refreshApplications").addEventListener("click", loadApplications);
+$("refreshApplications").addEventListener("click",() => {
+  loadApplications().catch(error => console.error(error));
+});
 
 /* RESOURCE MANAGEMENT */
 
 async function loadResources() {
+  requireAdmin();
+
   $("resourceList").textContent = "Loading resources...";
 
-  const {data, error} = await db.from("resources")
-    .select("*")
-    .order("created_at", {ascending:false});
+  try {
+    const {data,error} = await db.from("resources")
+      .select("*")
+      .order("created_at",{ascending:false});
 
-  if (error) {
+    if (error) throw error;
+
+    resources = data || [];
+    currentResourceIndex = 0;
+    updateStats();
+    renderResources();
+
+  } catch (error) {
+    console.error("Resource loading failed:",error);
     $("resourceList").textContent = "Could not load resources.";
-    notify("Resource loading failed: " + error.message, "error");
-    return;
+    notify("Resource loading failed: " + error.message,"error");
+    throw error;
   }
-
-  resources = data || [];
-  currentResourceIndex = 0;
-  updateStats();
-  renderResources();
 }
 
 function updateStats() {
   $("totalCount").textContent = resources.length;
+
   $("pendingCount").textContent = resources.filter(
     r => r.status === "Draft" && !r.rejection_reason
   ).length;
+
   $("publishedCount").textContent = resources.filter(
     r => r.status === "Published"
   ).length;
+
   $("rejectedCount").textContent = resources.filter(
     r => !!r.rejection_reason
   ).length;
@@ -637,6 +1021,7 @@ function getFilteredResources() {
     if (activeTab === "pending") {
       return r.status === "Draft" && !r.rejection_reason;
     }
+
     if (activeTab === "published") return r.status === "Published";
     if (activeTab === "rejected") return !!r.rejection_reason;
 
@@ -646,8 +1031,13 @@ function getFilteredResources() {
 
 function updateResourceNavigation() {
   const total = visibleResources.length;
-  $("previousResourceBtn").disabled = total === 0 || currentResourceIndex <= 0;
-  $("nextResourceBtn").disabled = total === 0 || currentResourceIndex >= total - 1;
+
+  $("previousResourceBtn").disabled =
+    total === 0 || currentResourceIndex <= 0;
+
+  $("nextResourceBtn").disabled =
+    total === 0 || currentResourceIndex >= total - 1;
+
   $("resourcePosition").textContent = total
     ? "Resource " + (currentResourceIndex + 1) + " of " + total
     : "No resources available";
@@ -677,12 +1067,12 @@ function highlightCurrentResource() {
 
   if (card) {
     card.classList.add("selected");
-    card.scrollIntoView({behavior:"smooth", block:"center"});
+    card.scrollIntoView({behavior:"smooth",block:"center"});
   }
 }
 
-$("previousResourceBtn").addEventListener("click", () => navigateResource(-1));
-$("nextResourceBtn").addEventListener("click", () => navigateResource(1));
+$("previousResourceBtn").addEventListener("click",() => navigateResource(-1));
+$("nextResourceBtn").addEventListener("click",() => navigateResource(1));
 
 function renderResources() {
   const headings = {
@@ -696,7 +1086,7 @@ function renderResources() {
   visibleResources = getFilteredResources();
 
   if (currentResourceIndex >= visibleResources.length) {
-    currentResourceIndex = Math.max(0, visibleResources.length - 1);
+    currentResourceIndex = Math.max(0,visibleResources.length - 1);
   }
 
   if (!visibleResources.length) {
@@ -707,7 +1097,7 @@ function renderResources() {
     return;
   }
 
-  $("resourceList").innerHTML = visibleResources.map((r, index) => {
+  $("resourceList").innerHTML = visibleResources.map((r,index) => {
     const rejected = !!r.rejection_reason;
     const published = r.status === "Published";
 
@@ -724,21 +1114,14 @@ function renderResources() {
           <strong>Resource type:</strong> ${escapeHTML(r.resource_type)}<br>
           <strong>Curriculum:</strong> ${escapeHTML(r.curriculum || "Not specified")}<br>
           <strong>Access:</strong> ${escapeHTML(r.access_tier || "Free")}<br>
-          <strong>Created:</strong>
-          ${r.created_at ? new Date(r.created_at).toLocaleString() : "Not recorded"}<br>
+          <strong>Created:</strong> ${escapeHTML(formatDate(r.created_at))}<br>
           <strong>Creator ID:</strong> ${escapeHTML(r.created_by || "Not recorded")}
         </div>
         <span class="status ${statusClass}">${label}</span>
         ${r.description ? `<p>${escapeHTML(r.description)}</p>` : ""}
-        ${rejected
-          ? `<p class="meta"><strong>Rejection reason:</strong> ${escapeHTML(r.rejection_reason)}</p>`
-          : ""}
-        ${r.reviewed_at
-          ? `<p class="meta"><strong>Reviewed:</strong> ${new Date(r.reviewed_at).toLocaleString()}</p>`
-          : ""}
-        ${r.reviewed_by
-          ? `<p class="meta"><strong>Reviewed by:</strong> ${escapeHTML(r.reviewed_by)}</p>`
-          : ""}
+        ${rejected ? `<p class="meta"><strong>Rejection reason:</strong> ${escapeHTML(r.rejection_reason)}</p>` : ""}
+        ${r.reviewed_at ? `<p class="meta"><strong>Reviewed:</strong> ${escapeHTML(formatDate(r.reviewed_at))}</p>` : ""}
+        ${r.reviewed_by ? `<p class="meta"><strong>Reviewed by:</strong> ${escapeHTML(r.reviewed_by)}</p>` : ""}
         <div class="actions">
           <button class="approve" data-action="approve" data-id="${escapeHTML(r.id)}">
             ${published ? "Publish again" : "Approve and Publish"}
@@ -756,12 +1139,14 @@ function renderResources() {
 
 /* RESOURCE APPROVAL AND REJECTION */
 
-async function updateReview(id, decision, reason = "") {
+async function updateReview(id,decision,reason = "") {
+  requireAdmin();
+
   if (busy) return;
 
   const resource = resources.find(r => r.id === id);
   if (!resource) {
-    notify("Resource not found. Refresh the dashboard and try again.", "error");
+    notify("Resource not found. Refresh the dashboard and try again.","error");
     return;
   }
 
@@ -779,13 +1164,14 @@ async function updateReview(id, decision, reason = "") {
   if (button) button.disabled = true;
 
   try {
-    const {data, error} = await db.from("resources")
+    const {data,error} = await db.from("resources")
       .update(update)
-      .eq("id", id)
+      .eq("id",id)
       .select("id,status,rejection_reason,reviewed_at")
       .maybeSingle();
 
     if (error) throw error;
+
     if (!data) {
       throw new Error("No resource was updated. Check administrator UPDATE permissions.");
     }
@@ -800,15 +1186,15 @@ async function updateReview(id, decision, reason = "") {
     await loadResources();
 
   } catch (error) {
-    console.error("Review action failed:", error);
-    notify("The review action was not confirmed: " + error.message, "error");
+    console.error("Review action failed:",error);
+    notify("The review action was not confirmed: " + error.message,"error");
     if (button) button.disabled = false;
   }
 }
 
 async function approveResource(id) {
   if (!confirm("Approve and publish this resource in the MASTERBOOK Library?")) return;
-  await updateReview(id, "approve");
+  await updateReview(id,"approve");
 }
 
 async function rejectResource(id) {
@@ -821,30 +1207,33 @@ async function rejectResource(id) {
   }
 
   if (!confirm("Confirm rejection? The resource will remain unpublished.")) return;
-  await updateReview(id, "reject", reason.trim());
+
+  await updateReview(id,"reject",reason.trim());
 }
 
 /* EDIT RESOURCE DETAILS */
 
 async function editResource(id) {
+  requireAdmin();
+
   if (busy) return;
 
   const r = resources.find(item => item.id === id);
   if (!r) return;
 
-  const title = prompt("Resource title:", r.title || "");
+  const title = prompt("Resource title:",r.title || "");
   if (title === null) return;
 
-  const description = prompt("Description:", r.description || "");
+  const description = prompt("Description:",r.description || "");
   if (description === null) return;
 
-  const subject = prompt("Subject:", r.subject || "");
+  const subject = prompt("Subject:",r.subject || "");
   if (subject === null) return;
 
-  const level = prompt("Education level:", r.education_level || "");
+  const level = prompt("Education level:",r.education_level || "");
   if (level === null) return;
 
-  const tier = prompt("Access tier: Free or Premium", r.access_tier || "Free");
+  const tier = prompt("Access tier: Free or Premium",r.access_tier || "Free");
   if (tier === null) return;
 
   if (!title.trim() || !subject.trim() || !level.trim()) {
@@ -852,13 +1241,13 @@ async function editResource(id) {
     return;
   }
 
-  if (!["Free", "Premium"].includes(tier.trim())) {
+  if (!["Free","Premium"].includes(tier.trim())) {
     alert("Access tier must be Free or Premium.");
     return;
   }
 
   try {
-    const {data, error} = await db.from("resources")
+    const {data,error} = await db.from("resources")
       .update({
         title:title.trim(),
         description:description.trim(),
@@ -867,26 +1256,26 @@ async function editResource(id) {
         access_tier:tier.trim(),
         updated_at:new Date().toISOString()
       })
-      .eq("id", id)
+      .eq("id",id)
       .select("id")
       .maybeSingle();
 
     if (error) throw error;
     if (!data) throw new Error("No resource was updated.");
 
-    notify("Resource details updated successfully.", "success");
+    notify("Resource details updated successfully.","success");
     await loadResources();
 
   } catch (error) {
     console.error(error);
-    notify("Edit failed: " + error.message, "error");
+    notify("Edit failed: " + error.message,"error");
   }
 }
 
 /* RESUMABLE PDF UPLOADS */
 
 function safeName(name) {
-  return name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-120);
+  return name.replace(/[^a-zA-Z0-9._-]/g,"_").slice(-120);
 }
 
 function readUploadForm() {
@@ -903,7 +1292,7 @@ function readUploadForm() {
 
 function savePendingUpload(data) {
   pendingUpload = data;
-  localStorage.setItem(PENDING_KEY, JSON.stringify(data));
+  localStorage.setItem(PENDING_KEY,JSON.stringify(data));
 }
 
 function restorePendingUpload() {
@@ -912,6 +1301,10 @@ function restorePendingUpload() {
     if (!saved) return;
 
     pendingUpload = JSON.parse(saved);
+
+    if (!pendingUpload || typeof pendingUpload !== "object") {
+      throw new Error("Invalid saved upload information.");
+    }
 
     $("uploadTitle").value = pendingUpload.title || "";
     $("uploadDescription").value = pendingUpload.description || "";
@@ -924,22 +1317,26 @@ function restorePendingUpload() {
     $("retryUploadButton").classList.remove("hidden");
 
     notify(
-      "An unfinished upload was recovered. Select the original PDF again if necessary.",
+      "An unfinished upload was recovered. Select the original PDF again if the upload itself needs to resume.",
       "normal"
     );
 
   } catch (error) {
-    console.error("Pending upload recovery failed:", error);
+    console.error("Pending upload recovery failed:",error);
+    localStorage.removeItem(PENDING_KEY);
+    pendingUpload = null;
   }
 }
 
-async function uploadPDF(file, path) {
-  const {data:{session}, error:sessionError} = await db.auth.getSession();
+async function uploadPDF(file,path) {
+  requireAdmin();
+
+  const {data:{session},error:sessionError} = await db.auth.getSession();
   if (sessionError) throw sessionError;
   if (!session) throw new Error("Login session expired.");
 
-  return new Promise(async (resolve, reject) => {
-    const upload = new tus.Upload(file, {
+  return new Promise(async (resolve,reject) => {
+    const upload = new tus.Upload(file,{
       endpoint:SUPABASE_URL + "/storage/v1/upload/resumable",
       retryDelays:[0,1000,3000,5000,10000,20000],
       chunkSize:CHUNK_SIZE,
@@ -959,9 +1356,9 @@ async function uploadPDF(file, path) {
         cacheControl:"3600"
       },
 
-      onProgress(sent, total) {
-        const percent = Math.min(99, Math.round(sent / total * 100));
-        showProgress(percent, "Uploading PDF...");
+      onProgress(sent,total) {
+        const percent = Math.min(99,Math.round(sent / total * 100));
+        showProgress(percent,"Uploading PDF...");
       },
 
       onError(error) {
@@ -969,7 +1366,7 @@ async function uploadPDF(file, path) {
       },
 
       onSuccess() {
-        showProgress(100, "PDF uploaded. Saving resource record...");
+        showProgress(100,"PDF uploaded. Saving resource record...");
         resolve();
       }
     });
@@ -985,9 +1382,15 @@ async function uploadPDF(file, path) {
 }
 
 async function saveResourceRecord(data) {
-  const {data:existing, error:lookupError} = await db.from("resources")
+  requireAdmin();
+
+  if (!data.storage_path) {
+    throw new Error("The PDF has not been uploaded yet.");
+  }
+
+  const {data:existing,error:lookupError} = await db.from("resources")
     .select("id")
-    .eq("storage_path", data.storage_path)
+    .eq("storage_path",data.storage_path)
     .maybeSingle();
 
   if (lookupError) throw lookupError;
@@ -997,8 +1400,9 @@ async function saveResourceRecord(data) {
     pendingUpload = null;
     $("retryUploadButton").classList.add("hidden");
     $("uploadForm").reset();
+    $("uploadProgress").classList.add("hidden");
 
-    notify("This file already has a database record. Duplicate insertion prevented.", "success");
+    notify("This file already has a database record. Duplicate insertion prevented.","success");
     await loadResources();
     return;
   }
@@ -1016,7 +1420,7 @@ async function saveResourceRecord(data) {
     created_by:currentUser.id
   };
 
-  const {data:inserted, error} = await db.from("resources")
+  const {data:inserted,error} = await db.from("resources")
     .insert(record)
     .select("id")
     .single();
@@ -1031,16 +1435,18 @@ async function saveResourceRecord(data) {
   $("uploadForm").reset();
   $("uploadProgress").classList.add("hidden");
 
-  notify("Administrator resource uploaded and registered successfully as a draft.", "success");
+  notify("Administrator resource uploaded and registered successfully as a draft.","success");
   await loadResources();
 }
 
 async function handleUpload(event) {
   event.preventDefault();
+  requireAdmin();
+
   if (busy) return;
 
   if (pendingUpload) {
-    notify("Finish or retry the existing upload before starting another.", "error");
+    notify("Finish or retry the existing upload before starting another.","error");
     return;
   }
 
@@ -1048,22 +1454,22 @@ async function handleUpload(event) {
   const data = readUploadForm();
 
   if (!data.title || !data.subject || !data.education_level || !data.resource_type) {
-    notify("Complete all required resource details.", "error");
+    notify("Complete all required resource details.","error");
     return;
   }
 
   if (!file) {
-    notify("Select a PDF document.", "error");
+    notify("Select a PDF document.","error");
     return;
   }
 
   if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-    notify("Only PDF documents are accepted.", "error");
+    notify("Only PDF documents are accepted.","error");
     return;
   }
 
   if (file.size === 0 || file.size > MAX_SIZE) {
-    notify("The PDF must be larger than zero and no bigger than 50 MB.", "error");
+    notify("The PDF must be larger than zero and no bigger than 50 MB.","error");
     return;
   }
 
@@ -1079,13 +1485,13 @@ async function handleUpload(event) {
     file_size:file.size
   };
 
-  savePendingUpload(pending);
-
   try {
-    showProgress(0, "Preparing secure upload...");
+    savePendingUpload(pending);
+
+    showProgress(0,"Preparing secure upload...");
     notify("Upload started. Keep this page open until it finishes.");
 
-    await uploadPDF(file, path);
+    await uploadPDF(file,path);
 
     pending.storage_path = path;
     savePendingUpload(pending);
@@ -1093,7 +1499,7 @@ async function handleUpload(event) {
     await saveResourceRecord(pending);
 
   } catch (error) {
-    console.error("Administrator upload failed:", error);
+    console.error("Administrator upload failed:",error);
     $("retryUploadButton").classList.remove("hidden");
 
     notify(
@@ -1108,13 +1514,15 @@ async function handleUpload(event) {
 }
 
 async function retryUpload() {
+  requireAdmin();
+
   if (busy || !pendingUpload) return;
 
   setBusy(true);
 
   try {
     if (pendingUpload.storage_path) {
-      showProgress(100, "Retrying database record...");
+      showProgress(100,"Retrying database record...");
       await saveResourceRecord(pendingUpload);
 
     } else {
@@ -1128,7 +1536,7 @@ async function retryUpload() {
         throw new Error("Select the original PDF used in the interrupted upload.");
       }
 
-      await uploadPDF(file, pendingUpload.object_path);
+      await uploadPDF(file,pendingUpload.object_path);
 
       pendingUpload.storage_path = pendingUpload.object_path;
       savePendingUpload(pendingUpload);
@@ -1139,7 +1547,7 @@ async function retryUpload() {
   } catch (error) {
     console.error(error);
     $("retryUploadButton").classList.remove("hidden");
-    notify("Retry failed: " + error.message, "error");
+    notify("Retry failed: " + error.message,"error");
 
   } finally {
     setBusy(false);
@@ -1148,7 +1556,7 @@ async function retryUpload() {
 
 /* RESOURCE AND TAB EVENT HANDLERS */
 
-$("resourceList").addEventListener("click", event => {
+$("resourceList").addEventListener("click",event => {
   const button = event.target.closest("button[data-action]");
   if (!button || button.disabled) return;
 
@@ -1161,7 +1569,7 @@ $("resourceList").addEventListener("click", event => {
 });
 
 document.querySelectorAll(".tabs button").forEach(button => {
-  button.addEventListener("click", () => {
+  button.addEventListener("click",() => {
     const nextState = {
       section:"resourcePanel",
       tab:button.dataset.tab
@@ -1173,7 +1581,7 @@ document.querySelectorAll(".tabs button").forEach(button => {
     button.classList.add("active");
 
     document.querySelectorAll(".section-btn").forEach(b => {
-      b.classList.toggle("active", b.dataset.section === "resourcePanel");
+      b.classList.toggle("active",b.dataset.section === "resourcePanel");
     });
 
     activeTab = button.dataset.tab;
@@ -1182,34 +1590,39 @@ document.querySelectorAll(".tabs button").forEach(button => {
     renderResources();
     updateNavigationInfo();
 
-    $("resourcePanel").scrollIntoView({behavior:"smooth", block:"start"});
+    $("resourcePanel").scrollIntoView({behavior:"smooth",block:"start"});
   });
 });
 
-$("searchBox").addEventListener("input", () => {
+$("searchBox").addEventListener("input",() => {
   currentResourceIndex = 0;
   renderResources();
 });
 
-$("refreshButton").addEventListener("click", loadResources);
-$("uploadForm").addEventListener("submit", handleUpload);
-$("retryUploadButton").addEventListener("click", retryUpload);
+$("refreshButton").addEventListener("click",() => {
+  loadResources().catch(error => console.error(error));
+});
+
+$("uploadForm").addEventListener("submit",handleUpload);
+$("retryUploadButton").addEventListener("click",retryUpload);
 
 /* SIGN OUT */
 
-$("logoutBtn").addEventListener("click", async () => {
+$("logoutBtn").addEventListener("click",async () => {
   const {error} = await db.auth.signOut();
 
   if (error) {
-    notify("Sign out failed: " + error.message, "error");
+    notify("Sign out failed: " + error.message,"error");
     return;
   }
 
-  location.href = "auth.html";
+  location.replace("auth.html");
 });
 
 /* START DASHBOARD */
+
 initialise();
 </script>
+
 </body>
 </html>
