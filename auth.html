@@ -5,8 +5,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#102b46">
-<meta name="description" content="MASTERBOOK account login and registration.">
-<title>MASTERBOOK | Account Access</title>
+
+<title>MASTERBOOK | Secure Account Access</title>
+
+<meta name="description" content="Secure MASTERBOOK student, teacher and contributor account login, registration and password recovery.">
+<meta name="keywords" content="MASTERBOOK, student login, teacher registration, contributor registration, online learning account">
+<meta name="author" content="MASTERBOOK">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="MASTERBOOK | Secure Account Access">
+<meta property="og:description" content="Access your MASTERBOOK learning account, register or recover your password.">
+<meta property="og:site_name" content="MASTERBOOK">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MASTERBOOK | Secure Account Access">
+<meta name="twitter:description" content="Secure access to your MASTERBOOK learning account.">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -251,7 +266,7 @@ input:focus,select:focus{
  <div id="message" class="message" role="status" aria-live="polite"></div>
 
  <div class="footer">
-  © 2026 MASTERBOOK. All rights reserved.
+  © <span id="year"></span> MASTERBOOK. All rights reserved.
  </div>
 
 </div>
@@ -283,6 +298,9 @@ const RESET_URL =
 ================================= */
 
 const messageBox = document.getElementById("message");
+
+document.getElementById("year").textContent =
+ new Date().getFullYear();
 
 if(!window.supabase){
 
