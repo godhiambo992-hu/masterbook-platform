@@ -4,8 +4,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MASTERBOOK | Pricing Catalogue</title>
+
+<title>MASTERBOOK | Administrator Pricing Catalogue</title>
+
+<meta name="description" content="MASTERBOOK administrator pricing catalogue for managing educational courses, learning resources and subscription products.">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="author" content="MASTERBOOK">
+<meta name="theme-color" content="#10243e">
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#f3f6fa;color:#26364a}
@@ -39,6 +47,7 @@ footer{text-align:center;color:#718096;padding:25px;font-size:12px}
 @media(max-width:600px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.panel{padding:15px}}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -429,11 +438,13 @@ $("refreshBtn").addEventListener("click",async()=>{
 });
 
 $("resetBtn").addEventListener("click",resetForm);
+
 $("backBtn").addEventListener("click",()=>{
   location.href="admin.html";
 });
 
 initialise();
 </script>
+
 </body>
 </html>
