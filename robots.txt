@@ -2,11 +2,4 @@
 User-agent: *
 Allow: /
 
-Disallow: /admin.html
-Disallow: /admin-subscriptions.html
-Disallow: /teacher.html
-Disallow: /student.html
-Disallow: /auth.html
-Disallow: /subscription.html
-
 Sitemap: https://godhiambo992-hu.github.io/masterbook-platform/sitemap.xml
