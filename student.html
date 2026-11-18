@@ -5,8 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#102b50">
-<meta name="description" content="MASTERBOOK Student Learning Centre. Access courses, lessons, assessments and learning resources.">
+<meta name="description" content="MASTERBOOK Student Learning Centre. Access your enrolled courses, lessons, assessments, learning resources, academic progress and certificates.">
+<meta name="author" content="MASTERBOOK">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>MASTERBOOK | Student Learning Centre</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -142,7 +146,6 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7ab4
 <p class="muted">Your email address, account role and approval status are managed by MASTERBOOK administration and cannot be changed through this student dashboard.</p>
 </section>
 
-<!-- ACCOUNT SECURITY -->
 <section id="security" class="panel hidden">
 <h2>Account Security</h2>
 <p class="muted">Manage the security of your MASTERBOOK account.</p>
@@ -252,7 +255,6 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #7ab4
 <script>
 "use strict";
 
-/* 1. SUPABASE CONNECTION */
 const SUPABASE_URL="https://bxsrhvcqjjtdnflhoplu.supabase.co";
 const SUPABASE_KEY="sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
 const STORAGE_BUCKET="masterbook-resources";
@@ -288,7 +290,6 @@ const sections=[
  "resources","assessments","quiz","progress","certificates"
 ];
 
-/* 2. GENERAL HELPERS */
 function message(text,error=false){
  const box=$("message");
  box.textContent=text;
@@ -364,7 +365,7 @@ function getAttemptStats(){
  return {total,passed,failed,average:Math.round(average*100)/100};
 }
 
-/* 3. AUTHENTICATION AND STUDENT PROFILE */
+/* AUTHENTICATION AND STUDENT PROFILE */
 async function initialize(){
  try{
   message("Checking your student account...");
@@ -411,7 +412,7 @@ function renderProfile(){
   ?"profile-value success":"profile-value warning";
 }
 
-/* 4. SAVE STUDENT PROFILE */
+/* SAVE STUDENT PROFILE */
 $("profileForm").addEventListener("submit",async event=>{
  event.preventDefault();
  if(profileSaving)return;
@@ -456,7 +457,7 @@ $("profileForm").addEventListener("submit",async event=>{
  }
 });
 
-/* 5. CHANGE PASSWORD */
+/* CHANGE PASSWORD */
 $("changePasswordForm").addEventListener("submit",async event=>{
  event.preventDefault();
 
@@ -499,7 +500,6 @@ $("changePasswordForm").addEventListener("submit",async event=>{
  setButtonLoading(button,"Verifying and updating...");
 
  try{
-  // Verify the current password by re-authenticating the signed-in user.
   const {error:verifyError}=await db.auth.signInWithPassword({
    email:currentUser.email,
    password:currentPassword
@@ -509,7 +509,6 @@ $("changePasswordForm").addEventListener("submit",async event=>{
    throw new Error("Your current password is incorrect. Please check it and try again.");
   }
 
-  // Update the password only after the current password is verified.
   const {data,error:updateError}=await db.auth.updateUser({
    password:newPassword
   });
@@ -532,7 +531,7 @@ $("changePasswordForm").addEventListener("submit",async event=>{
  }
 });
 
-/* 6. LOAD STUDENT DATA */
+/* LOAD STUDENT DATA */
 async function loadData(){
  if(!currentUser)throw new Error("Your student session has expired.");
  if(loadingDashboard)return;
@@ -586,7 +585,7 @@ async function refreshDashboard(){
  }
 }
 
-/* 7. DASHBOARD AND ASSESSMENT ANALYTICS */
+/* DASHBOARD AND ASSESSMENT ANALYTICS */
 function renderDashboard(){
  $("courseCount").textContent=courses.length;
  $("enrollmentCount").textContent=enrollments.length;
@@ -624,7 +623,7 @@ function renderDashboard(){
  }
 }
 
-/* 8. COURSE CATALOGUE */
+/* COURSE CATALOGUE */
 function renderCourses(){
  const query=($("courseSearch").value||"").trim().toLowerCase();
  const filtered=courses.filter(c=>(String(c.title||"")+" "+String(c.subject||"")+" "+String(c.education_level||"")+" "+String(c.description||"")).toLowerCase().includes(query));
@@ -652,7 +651,7 @@ function renderCourses(){
  }).join("");
 }
 
-/* 9. FREE COURSE ENROLMENT */
+/* FREE COURSE ENROLMENT */
 async function enrolCourse(id){
  const course=courses.find(c=>c.id===id);
  if(!course)return;
@@ -680,7 +679,7 @@ async function enrolCourse(id){
  }
 }
 
-/* 10. OPEN COURSE AND LOAD LESSONS */
+/* OPEN COURSE AND LOAD LESSONS */
 async function openCourse(id){
  const course=courses.find(c=>c.id===id);
  if(!course)return;
@@ -712,7 +711,7 @@ async function openCourse(id){
  }
 }
 
-/* 11. COURSE LESSON LIST */
+/* COURSE LESSON LIST */
 function renderLessons(){
  const list=$("lessonList");
  if(!lessons.length){
@@ -745,7 +744,7 @@ function renderLessons(){
  }).join("");
 }
 
-/* 12. LESSON READER */
+/* LESSON READER */
 function openLesson(index){
  if(!activeCourse||!enrolled(activeCourse)||!isFree(activeCourse.access_tier)){
   message("You must be enrolled in this free course to open its lessons.",true);
@@ -779,7 +778,7 @@ function previousLesson(){if(activeLessonIndex>0)openLesson(activeLessonIndex-1)
 function nextLesson(){if(activeLessonIndex<lessons.length-1)openLesson(activeLessonIndex+1);}
 function backToCourse(){showSection("courseDetail");}
 
-/* 13. SAVE LESSON COMPLETION */
+/* SAVE LESSON COMPLETION */
 async function completeCurrentLesson(){
  const lesson=lessons[activeLessonIndex];
  if(!lesson)return;
@@ -806,10 +805,10 @@ async function completeCurrentLesson(){
  }
 }
 
-/* 14. LINKED LEARNING RESOURCES */
+/* LINKED LEARNING RESOURCES */
 async function openLinkedResource(id){await accessResource(id,false);}
 
-/* 15. LIBRARY */
+/* LIBRARY */
 function renderResources(){
  const query=($("resourceSearch").value||"").trim().toLowerCase();
  const filtered=resources.filter(r=>(String(r.title||"")+" "+String(r.subject||"")+" "+String(r.education_level||"")+" "+String(r.description||"")).toLowerCase().includes(query));
@@ -834,7 +833,7 @@ function renderResources(){
  }).join("");
 }
 
-/* 16. SECURE FREE PDF ACCESS */
+/* SECURE FREE PDF ACCESS */
 async function accessResource(id,download=false){
  const newTab=window.open("about:blank","_blank");
  if(!newTab){
@@ -870,7 +869,7 @@ async function accessResource(id,download=false){
 async function openPDF(id){await accessResource(id,false);}
 async function downloadPDF(id){await accessResource(id,true);}
 
-/* 17. MARK RESOURCE COMPLETED */
+/* MARK RESOURCE COMPLETED */
 async function completeResource(id){
  try{
   const {error}=await db.from("student_progress").upsert({
@@ -886,7 +885,7 @@ async function completeResource(id){
  }
 }
 
-/* 18. ASSESSMENTS */
+/* ASSESSMENTS */
 function renderAssessments(){
  if(!assessments.length){
   $("assessmentList").innerHTML='<div class="empty">No assessments are currently available in your enrolled courses.</div>';
@@ -907,7 +906,7 @@ function renderAssessments(){
  }).join("");
 }
 
-/* 19. START QUIZ */
+/* START QUIZ */
 async function startQuiz(id){
  try{
   const assessment=assessments.find(a=>a.id===id);
@@ -957,7 +956,7 @@ async function startQuiz(id){
  }
 }
 
-/* 20. ASSESSMENT SUBMISSION AND RESULT DISPLAY */
+/* ASSESSMENT SUBMISSION AND RESULT DISPLAY */
 $("quizForm").addEventListener("submit",async event=>{
  event.preventDefault();
  if(quizSubmitting)return;
@@ -1038,7 +1037,7 @@ function finishQuiz(){
  showSection("assessments");
 }
 
-/* 21. STUDENT LEARNING PROGRESS */
+/* STUDENT LEARNING PROGRESS */
 function renderProgress(){
  const list=$("progressList");
  const lessonDone=lessonProgress.filter(p=>p.completed).length;
@@ -1086,7 +1085,7 @@ function renderProgress(){
  list.innerHTML=html;
 }
 
-/* 22. DETAILED ASSESSMENT HISTORY */
+/* DETAILED ASSESSMENT HISTORY */
 function renderHistory(){
  if(!attempts.length){
   $("assessmentHistory").innerHTML='<div class="empty">No assessment attempts recorded yet. Your submitted assessments will appear here.</div>';
@@ -1118,7 +1117,7 @@ function renderHistory(){
   </div>`;
 }
 
-/* 23. CERTIFICATES */
+/* CERTIFICATES */
 function renderCertificates(){
  const list=$("certificateList");
  const enrolledCourses=courses.filter(c=>enrolled(c)&&isFree(c.access_tier));
@@ -1157,7 +1156,7 @@ function renderCertificates(){
  list.innerHTML=html;
 }
 
-/* 24. REQUEST CERTIFICATE */
+/* REQUEST CERTIFICATE */
 async function requestCourseCertificate(courseId,button){
  if(!currentUser){
   message("Please sign in again.",true);
@@ -1189,7 +1188,7 @@ async function requestCourseCertificate(courseId,button){
  }
 }
 
-/* 25. PRINT AND SAVE CERTIFICATE */
+/* PRINT AND SAVE CERTIFICATE */
 function printCertificate(certificateId){
  const certificate=certificates.find(c=>c.id===certificateId);
  if(!certificate){
@@ -1261,7 +1260,7 @@ function printCertificate(certificateId){
  printWindow.document.close();
 }
 
-/* 26. SIGN OUT */
+/* SIGN OUT */
 async function logout(){
  try{
   const {error}=await db.auth.signOut();
@@ -1273,7 +1272,7 @@ async function logout(){
  }
 }
 
-/* 27. AUTH SESSION MONITOR */
+/* AUTH SESSION MONITOR */
 db.auth.onAuthStateChange(event=>{
  if(event==="SIGNED_OUT"&&!authRedirecting){
   authRedirecting=true;
@@ -1281,7 +1280,7 @@ db.auth.onAuthStateChange(event=>{
  }
 });
 
-/* 28. START APPLICATION */
+/* START APPLICATION */
 initialize();
 
 </script>
