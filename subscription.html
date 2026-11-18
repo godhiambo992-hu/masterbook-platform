@@ -5,7 +5,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#102b50">
-<title>Subscriptions | MASTERBOOK</title>
+
+<title>Student Subscriptions | MASTERBOOK</title>
+
+<meta name="description" content="Manage your MASTERBOOK student subscription, review available premium learning plans and check your premium access status.">
+<meta name="keywords" content="MASTERBOOK, student subscriptions, premium learning, educational resources, online learning">
+<meta name="author" content="MASTERBOOK">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Student Subscriptions | MASTERBOOK">
+<meta property="og:description" content="Manage your MASTERBOOK subscription and premium learning access.">
+<meta property="og:site_name" content="MASTERBOOK">
+<meta property="og:url" content="https://godhiambo992-hu.github.io/masterbook-platform/subscription.html">
+
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Student Subscriptions | MASTERBOOK">
+<meta name="twitter:description" content="Manage your MASTERBOOK subscription and premium learning access.">
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -171,7 +189,12 @@ document.getElementById("year").textContent =
 function showMessage(message,error=false){
  const box=document.getElementById("message");
  box.textContent=message;
- box.className=error?"error":"";
+ box.className="";
+ box.id="message";
+
+ if(error){
+  box.classList.add("error");
+ }
 }
 
 function formatKES(amount){
