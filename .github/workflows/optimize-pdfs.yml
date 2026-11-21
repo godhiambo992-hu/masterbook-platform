@@ -39,7 +39,7 @@ jobs:
 
           import requests
 
-          BASE = os.environ.get("SUPABASE_URL", "").rstrip("/")
+          BASE = os.environ.get("SUPABASE_URL", "").strip().rstrip("/")
           KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
           BUCKET = "masterbook-resources"
 
