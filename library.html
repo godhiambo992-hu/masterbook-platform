@@ -231,6 +231,18 @@ button:disabled{
   border-radius:20px;
 }
 
+.format-tag{
+  display:inline-block;
+  align-self:flex-start;
+  padding:5px 10px;
+  background:#fff3d9;
+  color:#805400;
+  font-size:11px;
+  font-weight:bold;
+  border-radius:5px;
+  margin-top:8px;
+}
+
 .meta{
   font-size:12px;
   color:var(--muted);
@@ -456,6 +468,8 @@ const BUCKET_NAME = "masterbook-resources";
 const PAGE_SIZE = 12;
 const SIGNED_URL_SECONDS = 3600;
 
+const DOCUMENT_READER = "document-reader.html";
+
 const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_PUBLISHABLE_KEY
@@ -481,6 +495,32 @@ let resources = [];
 let filteredResources = [];
 let currentPage = 1;
 let loading = false;
+
+
+/* ==================================================
+   SUPPORTED DOCUMENT FORMATS
+================================================== */
+
+const SUPPORTED_FORMATS = {
+  pdf: "PDF",
+  docx: "DOCX",
+  doc: "DOC",
+  pptx: "PPTX",
+  ppt: "PPT",
+  xlsx: "XLSX",
+  xls: "XLS",
+  csv: "CSV",
+  txt: "TXT",
+  rtf: "RTF",
+  jpg: "JPG",
+  jpeg: "JPEG",
+  png: "PNG",
+  gif: "GIF",
+  webp: "WEBP",
+  bmp: "BMP",
+  svg: "SVG",
+  avif: "AVIF"
+};
 
 
 /* ==================================================
@@ -525,7 +565,103 @@ function formatDate(value) {
   });
 }
 
+
+/* ==================================================
+   DOCUMENT FORMAT DETECTION
+================================================== */
+
+function getFileExtension(storagePath) {
+
+  if (!storagePath) return "";
+
+  try {
+
+    let cleanPath = String(storagePath).split("?")[0];
+
+    cleanPath = cleanPath.split("#")[0];
+
+    const filename = cleanPath.split("/").pop() || "";
+
+    const lastDot = filename.lastIndexOf(".");
+
+    if (lastDot === -1) return "";
+
+    return filename.substring(lastDot + 1).toLowerCase();
+
+  } catch (error) {
+
+    console.error("Format detection error:", error);
+
+    return "";
+
+  }
+}
+
+function getDocumentFormat(resource) {
+
+  const extension = getFileExtension(resource.storage_path);
+
+  if (SUPPORTED_FORMATS[extension]) {
+    return {
+      extension: extension,
+      label: SUPPORTED_FORMATS[extension]
+    };
+  }
+
+  const resourceType = String(
+    resource.resource_type || ""
+  ).trim().toLowerCase();
+
+  const typeMap = {
+    "pdf": "pdf",
+    "word": "docx",
+    "word document": "docx",
+    "docx": "docx",
+    "doc": "doc",
+    "powerpoint": "pptx",
+    "presentation": "pptx",
+    "pptx": "pptx",
+    "ppt": "ppt",
+    "excel": "xlsx",
+    "spreadsheet": "xlsx",
+    "xlsx": "xlsx",
+    "xls": "xls",
+    "csv": "csv",
+    "text": "txt",
+    "txt": "txt",
+    "rtf": "rtf",
+    "image": "image"
+  };
+
+  const mapped = typeMap[resourceType];
+
+  if (mapped && mapped !== "image") {
+    return {
+      extension: mapped,
+      label: SUPPORTED_FORMATS[mapped]
+    };
+  }
+
+  if (mapped === "image") {
+    return {
+      extension: "image",
+      label: "IMAGE"
+    };
+  }
+
+  return {
+    extension: "",
+    label: "DOCUMENT"
+  };
+}
+
+
+/* ==================================================
+   SUMMARY
+================================================== */
+
 function updateSummary() {
+
   const subjects = new Set(
     resources.map(r => r.subject).filter(Boolean)
   );
@@ -550,6 +686,7 @@ function updateSummary() {
 ================================================== */
 
 function updateSubjectOptions() {
+
   const selected = category.value;
 
   const subjects = [...new Set(
@@ -565,11 +702,14 @@ function updateSubjectOptions() {
   category.appendChild(allOption);
 
   subjects.forEach(subject => {
+
     const option = document.createElement("option");
+
     option.value = subject;
     option.textContent = subject;
 
     category.appendChild(option);
+
   });
 
   if (subjects.includes(selected)) {
@@ -583,18 +723,21 @@ function updateSubjectOptions() {
 ================================================== */
 
 function applyFilters() {
+
   const searchTerm = search.value.trim().toLowerCase();
   const selectedLevel = level.value;
   const selectedSubject = category.value;
 
   filteredResources = resources.filter(resource => {
+
     const searchableText = [
       resource.title,
       resource.description,
       resource.subject,
       resource.education_level,
       resource.resource_type,
-      resource.curriculum
+      resource.curriculum,
+      getDocumentFormat(resource).label
     ].filter(Boolean).join(" ").toLowerCase();
 
     const matchesSearch =
@@ -609,115 +752,159 @@ function applyFilters() {
       resource.subject === selectedSubject;
 
     return matchesSearch && matchesLevel && matchesSubject;
+
   });
 
   currentPage = 1;
+
   renderLibrary();
 }
 
 
 /* ==================================================
-   PDF VIEWING AND DOWNLOADING
+   CREATE SIGNED STORAGE URL
 ================================================== */
 
-async function openResource(resource, downloadFile, button) {
+async function createResourceUrl(resource, downloadFile) {
 
   const path = resource.storage_path
     ? resource.storage_path.trim()
     : "";
 
   if (!path) {
-    setStatus(
-      "This resource does not have a valid storage file path.",
-      "error"
-    );
-    return;
+    throw new Error("This resource has no Storage file path.");
   }
 
-  let pdfWindow = null;
+  const options = downloadFile
+    ? {
+        download: true
+      }
+    : {};
+
+  const { data, error } = await supabaseClient
+    .storage
+    .from(BUCKET_NAME)
+    .createSignedUrl(
+      path,
+      SIGNED_URL_SECONDS,
+      options
+    );
+
+  if (error) throw error;
+
+  if (!data || !data.signedUrl) {
+    throw new Error("Supabase did not return a valid file link.");
+  }
+
+  return data.signedUrl;
+}
+
+
+/* ==================================================
+   OPEN ANY DOCUMENT IN MASTERBOOK READER
+================================================== */
+
+async function openResource(resource, downloadFile, button) {
+
+  const format = getDocumentFormat(resource);
+
+  const extension = format.extension;
+
+  let newWindow = null;
+
+  /*
+    Open the new tab immediately after the user clicks.
+    This reduces the risk of browser popup blocking.
+  */
 
   if (!downloadFile) {
-    pdfWindow = window.open("about:blank", "_blank");
 
-    if (!pdfWindow) {
+    newWindow = window.open("about:blank", "_blank");
+
+    if (!newWindow) {
+
       setStatus(
-        "Your browser blocked the PDF reader. Allow pop-ups for MASTERBOOK and try again.",
+        "Your browser blocked the document reader. Allow pop-ups for MASTERBOOK and try again.",
         "error"
       );
+
       return;
     }
+
   }
 
   const originalText = button.textContent;
 
   button.disabled = true;
-  button.textContent = "Preparing PDF...";
+
+  button.textContent = downloadFile
+    ? "Preparing download..."
+    : "Opening document...";
 
   try {
 
-    const options = downloadFile
-      ? { download: true }
-      : {};
-
-    const { data, error } = await supabaseClient
-      .storage
-      .from(BUCKET_NAME)
-      .createSignedUrl(
-        path,
-        SIGNED_URL_SECONDS,
-        options
-      );
-
-    if (error) throw error;
-
-    if (!data || !data.signedUrl) {
-      throw new Error("Supabase did not return a PDF link.");
-    }
+    const signedUrl = await createResourceUrl(
+      resource,
+      downloadFile
+    );
 
     if (downloadFile) {
 
       const link = document.createElement("a");
 
-      link.href = data.signedUrl;
+      link.href = signedUrl;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
-      link.download = resource.title || "MASTERBOOK-resource";
 
       document.body.appendChild(link);
+
       link.click();
+
       link.remove();
 
       setStatus(
-        "Your download has been prepared.",
+        "Your original file is ready for download.",
         "success"
       );
 
     } else {
 
-      const readerUrl =
-        "pdf-reader.html?file=" +
-        encodeURIComponent(data.signedUrl) +
-        "&title=" +
-        encodeURIComponent(resource.title || "MASTERBOOK Resource");
+      const readerUrl = new URL(
+        DOCUMENT_READER,
+        window.location.href
+      );
 
-      pdfWindow.location.href = readerUrl;
+      readerUrl.searchParams.set("file", signedUrl);
+
+      readerUrl.searchParams.set(
+        "title",
+        resource.title || "MASTERBOOK Resource"
+      );
+
+      readerUrl.searchParams.set(
+        "type",
+        extension
+      );
+
+      newWindow.location.href = readerUrl.toString();
 
       setStatus(
-        "Opening your document in MASTERBOOK Reader.",
+        "Opening " + format.label + " in MASTERBOOK Document Reader.",
         "success"
       );
+
     }
 
   } catch (error) {
 
-    console.error("MASTERBOOK PDF error:", error);
+    console.error("MASTERBOOK document error:", error);
 
-    if (pdfWindow && !pdfWindow.closed) {
-      pdfWindow.close();
+    if (newWindow && !newWindow.closed) {
+      newWindow.close();
     }
 
     setStatus(
-      "Unable to access this PDF: " + error.message,
+      "Unable to access this document: " + error.message,
       "error"
     );
 
@@ -738,10 +925,18 @@ function createResourceCard(resource) {
 
   const card = createElement("article", "card");
 
+  const format = getDocumentFormat(resource);
+
   const tag = createElement(
     "span",
     "tag",
     resource.education_level || "Education"
+  );
+
+  const formatTag = createElement(
+    "span",
+    "format-tag",
+    format.label
   );
 
   const title = createElement(
@@ -786,13 +981,13 @@ function createResourceCard(resource) {
   const viewButton = createElement(
     "button",
     "view-button",
-    "View PDF"
+    "View Document"
   );
 
   const downloadButton = createElement(
     "button",
     "download-button",
-    "Download PDF"
+    "Download Original"
   );
 
   if (!resource.storage_path) {
@@ -800,8 +995,8 @@ function createResourceCard(resource) {
     viewButton.disabled = true;
     downloadButton.disabled = true;
 
-    viewButton.title = "PDF file path is unavailable";
-    downloadButton.title = "PDF file path is unavailable";
+    viewButton.title = "Document file path is unavailable";
+    downloadButton.title = "Document file path is unavailable";
 
   } else {
 
@@ -819,6 +1014,7 @@ function createResourceCard(resource) {
   actions.appendChild(downloadButton);
 
   card.appendChild(tag);
+  card.appendChild(formatTag);
   card.appendChild(title);
   card.appendChild(description);
   card.appendChild(meta);
@@ -881,6 +1077,7 @@ function renderLibrary() {
   if (!total) {
 
     empty.style.display = "block";
+
     updatePagination(1);
 
     return;
@@ -903,7 +1100,11 @@ function renderLibrary() {
   const pageResources = filteredResources.slice(start, end);
 
   pageResources.forEach(resource => {
-    library.appendChild(createResourceCard(resource));
+
+    library.appendChild(
+      createResourceCard(resource)
+    );
+
   });
 
   updatePagination(totalPages);
@@ -928,6 +1129,7 @@ async function loadResources() {
   setStatus("Connecting to the MASTERBOOK database...");
 
   library.innerHTML = "";
+
   empty.style.display = "none";
 
   try {
@@ -946,6 +1148,7 @@ async function loadResources() {
     resources = data || [];
 
     updateSubjectOptions();
+
     updateSummary();
 
     applyFilters();
@@ -972,6 +1175,7 @@ async function loadResources() {
     updateSummary();
 
     library.innerHTML = "";
+
     empty.style.display = "block";
 
     empty.querySelector("h3").textContent =
@@ -990,6 +1194,7 @@ async function loadResources() {
     loading = false;
 
     refreshButton.disabled = false;
+
     refreshButton.textContent = "↻ Refresh Library";
 
   }
@@ -1001,7 +1206,9 @@ async function loadResources() {
 ================================================== */
 
 search.addEventListener("input", applyFilters);
+
 level.addEventListener("change", applyFilters);
+
 category.addEventListener("change", applyFilters);
 
 previousPage.addEventListener("click", () => {
