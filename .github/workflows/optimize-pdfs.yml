@@ -28,6 +28,7 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
         run: |
           python - <<'PY'
           import os
@@ -36,11 +37,11 @@ jobs:
           import subprocess
           from pathlib import Path
           from urllib.parse import quote
-
           import requests
 
           BASE = os.environ.get("SUPABASE_URL", "").strip().rstrip("/")
-          KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
+          KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "").strip()
+
           BUCKET = "masterbook-resources"
 
           if not BASE or not KEY:
@@ -63,6 +64,12 @@ jobs:
                   json={"pdf_linearized": True},
                   timeout=60
               )
+
+              if not response.ok:
+                  print("DATABASE UPDATE ERROR:")
+                  print("Status:", response.status_code)
+                  print("Details:", response.text[:2000])
+
               response.raise_for_status()
 
           def is_linearized(path):
@@ -91,9 +98,16 @@ jobs:
               headers=HEADERS,
               timeout=60
           )
+
+          if not response.ok:
+              print("RESOURCE QUERY ERROR:")
+              print("Status:", response.status_code)
+              print("Details:", response.text[:2000])
+
           response.raise_for_status()
 
           resources = response.json()
+
           print(f"Found {len(resources)} resources awaiting optimization.")
 
           for resource in resources:
@@ -120,6 +134,12 @@ jobs:
                       headers=HEADERS,
                       timeout=180
                   )
+
+                  if not download.ok:
+                      print("PDF DOWNLOAD ERROR:")
+                      print("Status:", download.status_code)
+                      print("Details:", download.text[:2000])
+
                   download.raise_for_status()
 
                   with tempfile.TemporaryDirectory() as folder:
@@ -174,6 +194,12 @@ jobs:
                               timeout=300
                           )
 
+                      if not upload.ok:
+                          print("SUPABASE STORAGE UPLOAD ERROR:")
+                          print("Status:", upload.status_code)
+                          print("Details:", upload.text[:2000])
+                          print("Object path:", path)
+
                       upload.raise_for_status()
 
                       mark_complete(resource_id)
@@ -187,4 +213,5 @@ jobs:
                   raise
 
           print("MASTERBOOK PDF optimization run completed.")
+
           PY
