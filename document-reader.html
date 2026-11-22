@@ -5,6 +5,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#10243e">
+
 <title>MASTERBOOK Document Reader</title>
 
 <style>
@@ -19,13 +21,16 @@
   --border:#dce3eb;
   --red:#b83232;
 }
+
 *{box-sizing:border-box}
+
 body{
   margin:0;
   font-family:Arial,sans-serif;
   background:var(--light);
   color:var(--text);
 }
+
 header{
   background:var(--navy);
   color:white;
@@ -36,19 +41,25 @@ header{
   gap:12px;
   flex-wrap:wrap;
 }
+
 header strong{
   font-size:21px;
   letter-spacing:1px;
 }
+
+header strong span{color:var(--gold)}
+
 header a{
   color:white;
   text-decoration:none;
 }
+
 main{
   max-width:1250px;
   margin:auto;
   padding:18px;
 }
+
 .toolbar{
   display:flex;
   justify-content:space-between;
@@ -59,17 +70,21 @@ main{
   padding:15px;
   border-radius:9px;
   margin-bottom:13px;
+  border:1px solid var(--border);
 }
+
 #documentTitle{
   font-weight:bold;
   font-size:17px;
   overflow-wrap:anywhere;
 }
+
 .actions{
   display:flex;
   gap:8px;
   flex-wrap:wrap;
 }
+
 button,.download{
   border:0;
   border-radius:6px;
@@ -79,8 +94,15 @@ button,.download{
   font-weight:bold;
   text-decoration:none;
   cursor:pointer;
+  font-size:13px;
 }
+
 .download{background:var(--navy)}
+
+button:hover,.download:hover{
+  opacity:.9;
+}
+
 #status{
   background:#e4edf8;
   color:var(--navy);
@@ -90,14 +112,17 @@ button,.download{
   line-height:1.6;
   font-size:14px;
 }
+
 #status.error{
   background:#fde8e8;
   color:var(--red);
 }
+
 #status.success{
   background:#e4f5e9;
   color:#17683a;
 }
+
 #viewer{
   background:white;
   min-height:65vh;
@@ -106,11 +131,14 @@ button,.download{
   padding:18px;
   overflow:auto;
 }
+
 #viewer iframe{
   width:100%;
   height:75vh;
   border:0;
+  display:block;
 }
+
 #viewer img{
   display:block;
   max-width:100%;
@@ -119,6 +147,7 @@ button,.download{
   margin:auto;
   object-fit:contain;
 }
+
 #viewer pre{
   white-space:pre-wrap;
   overflow-wrap:anywhere;
@@ -126,33 +155,45 @@ button,.download{
   font-size:15px;
   line-height:1.7;
 }
+
 #viewer table{
   border-collapse:collapse;
   width:100%;
   font-size:14px;
+  background:white;
 }
+
 #viewer td,#viewer th{
   border:1px solid var(--border);
   padding:8px;
   text-align:left;
+  min-width:80px;
+  overflow-wrap:anywhere;
 }
+
 #viewer th{
   background:#e8f1fb;
+  position:sticky;
+  top:0;
 }
+
 #viewer .document-content{
   max-width:900px;
   margin:auto;
   line-height:1.75;
   overflow-wrap:anywhere;
 }
+
 #viewer .document-content img{
   max-width:100%;
 }
+
 #viewer .document-content table{
   margin:15px 0;
 }
+
 .notice{
-  max-width:800px;
+  max-width:850px;
   margin:30px auto;
   padding:25px;
   background:#f4f7fb;
@@ -160,34 +201,81 @@ button,.download{
   border-radius:8px;
   line-height:1.7;
 }
-.hidden{display:none}
+
+.sheet-tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:15px;
+}
+
+.sheet-tabs button{
+  background:#64748b;
+}
+
+.sheet-tabs button.active{
+  background:var(--blue);
+}
+
+.table-scroll{
+  overflow:auto;
+  max-width:100%;
+  max-height:70vh;
+}
+
+.file-details{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:5px;
+}
+
+.hidden{display:none!important}
+
+footer{
+  text-align:center;
+  padding:22px 10px;
+  color:var(--muted);
+  font-size:12px;
+}
+
 @media(max-width:600px){
   main{padding:10px}
   .toolbar{align-items:stretch}
   #documentTitle{width:100%}
   .actions{width:100%}
-  .actions a,.actions button{flex:1;text-align:center}
-  #viewer{padding:10px;min-height:60vh}
+  .actions a,.actions button{
+    flex:1;
+    text-align:center;
+  }
+  #viewer{
+    padding:10px;
+    min-height:60vh;
+  }
+  #viewer iframe{height:70vh}
 }
 </style>
 
 <!-- Document rendering libraries -->
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.9.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
 
 </head>
 
 <body>
 
 <header>
-  <strong>MASTERBOOK</strong>
+  <strong>MASTER<span>BOOK</span></strong>
   <a href="library.html">← Back to Library</a>
 </header>
 
 <main>
 
   <section class="toolbar">
-    <div id="documentTitle">MASTERBOOK Document Reader</div>
+    <div>
+      <div id="documentTitle">MASTERBOOK Document Reader</div>
+      <div id="fileDetails" class="file-details"></div>
+    </div>
 
     <div class="actions">
       <a id="downloadLink" class="download" href="#">
@@ -209,6 +297,10 @@ button,.download{
 
 </main>
 
+<footer>
+  © <span id="year"></span> MASTERBOOK. All rights reserved.
+</footer>
+
 <script>
 (function(){
 
@@ -222,10 +314,13 @@ const params = new URLSearchParams(location.search);
 
 const fileUrl = params.get("file");
 const title = params.get("title") || "MASTERBOOK Resource";
-const suppliedType = params.get("type") || "";
+const suppliedType = (params.get("type") || "").toLowerCase();
 
 const titleElement =
   document.getElementById("documentTitle");
+
+const fileDetails =
+  document.getElementById("fileDetails");
 
 const status =
   document.getElementById("status");
@@ -236,23 +331,53 @@ const viewer =
 const downloadLink =
   document.getElementById("downloadLink");
 
+document.getElementById("year").textContent =
+  new Date().getFullYear();
+
 
 /* =========================================
-   STATUS
+   STATUS MANAGEMENT
 ========================================= */
 
 function setStatus(message,type="normal"){
   status.textContent = message;
   status.className = "";
 
-  if(type==="error") status.classList.add("error");
-  if(type==="success") status.classList.add("success");
+  if(type==="error"){
+    status.classList.add("error");
+  }
+
+  if(type==="success"){
+    status.classList.add("success");
+  }
 }
 
 
 /* =========================================
-   FILE VALIDATION
+   FILE TYPE DETECTION
 ========================================= */
+
+const mimeExtensions = {
+  "application/pdf":"pdf",
+  "application/msword":"doc",
+  "application/rtf":"rtf",
+  "text/rtf":"rtf",
+  "text/plain":"txt",
+  "text/csv":"csv",
+  "application/vnd.ms-excel":"xls",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":"xlsx",
+  "application/vnd.ms-powerpoint":"ppt",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation":"pptx",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":"docx",
+  "image/jpeg":"jpg",
+  "image/png":"png",
+  "image/gif":"gif",
+  "image/webp":"webp",
+  "image/svg+xml":"svg",
+  "image/bmp":"bmp",
+  "image/tiff":"tiff",
+  "image/avif":"avif"
+};
 
 function getExtension(url){
   try{
@@ -268,13 +393,29 @@ function getExtension(url){
   }
 }
 
+function normalizeExtension(value){
+  const clean = value.split(";")[0].trim();
+
+  if(mimeExtensions[clean]){
+    return mimeExtensions[clean];
+  }
+
+  return clean.replace(/^\./,"").toLowerCase();
+}
+
+
+/* =========================================
+   URL VALIDATION
+========================================= */
+
 function validFileUrl(value){
   try{
     const parsed = new URL(value);
 
     return (
       parsed.protocol === "https:" &&
-      parsed.hostname === "bxsrhvcqjjtdnflhoplu.supabase.co"
+      parsed.hostname === "bxsrhvcqjjtdnflhoplu.supabase.co" &&
+      parsed.pathname.includes("/storage/v1/object/")
     );
   }catch(e){
     return false;
@@ -294,16 +435,45 @@ function prepareDownload(){
 
 
 /* =========================================
-   SAFE HTML TEXT
+   SAFE DOM HELPERS
 ========================================= */
 
-function escapeHTML(value){
-  return String(value ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+function createNotice(headingText,messageText,extraText=""){
+  const box = document.createElement("div");
+  box.className = "notice";
+
+  const heading = document.createElement("h2");
+  heading.textContent = headingText;
+
+  const message = document.createElement("p");
+  message.textContent = messageText;
+
+  box.append(heading,message);
+
+  if(extraText){
+    const extra = document.createElement("p");
+    extra.textContent = extraText;
+    box.appendChild(extra);
+  }
+
+  viewer.replaceChildren(box);
+}
+
+
+/* =========================================
+   FETCH FILE
+========================================= */
+
+async function fetchFile(){
+  const response = await fetch(fileUrl);
+
+  if(!response.ok){
+    throw new Error(
+      "Unable to retrieve the document. The signed link may have expired. Return to the Library and open the resource again."
+    );
+  }
+
+  return response;
 }
 
 
@@ -316,11 +486,12 @@ function showPDF(){
 
   frame.title = title;
   frame.src = fileUrl;
+  frame.loading = "lazy";
 
   viewer.replaceChildren(frame);
 
   setStatus(
-    "Opening PDF document. If your browser cannot preview it, use Download Original."
+    "PDF document opened. If your browser does not display it, use Download Original."
   );
 }
 
@@ -333,63 +504,58 @@ async function showDOCX(){
   setStatus("Loading Word document...");
 
   if(!window.mammoth){
-    throw new Error("The Word document viewer could not load.");
+    throw new Error("The Word rendering library could not load.");
   }
 
-  const response = await fetch(fileUrl);
-
-  if(!response.ok){
-    throw new Error("Unable to retrieve the Word document.");
-  }
-
+  const response = await fetchFile();
   const arrayBuffer = await response.arrayBuffer();
 
   const result = await window.mammoth.convertToHtml({
-    arrayBuffer: arrayBuffer
+    arrayBuffer:arrayBuffer
   });
 
   const content = document.createElement("div");
   content.className = "document-content";
 
-  content.innerHTML = result.value;
+  if(window.DOMPurify){
+    content.innerHTML = DOMPurify.sanitize(result.value);
+  }else{
+    throw new Error("Document security library could not load.");
+  }
 
   viewer.replaceChildren(content);
 
   setStatus(
-    "Word document opened. Download Original to retain the original DOCX file.",
+    "Word document opened successfully. Download Original to retain the original DOCX file.",
     "success"
   );
 }
 
 
 /* =========================================
-   EXCEL AND CSV READER
+   SPREADSHEET READER
+   XLS, XLSX AND CSV
 ========================================= */
 
 async function showSpreadsheet(extension){
   setStatus("Loading spreadsheet...");
 
   if(!window.XLSX){
-    throw new Error("The spreadsheet viewer could not load.");
+    throw new Error("The spreadsheet rendering library could not load.");
   }
 
-  const response = await fetch(fileUrl);
-
-  if(!response.ok){
-    throw new Error("Unable to retrieve the spreadsheet.");
-  }
+  const response = await fetchFile();
 
   let workbook;
 
   if(extension==="csv"){
-    const text = await response.text();
+    const csvText = await response.text();
 
-    workbook = XLSX.read(text,{
+    workbook = XLSX.read(csvText,{
       type:"string"
     });
 
   }else{
-
     const arrayBuffer = await response.arrayBuffer();
 
     workbook = XLSX.read(arrayBuffer,{
@@ -397,42 +563,63 @@ async function showSpreadsheet(extension){
     });
   }
 
-  viewer.innerHTML = "";
-
   if(!workbook.SheetNames.length){
-    viewer.textContent = "This spreadsheet contains no worksheets.";
+    createNotice(
+      "Empty spreadsheet",
+      "This file contains no worksheets."
+    );
     return;
   }
 
   const tabs = document.createElement("div");
-  tabs.style.display = "flex";
-  tabs.style.flexWrap = "wrap";
-  tabs.style.gap = "8px";
-  tabs.style.marginBottom = "15px";
+  tabs.className = "sheet-tabs";
 
   const tableContainer = document.createElement("div");
+  tableContainer.className = "table-scroll";
 
   function renderSheet(name){
     const worksheet = workbook.Sheets[name];
 
-    tableContainer.innerHTML =
-      XLSX.utils.sheet_to_html(worksheet,{
-        editable:false
+    const rows = XLSX.utils.sheet_to_json(worksheet,{
+      header:1,
+      defval:"",
+      raw:false,
+      blankrows:true
+    });
+
+    const table = document.createElement("table");
+
+    const limitedRows = rows.slice(0,5000);
+
+    limitedRows.forEach((row,rowIndex)=>{
+      const tr = document.createElement("tr");
+
+      row.slice(0,100).forEach(cell=>{
+        const cellElement = document.createElement(
+          rowIndex===0 ? "th" : "td"
+        );
+
+        cellElement.textContent = String(cell ?? "");
+        tr.appendChild(cellElement);
       });
 
-    tableContainer.style.overflowX = "auto";
+      table.appendChild(tr);
+    });
+
+    tableContainer.replaceChildren(table);
 
     tabs.querySelectorAll("button").forEach(button=>{
-      button.style.background =
+      button.classList.toggle(
+        "active",
         button.dataset.sheet===name
-          ? "#1769aa"
-          : "#64748b";
+      );
     });
   }
 
   workbook.SheetNames.forEach(name=>{
     const button = document.createElement("button");
 
+    button.type = "button";
     button.textContent = name;
     button.dataset.sheet = name;
 
@@ -448,30 +635,27 @@ async function showSpreadsheet(extension){
   renderSheet(workbook.SheetNames[0]);
 
   setStatus(
-    "Spreadsheet opened. Select a worksheet to view its contents.",
+    "Spreadsheet opened. Select a worksheet tab to view its contents.",
     "success"
   );
 }
 
 
 /* =========================================
-   TEXT AND RTF READER
+   TEXT AND BASIC RTF READER
 ========================================= */
 
 async function showText(extension){
   setStatus("Loading text document...");
 
-  const response = await fetch(fileUrl);
+  const response = await fetchFile();
 
-  if(!response.ok){
-    throw new Error("Unable to retrieve the text document.");
-  }
-
-  let text = await response.text();
+  let content = await response.text();
 
   if(extension==="rtf"){
-    text = text
+    content = content
       .replace(/\\par[d]?/g,"\n")
+      .replace(/\\line/g,"\n")
       .replace(/\\tab/g,"\t")
       .replace(/\\'[0-9a-f]{2}/gi,"")
       .replace(/\\[a-z]+-?\d* ?/gi,"")
@@ -480,12 +664,14 @@ async function showText(extension){
   }
 
   const pre = document.createElement("pre");
-  pre.textContent = text;
+  pre.textContent = content;
 
   viewer.replaceChildren(pre);
 
   setStatus(
-    "Text document opened. Download Original to retain the original file.",
+    extension==="rtf"
+      ? "Basic RTF text extraction completed. Complex formatting may not be preserved."
+      : "Text document opened successfully.",
     "success"
   );
 }
@@ -500,12 +686,19 @@ function showImage(){
 
   image.alt = title;
   image.src = fileUrl;
+  image.loading = "eager";
 
   image.onload = function(){
     setStatus("Image opened successfully.","success");
   };
 
   image.onerror = function(){
+    createNotice(
+      "Image preview unavailable",
+      "Your browser could not display this image format.",
+      "Use Download Original to access the image."
+    );
+
     setStatus("Unable to display this image.","error");
   };
 
@@ -514,35 +707,70 @@ function showImage(){
 
 
 /* =========================================
-   UNSUPPORTED / CONVERSION REQUIRED
+   OFFICE ONLINE READER
+   DOC, PPT, PPTX
 ========================================= */
 
-function showConversionNotice(extension){
-
+function showOfficeOnline(extension){
   const box = document.createElement("div");
   box.className = "notice";
 
   const heading = document.createElement("h2");
-  heading.textContent = "Document conversion required";
+  heading.textContent = "Microsoft Office document preview";
 
-  const message = document.createElement("p");
+  const explanation = document.createElement("p");
 
-  message.textContent =
-    "This " + extension.toUpperCase() +
-    " document needs a compatible conversion or rendering service before it can be displayed online.";
+  explanation.textContent =
+    "This document is being opened through Microsoft's online viewer. The signed document URL will be shared with Microsoft to provide the preview.";
 
-  const details = document.createElement("p");
+  const warning = document.createElement("p");
 
-  details.textContent =
-    "You can still download the original file using the button above. MASTERBOOK's conversion support for this format will be added in the next implementation stage.";
+  warning.textContent =
+    "Only use this preview for documents suitable for processing by an external service. If the preview does not load, download the original file.";
 
-  box.append(heading,message,details);
+  const openLink = document.createElement("a");
+
+  openLink.className = "download";
+  openLink.textContent = "Open Microsoft Viewer";
+  openLink.href =
+    "https://view.officeapps.live.com/op/view.aspx?src=" +
+    encodeURIComponent(fileUrl);
+
+  openLink.target = "_blank";
+  openLink.rel = "noopener noreferrer";
+
+  box.append(heading,explanation,warning,openLink);
 
   viewer.replaceChildren(box);
 
   setStatus(
-    "Original file available. Online preview requires conversion support.",
-    "normal"
+    extension.toUpperCase() +
+    " document is ready for Microsoft Office online preview."
+  );
+}
+
+
+/* =========================================
+   UNSUPPORTED FORMATS
+========================================= */
+
+function showConversionNotice(extension){
+
+  const details = {
+    "tif":"TIFF images are not supported consistently by web browsers.",
+    "tiff":"TIFF images are not supported consistently by web browsers.",
+    "unknown":"This file type does not have a built-in browser preview.",
+    "default":"This file requires a compatible preview or conversion service."
+  };
+
+  createNotice(
+    "Preview unavailable",
+    details[extension] || details.default,
+    "The original file remains available through the Download Original button."
+  );
+
+  setStatus(
+    "Original file available for download. Online preview is not available for this format."
   );
 }
 
@@ -567,7 +795,10 @@ async function openDocument(){
   prepareDownload();
 
   const extension =
-    suppliedType.toLowerCase() || getExtension(fileUrl);
+    normalizeExtension(suppliedType) || getExtension(fileUrl);
+
+  fileDetails.textContent =
+    "File format: " + (extension ? extension.toUpperCase() : "Unknown");
 
   switch(extension){
 
@@ -579,8 +810,8 @@ async function openDocument(){
       await showDOCX();
       break;
 
-    case "xlsx":
     case "xls":
+    case "xlsx":
     case "csv":
       await showSpreadsheet(extension);
       break;
@@ -590,17 +821,25 @@ async function openDocument(){
       await showText(extension);
       break;
 
+    case "doc":
+    case "ppt":
+    case "pptx":
+      showOfficeOnline(extension);
+      break;
+
     case "jpg":
     case "jpeg":
     case "png":
     case "webp":
     case "gif":
+    case "bmp":
+    case "svg":
+    case "avif":
       showImage();
       break;
 
-    case "doc":
-    case "ppt":
-    case "pptx":
+    case "tif":
+    case "tiff":
       showConversionNotice(extension);
       break;
 
@@ -615,6 +854,7 @@ async function openDocument(){
 ========================================= */
 
 openDocument().catch(error=>{
+
   console.error("MASTERBOOK Reader:",error);
 
   setStatus(
@@ -622,12 +862,12 @@ openDocument().catch(error=>{
     "error"
   );
 
-  const notice = document.createElement("div");
-  notice.className = "notice";
-  notice.textContent =
-    "The document could not be displayed. Try downloading the original file.";
+  createNotice(
+    "Document could not be opened",
+    error.message,
+    "Return to the MASTERBOOK Library and try opening the resource again."
+  );
 
-  viewer.replaceChildren(notice);
 });
 
 })();
