@@ -5,12 +5,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>MASTERBOOK Digital Library | CBC Notes, Revision Resources and University Learning</title>
+<title>MASTERBOOK Digital Library | Free Learning Resources and Revision Notes</title>
 
-<meta name="description" content="Explore the MASTERBOOK Digital Library for Kenyan CBC learning materials, Mathematics and Geography notes, revision resources, coursebooks and university learning materials for every stage of education.">
-
-<meta name="keywords" content="MASTERBOOK library, Kenyan CBC learning materials, free learning resources Kenya, primary school notes, junior school resources, senior school revision notes, Grade 10 learning resources, Grade 12 revision materials, Mathematics notes, Geography notes, Science resources, university learning materials, educational books">
-
+<meta name="description" content="Explore the MASTERBOOK Digital Library for educational resources, revision notes, coursebooks and learning materials across primary, junior school, senior school, university and professional education.">
+<meta name="keywords" content="MASTERBOOK library, free learning resources Kenya, CBC learning materials, revision notes, Geography notes, Mathematics notes, Grade 10 learning resources, Grade 12 revision materials, university resources, educational books">
 <meta name="author" content="G.O. Odhiambo">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#10243e">
@@ -18,95 +16,14 @@
 <link rel="canonical" href="https://godhiambo992-hu.github.io/masterbook-platform/library.html">
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="MASTERBOOK Digital Library | CBC Notes and Educational Resources">
-<meta property="og:description" content="Explore Kenyan CBC learning materials, revision notes, Mathematics, Geography, university resources and educational coursebooks.">
+<meta property="og:title" content="MASTERBOOK Digital Library | Educational Resources">
+<meta property="og:description" content="Discover learning materials, revision notes, coursebooks and educational resources for every stage of education.">
 <meta property="og:url" content="https://godhiambo992-hu.github.io/masterbook-platform/library.html">
 <meta property="og:site_name" content="MASTERBOOK">
-<meta property="og:locale" content="en_KE">
 
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MASTERBOOK Digital Library">
-<meta name="twitter:description" content="Explore educational resources, CBC revision materials, coursebooks and university learning resources on MASTERBOOK.">
-
-<!-- STRUCTURED DATA FOR SEARCH ENGINES -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": "https://godhiambo992-hu.github.io/masterbook-platform/#organization",
-      "name": "MASTERBOOK",
-      "url": "https://godhiambo992-hu.github.io/masterbook-platform/",
-      "description": "MASTERBOOK is an educational learning platform providing learning materials, revision resources and educational content."
-    },
-    {
-      "@type": "WebSite",
-      "@id": "https://godhiambo992-hu.github.io/masterbook-platform/#website",
-      "url": "https://godhiambo992-hu.github.io/masterbook-platform/",
-      "name": "MASTERBOOK",
-      "publisher": {
-        "@id": "https://godhiambo992-hu.github.io/masterbook-platform/#organization"
-      },
-      "inLanguage": "en"
-    },
-    {
-      "@type": "CollectionPage",
-      "@id": "https://godhiambo992-hu.github.io/masterbook-platform/library.html#webpage",
-      "url": "https://godhiambo992-hu.github.io/masterbook-platform/library.html",
-      "name": "MASTERBOOK Digital Library",
-      "description": "A digital collection of educational learning materials, CBC resources, revision notes, coursebooks and university learning resources.",
-      "isPartOf": {
-        "@id": "https://godhiambo992-hu.github.io/masterbook-platform/#website"
-      },
-      "about": [
-        {
-          "@type": "Thing",
-          "name": "Kenyan Competency-Based Curriculum"
-        },
-        {
-          "@type": "Thing",
-          "name": "Mathematics education"
-        },
-        {
-          "@type": "Thing",
-          "name": "Geography education"
-        },
-        {
-          "@type": "Thing",
-          "name": "University education"
-        },
-        {
-          "@type": "Thing",
-          "name": "Educational resources"
-        }
-      ],
-      "inLanguage": "en-KE",
-      "publisher": {
-        "@id": "https://godhiambo992-hu.github.io/masterbook-platform/#organization"
-      }
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": "https://godhiambo992-hu.github.io/masterbook-platform/library.html#breadcrumb",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "https://godhiambo992-hu.github.io/masterbook-platform/"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "Digital Library",
-          "item": "https://godhiambo992-hu.github.io/masterbook-platform/library.html"
-        }
-      ]
-    }
-  ]
-}
-</script>
+<meta name="twitter:description" content="Explore educational resources, revision materials and coursebooks on MASTERBOOK.">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -123,13 +40,16 @@
   --green:#16834a;
   --red:#b83232;
 }
+
 *{box-sizing:border-box}
+
 body{
   margin:0;
   font-family:Arial,sans-serif;
   color:var(--text);
   background:var(--light);
 }
+
 header{
   background:var(--navy);
   color:white;
@@ -140,6 +60,7 @@ header{
   gap:15px;
   flex-wrap:wrap;
 }
+
 .logo{
   font-size:24px;
   font-weight:bold;
@@ -147,17 +68,21 @@ header{
   color:white;
   text-decoration:none;
 }
+
 .logo span{color:var(--gold)}
+
 header a{
   color:white;
   text-decoration:none;
 }
+
 main{
   max-width:1250px;
   margin:auto;
   padding:30px 5%;
   min-height:65vh;
 }
+
 .hero{
   background:linear-gradient(120deg,var(--navy),var(--blue));
   color:white;
@@ -165,98 +90,52 @@ main{
   border-radius:13px;
   text-align:center;
 }
-.hero h1{font-size:32px;margin:0 0 12px}
+
+.hero h1{
+  font-size:32px;
+  margin:0 0 12px;
+}
+
 .hero p{
   color:#e4edf7;
   line-height:1.7;
   max-width:700px;
   margin:auto;
 }
+
 .heading{
   margin:30px 0 15px;
   color:var(--navy);
 }
-.intro-section{
-  background:white;
-  padding:25px;
-  margin:25px 0;
-  border:1px solid var(--border);
-  border-radius:10px;
-  line-height:1.8;
-}
-.intro-section h2,
-.intro-section h3{
-  color:var(--navy);
-  line-height:1.4;
-}
-.intro-section h2{
-  margin-top:0;
-}
-.intro-section p{
-  color:var(--text);
-  margin:12px 0;
-}
-.intro-section a{
-  color:var(--blue);
-  font-weight:bold;
-  text-decoration:none;
-}
-.intro-section a:hover{
-  text-decoration:underline;
-}
-.subject-links{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
-  gap:12px;
-  margin-top:18px;
-}
-.subject-link{
-  display:block;
-  background:var(--light);
-  padding:14px;
-  border:1px solid var(--border);
-  border-radius:8px;
-  color:var(--navy)!important;
-  text-decoration:none;
-}
-.subject-link strong{
-  display:block;
-  margin-bottom:5px;
-}
-.subject-link span{
-  display:block;
-  color:var(--muted);
-  font-size:13px;
-  font-weight:normal;
-  line-height:1.5;
-}
-.subject-link:hover{
-  border-color:var(--blue);
-}
+
 .summary{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
   gap:12px;
   margin:22px 0;
 }
+
 .summary-card{
   background:white;
   padding:17px;
   border:1px solid var(--border);
   border-radius:9px;
 }
+
 .summary-card strong{
   display:block;
   color:var(--blue);
   font-size:25px;
   margin-top:7px;
 }
+
 .controls{
   display:grid;
   grid-template-columns:2fr 1fr 1fr;
   gap:12px;
   margin:20px 0;
 }
+
 input,select{
   width:100%;
   padding:13px;
@@ -266,6 +145,7 @@ input,select{
   background:white;
   color:var(--text);
 }
+
 button{
   border:0;
   border-radius:7px;
@@ -273,18 +153,22 @@ button{
   font-weight:bold;
   cursor:pointer;
 }
+
 button:disabled{
   opacity:.5;
   cursor:not-allowed;
 }
+
 .primary{
   background:var(--blue);
   color:white;
 }
+
 .secondary{
   background:var(--navy);
   color:white;
 }
+
 .status{
   margin:15px 0;
   padding:13px;
@@ -295,20 +179,24 @@ button:disabled{
   line-height:1.6;
   overflow-wrap:anywhere;
 }
+
 .status.error{
   background:#fde8e8;
   color:var(--red);
 }
+
 .status.success{
   background:#e4f5e9;
   color:var(--green);
 }
+
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
   gap:18px;
   align-items:stretch;
 }
+
 .card{
   background:white;
   padding:21px;
@@ -319,17 +207,20 @@ button:disabled{
   flex-direction:column;
   min-width:0;
 }
+
 .card h3{
   color:var(--navy);
   line-height:1.4;
   margin:7px 0;
   overflow-wrap:anywhere;
 }
+
 .card p{
   font-size:14px;
   line-height:1.7;
   overflow-wrap:anywhere;
 }
+
 .tag{
   display:inline-block;
   align-self:flex-start;
@@ -339,12 +230,14 @@ button:disabled{
   font-size:12px;
   border-radius:20px;
 }
+
 .meta{
   font-size:12px;
   color:var(--muted);
   line-height:1.8;
   margin:10px 0;
 }
+
 .resource-actions{
   display:flex;
   flex-wrap:wrap;
@@ -352,19 +245,23 @@ button:disabled{
   margin-top:auto;
   padding-top:15px;
 }
+
 .resource-actions button{
   flex:1;
   min-width:110px;
   font-size:13px;
 }
+
 .view-button{
   background:var(--blue);
   color:white;
 }
+
 .download-button{
   background:var(--navy);
   color:white;
 }
+
 .empty{
   display:none;
   text-align:center;
@@ -374,6 +271,7 @@ button:disabled{
   border-radius:10px;
   margin:15px 0;
 }
+
 .pagination{
   display:flex;
   align-items:center;
@@ -382,17 +280,21 @@ button:disabled{
   flex-wrap:wrap;
   margin:25px 0;
 }
+
 .pagination button{
   background:var(--navy);
   color:white;
 }
+
 .pagination button:disabled{
   background:#aab6c3;
 }
+
 #pageInfo{
   font-size:14px;
   color:var(--muted);
 }
+
 .toolbar{
   display:flex;
   gap:10px;
@@ -400,7 +302,9 @@ button:disabled{
   flex-wrap:wrap;
   margin:15px 0;
 }
+
 .toolbar button{white-space:nowrap}
+
 footer{
   background:var(--navy);
   color:white;
@@ -409,11 +313,9 @@ footer{
   margin-top:45px;
   font-size:13px;
 }
+
 footer p{color:#d3dfed}
-footer a{
-  color:#ffffff;
-  text-decoration:underline;
-}
+
 @media(max-width:700px){
   main{padding:22px 4%}
   .hero{padding:35px 18px}
@@ -421,7 +323,6 @@ footer a{
   .controls{grid-template-columns:1fr}
   .toolbar input{flex:1;min-width:150px}
   .resource-actions button{min-width:100px}
-  .intro-section{padding:19px}
 }
 </style>
 </head>
@@ -429,7 +330,7 @@ footer a{
 <body>
 
 <header>
-  <a href="index.html" class="logo" aria-label="MASTERBOOK homepage">
+  <a href="index.html" class="logo">
     MASTER<span>BOOK</span>
   </a>
   <a href="index.html">← Back to Home</a>
@@ -445,248 +346,102 @@ footer a{
     </p>
   </section>
 
-  <!-- SEARCH-ENGINE-READABLE EDUCATIONAL INTRODUCTION -->
-
-  <section class="intro-section" aria-labelledby="about-library">
-    <h2 id="about-library">An Educational Library for Every Stage of Learning</h2>
-
-    <p>
-      MASTERBOOK is a digital educational platform designed to make
-      learning materials, revision resources, coursebooks and educational
-      content accessible to learners, teachers and the wider public.
-      The MASTERBOOK Digital Library brings together resources for
-      primary education, junior school, senior school, university
-      education and professional learning.
-    </p>
-
-    <p>
-      The Library supports learners following the Kenyan education
-      pathway, including Competency-Based Curriculum (CBC) learning
-      materials and subject resources for different education levels.
-      It also provides a space for university-level academic resources,
-      independent study and professional development materials.
-    </p>
-
-    <p>
-      Whether you are preparing for classroom learning, revising a
-      subject, developing teaching materials or pursuing further
-      education, you can explore the available resources using the
-      Library search and subject filters.
-    </p>
-
-    <p>
-      Visit the <a href="index.html">MASTERBOOK homepage</a> to explore
-      the wider educational platform, or use the Library below to
-      discover available learning materials.
-    </p>
-  </section>
-
-  <section class="intro-section" aria-labelledby="education-levels">
-    <h2 id="education-levels">Learning Resources Across Education Levels</h2>
-
-    <h3>Primary Education</h3>
-    <p>
-      Primary-level learning resources support foundational knowledge,
-      literacy, numeracy, subject understanding and the development
-      of essential learning competencies.
-    </p>
-
-    <h3>Junior School</h3>
-    <p>
-      Junior school resources support learners as they develop
-      knowledge, practical skills and subject understanding across
-      the learning areas offered within the Kenyan CBC framework.
-    </p>
-
-    <h3>Senior School</h3>
-    <p>
-      Senior school materials support deeper subject learning,
-      revision and preparation for further academic pathways.
-      Learners can explore available notes, coursebooks and
-      other educational materials.
-    </p>
-
-    <h3>University Education</h3>
-    <p>
-      University resources support independent study, academic
-      development, subject research and deeper engagement with
-      specialised areas of knowledge.
-    </p>
-
-    <h3>Professional Learning</h3>
-    <p>
-      Professional learning materials support continuing education,
-      knowledge development and the acquisition of skills relevant
-      to professional practice.
-    </p>
-  </section>
-
-  <section class="intro-section" aria-labelledby="subjects">
-    <h2 id="subjects">Explore Learning Subjects</h2>
-
-    <p>
-      MASTERBOOK provides a growing collection of subject-based
-      educational materials. The following areas describe the
-      subject categories learners can explore in the Library.
-    </p>
-
-    <div class="subject-links">
-
-      <a class="subject-link" href="#resources" data-subject="Mathematics">
-        <strong>Mathematics</strong>
-        <span>Mathematical concepts, worked examples and revision materials.</span>
-      </a>
-
-      <a class="subject-link" href="#resources" data-subject="Geography">
-        <strong>Geography</strong>
-        <span>Physical and human geography learning and revision resources.</span>
-      </a>
-
-      <a class="subject-link" href="#resources" data-subject="Science">
-        <strong>Science</strong>
-        <span>Scientific concepts, subject learning and study materials.</span>
-      </a>
-
-      <a class="subject-link" href="#resources" data-subject="Languages">
-        <strong>Languages</strong>
-        <span>Language learning, communication and literacy resources.</span>
-      </a>
-
-      <a class="subject-link" href="#resources" data-subject="Research">
-        <strong>Research</strong>
-        <span>Academic research, research methods and study resources.</span>
-      </a>
-
-      <a class="subject-link" href="#resources" data-subject="Technology">
-        <strong>Technology</strong>
-        <span>Digital learning, information technology and technology resources.</span>
-      </a>
-
-    </div>
-  </section>
-
-  <section class="summary" aria-label="Library resource statistics">
+  <section class="summary">
     <div class="summary-card">
       Available resources
       <strong id="resourceCount">0</strong>
     </div>
+
     <div class="summary-card">
       Subjects
       <strong id="subjectCount">0</strong>
     </div>
+
     <div class="summary-card">
       Education levels
       <strong id="levelCount">0</strong>
     </div>
   </section>
 
-  <section id="resources" aria-labelledby="explore-resources">
-    <h2 class="heading" id="explore-resources">
-      Explore Educational Resources
-    </h2>
+  <h2 class="heading">Explore Educational Resources</h2>
 
-    <div class="controls">
-      <input
-        id="search"
-        type="search"
-        placeholder="Search titles, subjects or resources..."
-        aria-label="Search resources"
-      >
+  <div class="controls">
+    <input
+      id="search"
+      type="search"
+      placeholder="Search titles, subjects or resources..."
+      aria-label="Search resources"
+    >
 
-      <select id="level" aria-label="Filter by education level">
-        <option value="">All Education Levels</option>
-        <option value="Primary">Primary</option>
-        <option value="Junior School">Junior School</option>
-        <option value="Senior School">Senior School</option>
-        <option value="University">University</option>
-        <option value="Professional">Professional</option>
-      </select>
+    <select id="level" aria-label="Filter by education level">
+      <option value="">All Education Levels</option>
+      <option value="Primary">Primary</option>
+      <option value="Junior School">Junior School</option>
+      <option value="Senior School">Senior School</option>
+      <option value="University">University</option>
+      <option value="Professional">Professional</option>
+    </select>
 
-      <select id="category" aria-label="Filter by subject">
-        <option value="">All Subjects</option>
-        <option value="Mathematics">Mathematics</option>
-        <option value="Geography">Geography</option>
-        <option value="Science">Science</option>
-        <option value="Languages">Languages</option>
-        <option value="Research">Research</option>
-        <option value="Technology">Technology</option>
-      </select>
-    </div>
+    <select id="category" aria-label="Filter by subject">
+      <option value="">All Subjects</option>
+      <option value="Mathematics">Mathematics</option>
+      <option value="Geography">Geography</option>
+      <option value="Science">Science</option>
+      <option value="Languages">Languages</option>
+      <option value="Research">Research</option>
+      <option value="Technology">Technology</option>
+    </select>
+  </div>
 
-    <div class="toolbar">
-      <button id="refreshButton" class="primary" type="button">
-        ↻ Refresh Library
-      </button>
-      <button id="clearFilters" class="secondary" type="button">
-        Clear Filters
-      </button>
-    </div>
+  <div class="toolbar">
+    <button id="refreshButton" class="primary" type="button">
+      ↻ Refresh Library
+    </button>
 
-    <div id="libraryStatus" class="status" role="status" aria-live="polite">
-      Connecting to MASTERBOOK Library...
-    </div>
+    <button id="clearFilters" class="secondary" type="button">
+      Clear Filters
+    </button>
+  </div>
 
-    <h2 class="heading">Available Learning Resources</h2>
+  <div id="libraryStatus" class="status" role="status" aria-live="polite">
+    Connecting to MASTERBOOK Library...
+  </div>
 
-    <div id="library" class="grid"></div>
+  <h2 class="heading">Available Learning Resources</h2>
 
-    <div id="empty" class="empty">
-      <h3>No matching resources found.</h3>
-      <p>Try another search term, subject or education level.</p>
-      <button id="emptyClear" class="primary" type="button">
-        Clear Filters
-      </button>
-    </div>
+  <div id="library" class="grid"></div>
 
-    <div class="pagination" id="pagination">
-      <button id="previousPage" type="button" disabled>
-        ← Previous
-      </button>
+  <div id="empty" class="empty">
+    <h3>No matching resources found.</h3>
+    <p>Try another search term, subject or education level.</p>
 
-      <span id="pageInfo">Page 1 of 1</span>
+    <button id="emptyClear" class="primary" type="button">
+      Clear Filters
+    </button>
+  </div>
 
-      <button id="nextPage" type="button" disabled>
-        Next →
-      </button>
-    </div>
-  </section>
+  <div class="pagination" id="pagination">
+    <button id="previousPage" type="button" disabled>
+      ← Previous
+    </button>
 
-  <section class="intro-section" aria-labelledby="learning-purpose">
-    <h2 id="learning-purpose">Supporting Teaching, Study and Independent Learning</h2>
+    <span id="pageInfo">Page 1 of 1</span>
 
-    <p>
-      Educational resources can support classroom instruction,
-      individual revision, lesson preparation and independent
-      academic study. MASTERBOOK aims to provide a growing digital
-      collection that connects learners and educators with useful
-      educational content.
-    </p>
-
-    <p>
-      Resource availability depends on the materials published
-      in the Library. New learning resources may be added as the
-      platform develops.
-    </p>
-
-    <p>
-      To explore the wider platform and its learning services,
-      return to the <a href="index.html">MASTERBOOK homepage</a>.
-    </p>
-  </section>
+    <button id="nextPage" type="button" disabled>
+      Next →
+    </button>
+  </div>
 
 </main>
 
 <footer>
   <strong>MASTERBOOK</strong>
   <p>Learning Without Boundaries.</p>
-  <p>
-    <a href="index.html">Home</a> |
-    <a href="library.html">Digital Library</a>
-  </p>
   <p>© 2026 MASTERBOOK | G.O. Odhiambo</p>
 </footer>
 
 <script>
+
 /* ==================================================
    MASTERBOOK SUPABASE CONFIGURATION
 ================================================== */
@@ -695,7 +450,7 @@ const SUPABASE_URL =
   "https://bxsrhvcqjjtdnflhoplu.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_DSUz-W5eeLBioVBQ1HywoQ_Rp4f3nur";
+  "sb_publishable_Hgg2m91Ht2OOWCUHhH7sGrw_mC9yCj7S";
 
 const BUCKET_NAME = "masterbook-resources";
 const PAGE_SIZE = 12;
@@ -714,7 +469,6 @@ const supabaseClient = window.supabase.createClient(
 const search = document.getElementById("search");
 const level = document.getElementById("level");
 const category = document.getElementById("category");
-
 const library = document.getElementById("library");
 const empty = document.getElementById("empty");
 const statusMessage = document.getElementById("libraryStatus");
@@ -807,12 +561,14 @@ function updateSubjectOptions() {
   const allOption = document.createElement("option");
   allOption.value = "";
   allOption.textContent = "All Subjects";
+
   category.appendChild(allOption);
 
   subjects.forEach(subject => {
     const option = document.createElement("option");
     option.value = subject;
     option.textContent = subject;
+
     category.appendChild(option);
   });
 
@@ -865,6 +621,7 @@ function applyFilters() {
 ================================================== */
 
 async function openResource(resource, downloadFile, button) {
+
   const path = resource.storage_path
     ? resource.storage_path.trim()
     : "";
@@ -884,18 +641,10 @@ async function openResource(resource, downloadFile, button) {
 
     if (!pdfWindow) {
       setStatus(
-        "Your browser blocked the PDF tab. Allow pop-ups for MASTERBOOK and try again.",
+        "Your browser blocked the PDF reader. Allow pop-ups for MASTERBOOK and try again.",
         "error"
       );
       return;
-    }
-
-    try {
-      pdfWindow.document.title = "Preparing MASTERBOOK PDF";
-      pdfWindow.document.body.innerHTML =
-        "<p style='font-family:Arial;padding:25px'>Preparing your document...</p>";
-    } catch (e) {
-      // Continue with the PDF request.
     }
   }
 
@@ -905,11 +654,12 @@ async function openResource(resource, downloadFile, button) {
   button.textContent = "Preparing PDF...";
 
   try {
+
     const options = downloadFile
-      ? {download: true}
+      ? { download: true }
       : {};
 
-    const {data, error} = await supabaseClient
+    const { data, error } = await supabaseClient
       .storage
       .from(BUCKET_NAME)
       .createSignedUrl(
@@ -925,7 +675,9 @@ async function openResource(resource, downloadFile, button) {
     }
 
     if (downloadFile) {
+
       const link = document.createElement("a");
+
       link.href = data.signedUrl;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
@@ -935,18 +687,29 @@ async function openResource(resource, downloadFile, button) {
       link.click();
       link.remove();
 
+      setStatus(
+        "Your download has been prepared.",
+        "success"
+      );
+
     } else {
-      pdfWindow.location.href = data.signedUrl;
+
+      const readerUrl =
+        "pdf-reader.html?file=" +
+        encodeURIComponent(data.signedUrl) +
+        "&title=" +
+        encodeURIComponent(resource.title || "MASTERBOOK Resource");
+
+      pdfWindow.location.href = readerUrl;
+
+      setStatus(
+        "Opening your document in MASTERBOOK Reader.",
+        "success"
+      );
     }
 
-    setStatus(
-      downloadFile
-        ? "Your download has been prepared."
-        : "Your PDF has opened in a new tab.",
-      "success"
-    );
-
   } catch (error) {
+
     console.error("MASTERBOOK PDF error:", error);
 
     if (pdfWindow && !pdfWindow.closed) {
@@ -959,8 +722,10 @@ async function openResource(resource, downloadFile, button) {
     );
 
   } finally {
+
     button.disabled = false;
     button.textContent = originalText;
+
   }
 }
 
@@ -970,6 +735,7 @@ async function openResource(resource, downloadFile, button) {
 ================================================== */
 
 function createResourceCard(resource) {
+
   const card = createElement("article", "card");
 
   const tag = createElement(
@@ -1030,12 +796,15 @@ function createResourceCard(resource) {
   );
 
   if (!resource.storage_path) {
+
     viewButton.disabled = true;
     downloadButton.disabled = true;
 
     viewButton.title = "PDF file path is unavailable";
     downloadButton.title = "PDF file path is unavailable";
+
   } else {
+
     viewButton.addEventListener("click", () => {
       openResource(resource, false, viewButton);
     });
@@ -1043,6 +812,7 @@ function createResourceCard(resource) {
     downloadButton.addEventListener("click", () => {
       openResource(resource, true, downloadButton);
     });
+
   }
 
   actions.appendChild(viewButton);
@@ -1065,6 +835,7 @@ function createResourceCard(resource) {
 ================================================== */
 
 function updatePagination(totalPages) {
+
   previousPage.disabled = currentPage <= 1;
   nextPage.disabled = currentPage >= totalPages;
 
@@ -1076,6 +847,7 @@ function updatePagination(totalPages) {
 }
 
 function changePage(direction) {
+
   const totalPages = Math.max(
     1,
     Math.ceil(filteredResources.length / PAGE_SIZE)
@@ -1086,6 +858,7 @@ function changePage(direction) {
   if (next < 1 || next > totalPages) return;
 
   currentPage = next;
+
   renderLibrary();
 
   document.getElementById("library").scrollIntoView({
@@ -1100,13 +873,16 @@ function changePage(direction) {
 ================================================== */
 
 function renderLibrary() {
+
   library.innerHTML = "";
 
   const total = filteredResources.length;
 
   if (!total) {
+
     empty.style.display = "block";
     updatePagination(1);
+
     return;
   }
 
@@ -1139,11 +915,13 @@ function renderLibrary() {
 ================================================== */
 
 async function loadResources() {
+
   if (loading) return;
 
   loading = true;
 
   const refreshButton = document.getElementById("refreshButton");
+
   refreshButton.disabled = true;
   refreshButton.textContent = "Loading...";
 
@@ -1153,14 +931,15 @@ async function loadResources() {
   empty.style.display = "none";
 
   try {
-    const {data, error} = await supabaseClient
+
+    const { data, error } = await supabaseClient
       .from("resources")
       .select(
         "id,title,description,education_level,subject,resource_type,curriculum,storage_path,created_at"
       )
       .eq("status", "Published")
       .eq("access_tier", "Free")
-      .order("created_at", {ascending: false});
+      .order("created_at", { ascending: false });
 
     if (error) throw error;
 
@@ -1184,12 +963,14 @@ async function loadResources() {
     );
 
   } catch (error) {
+
     console.error("MASTERBOOK database error:", error);
 
     resources = [];
     filteredResources = [];
 
     updateSummary();
+
     library.innerHTML = "";
     empty.style.display = "block";
 
@@ -1205,9 +986,12 @@ async function loadResources() {
     );
 
   } finally {
+
     loading = false;
+
     refreshButton.disabled = false;
     refreshButton.textContent = "↻ Refresh Library";
+
   }
 }
 
@@ -1232,6 +1016,7 @@ document.getElementById("refreshButton")
   .addEventListener("click", loadResources);
 
 function clearFilters() {
+
   search.value = "";
   level.value = "";
   category.value = "";
@@ -1244,26 +1029,6 @@ document.getElementById("clearFilters")
 
 document.getElementById("emptyClear")
   .addEventListener("click", clearFilters);
-
-
-/* ==================================================
-   SUBJECT SHORTCUT LINKS
-================================================== */
-
-document.querySelectorAll("[data-subject]").forEach(link => {
-  link.addEventListener("click", () => {
-    const subject = link.dataset.subject;
-
-    const matchingOption = [...category.options].find(
-      option => option.value === subject
-    );
-
-    if (matchingOption) {
-      category.value = subject;
-      applyFilters();
-    }
-  });
-});
 
 
 /* ==================================================
