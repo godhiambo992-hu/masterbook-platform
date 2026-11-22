@@ -1,0 +1,1659 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10243e">
+
+<title>MASTERBOOK Literature & Stories | Novels, Fiction and Books</title>
+
+<meta name="description" content="Discover novels, short stories, fiction, poetry and creative writing at MASTERBOOK Literature & Stories. Read, rate, review and discuss books.">
+
+<meta name="author" content="G.O. Odhiambo">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+    --navy: #10243e;
+    --navy-light: #193654;
+    --gold: #d6a64c;
+    --cream: #f7f5f0;
+    --white: #ffffff;
+    --text: #243247;
+    --muted: #718096;
+    --border: #e5e9ef;
+    --success: #16845b;
+    --danger: #c0392b;
+    --shadow: 0 12px 35px rgba(16,36,62,.09);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--cream);
+    color: var(--text);
+    font-family: "DM Sans", sans-serif;
+}
+
+button, input, textarea, select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+header {
+    background: var(--navy);
+    color: white;
+}
+
+.topbar {
+    max-width: 1250px;
+    margin: auto;
+    padding: 17px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.brand {
+    font-family: "Playfair Display", serif;
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: .5px;
+}
+
+.brand span {
+    color: var(--gold);
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 19px;
+    flex-wrap: wrap;
+    font-size: 13px;
+}
+
+.nav a:hover {
+    color: var(--gold);
+}
+
+.account-status {
+    font-size: 12px;
+    color: #dce7f2;
+}
+
+.hero {
+    background:
+      linear-gradient(100deg, rgba(10,27,48,.96), rgba(16,36,62,.84)),
+      url("https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=1800&q=85");
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 90px 22px;
+}
+
+.hero-inner {
+    max-width: 1150px;
+    margin: auto;
+}
+
+.hero h1 {
+    font-family: "Playfair Display", serif;
+    font-size: clamp(38px, 6vw, 65px);
+    line-height: 1.12;
+    max-width: 750px;
+    margin: 0 0 18px;
+}
+
+.hero p {
+    max-width: 650px;
+    line-height: 1.8;
+    color: #e0e8f0;
+    font-size: 16px;
+}
+
+.hero-tag {
+    color: var(--gold);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 12px;
+}
+
+.container {
+    max-width: 1250px;
+    padding: 35px 22px 65px;
+    margin: auto;
+}
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.section-heading h2 {
+    font-family: "Playfair Display", serif;
+    font-size: 30px;
+    color: var(--navy);
+    margin: 0 0 5px;
+}
+
+.section-heading p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.filters {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.field {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: white;
+    color: var(--text);
+    outline: none;
+}
+
+.field:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(214,166,76,.12);
+}
+
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 23px;
+}
+
+.book-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    overflow: hidden;
+    transition: .2s ease;
+    box-shadow: 0 4px 14px rgba(16,36,62,.035);
+}
+
+.book-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+}
+
+.cover-wrap {
+    background: #e9edf2;
+    height: 245px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cover-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cover-placeholder {
+    font-size: 55px;
+    color: #9aa9b8;
+}
+
+.book-info {
+    padding: 16px;
+}
+
+.genre {
+    display: inline-block;
+    background: #f4ead7;
+    color: #8c6724;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    border-radius: 30px;
+    padding: 5px 9px;
+}
+
+.book-info h3 {
+    font-family: "Playfair Display", serif;
+    color: var(--navy);
+    font-size: 19px;
+    margin: 12px 0 6px;
+}
+
+.book-author {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 9px;
+}
+
+.book-description {
+    color: #657386;
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 62px;
+}
+
+.book-rating {
+    font-size: 12px;
+    margin: 12px 0;
+    color: #a87922;
+}
+
+.btn {
+    border: 0;
+    border-radius: 8px;
+    padding: 11px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    transition: .2s;
+}
+
+.btn-primary {
+    background: var(--navy);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--navy-light);
+}
+
+.btn-gold {
+    background: var(--gold);
+    color: #17263a;
+}
+
+.btn-light {
+    background: #edf1f5;
+    color: var(--navy);
+}
+
+.btn-danger {
+    background: #fbe9e7;
+    color: var(--danger);
+}
+
+.btn:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.full-btn {
+    width: 100%;
+}
+
+.empty-state {
+    background: white;
+    padding: 45px 20px;
+    border-radius: 12px;
+    text-align: center;
+    color: var(--muted);
+    grid-column: 1 / -1;
+}
+
+.account-panel {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 35px;
+    box-shadow: 0 4px 15px rgba(16,36,62,.04);
+}
+
+.account-panel h2 {
+    font-family: "Playfair Display", serif;
+    color: var(--navy);
+    margin: 0 0 8px;
+}
+
+.account-panel p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.account-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.account-grid .wide {
+    grid-column: 1 / -1;
+}
+
+.account-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+#accountMessage, #actionMessage {
+    font-size: 13px;
+    margin-top: 12px;
+}
+
+.success-text {
+    color: var(--success);
+}
+
+.error-text {
+    color: var(--danger);
+}
+
+#readerSection {
+    display: none;
+    margin-top: 38px;
+}
+
+.reader-panel {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 25px;
+}
+
+.reader-panel h2 {
+    font-family: "Playfair Display", serif;
+    color: var(--navy);
+}
+
+.reader-description {
+    color: var(--muted);
+    line-height: 1.7;
+    font-size: 14px;
+}
+
+.rating-box {
+    background: #fbf8f1;
+    border: 1px solid #eee3ce;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 22px 0;
+}
+
+.rating-stars {
+    display: flex;
+    gap: 7px;
+    margin: 12px 0;
+}
+
+.star {
+    border: 0;
+    background: transparent;
+    color: #c5cbd2;
+    font-size: 32px;
+    padding: 0;
+}
+
+.star.active {
+    color: #e0a52c;
+}
+
+.rating-summary {
+    color: #7c642e;
+    font-size: 13px;
+}
+
+.comment-form {
+    display: grid;
+    gap: 11px;
+    margin: 18px 0 25px;
+}
+
+.comment-form textarea {
+    min-height: 95px;
+    resize: vertical;
+}
+
+.comment {
+    border-top: 1px solid var(--border);
+    padding: 17px 0;
+}
+
+.comment-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.comment-author {
+    color: var(--navy);
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.comment-date {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.comment-text {
+    color: #536174;
+    line-height: 1.7;
+    font-size: 14px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    margin: 9px 0;
+}
+
+.comment-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.reply-button {
+    border: 0;
+    background: transparent;
+    color: #8b682c;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 0;
+}
+
+.reply-area {
+    margin: 12px 0 0 18px;
+    padding-left: 15px;
+    border-left: 2px solid #e8d8b9;
+}
+
+.reply-form {
+    display: grid;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+footer {
+    background: var(--navy);
+    color: #dbe4ee;
+    padding: 30px 22px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+footer strong {
+    color: var(--gold);
+}
+
+.loading {
+    color: var(--muted);
+    text-align: center;
+    padding: 30px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@media(max-width: 950px) {
+    .book-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media(max-width: 650px) {
+    .book-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .cover-wrap {
+        height: 190px;
+    }
+
+    .book-info {
+        padding: 12px;
+    }
+
+    .book-info h3 {
+        font-size: 16px;
+    }
+
+    .filters {
+        grid-template-columns: 1fr;
+    }
+
+    .account-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .account-grid .wide {
+        grid-column: auto;
+    }
+
+    .hero {
+        padding: 65px 20px;
+    }
+
+    .nav {
+        gap: 12px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="topbar">
+        <a href="index.html" class="brand">MASTER<span>BOOK</span></a>
+
+        <nav class="nav">
+            <a href="index.html">Home</a>
+            <a href="library.html">Academic Library</a>
+            <a href="#books">Literature</a>
+            <a href="#readerSection">Discussions</a>
+        </nav>
+
+        <div class="account-status" id="headerAccount">
+            Reader: Guest
+        </div>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="hero-inner">
+        <div class="hero-tag">The world of imagination</div>
+        <h1>Every story deserves a reader.</h1>
+        <p>
+            Welcome to MASTERBOOK Literature & Stories, a home for novels,
+            short stories, poetry, drama and creative writing.
+            Discover new voices, read meaningful stories and join the conversation.
+        </p>
+        <a href="#books" class="btn btn-gold">Explore the collection</a>
+    </div>
+</section>
+
+<main class="container">
+
+    <section class="account-panel" id="accountPanel">
+        <h2>Reader Account</h2>
+        <p>
+            Create a MASTERBOOK reader account or sign in to rate books,
+            write comments and participate in discussions.
+        </p>
+
+        <div id="signedOutArea">
+            <div class="account-grid">
+                <input class="field" id="authEmail" type="email"
+                    placeholder="Email address" autocomplete="email">
+
+                <input class="field" id="authPassword" type="password"
+                    placeholder="Password" autocomplete="current-password">
+            </div>
+
+            <div class="account-actions">
+                <button class="btn btn-primary" id="signInBtn">
+                    Sign In
+                </button>
+
+                <button class="btn btn-gold" id="signUpBtn">
+                    Create Account
+                </button>
+            </div>
+
+            <div id="accountMessage"></div>
+        </div>
+
+        <div id="signedInArea" class="hidden">
+            <p id="signedInMessage"></p>
+            <button class="btn btn-danger" id="signOutBtn">
+                Sign Out
+            </button>
+        </div>
+    </section>
+
+    <section id="books">
+        <div class="section-heading">
+            <div>
+                <h2>Literature Collection</h2>
+                <p>Explore published novels, stories and creative works.</p>
+            </div>
+
+            <div id="bookCount" class="rating-summary">
+                Loading collection...
+            </div>
+        </div>
+
+        <div class="filters">
+            <input class="field" id="searchInput"
+                type="search" placeholder="Search books, authors or descriptions...">
+
+            <select class="field" id="genreFilter">
+                <option value="">All genres</option>
+            </select>
+        </div>
+
+        <div id="bookGrid" class="book-grid">
+            <div class="loading">Loading literary collection...</div>
+        </div>
+    </section>
+
+    <section id="readerSection">
+        <div class="reader-panel">
+            <button class="btn btn-light" id="backToBooks">
+                ← Back to collection
+            </button>
+
+            <div id="selectedBookDetails"></div>
+
+            <div class="account-actions" id="bookActions"></div>
+
+            <div class="rating-box">
+                <h3>Rate this book</h3>
+                <p class="reader-description">
+                    Share your experience by giving this book a rating
+                    from one to five stars.
+                </p>
+
+                <div id="ratingStars" class="rating-stars">
+                    <button class="star" data-rating="1" aria-label="1 star">★</button>
+                    <button class="star" data-rating="2" aria-label="2 stars">★</button>
+                    <button class="star" data-rating="3" aria-label="3 stars">★</button>
+                    <button class="star" data-rating="4" aria-label="4 stars">★</button>
+                    <button class="star" data-rating="5" aria-label="5 stars">★</button>
+                </div>
+
+                <div class="rating-summary" id="ratingSummary">
+                    Loading ratings...
+                </div>
+
+                <button class="btn btn-primary" id="submitRating">
+                    Submit Rating
+                </button>
+            </div>
+
+            <section id="discussionSection">
+                <h2>Reader Comments & Discussions</h2>
+
+                <p class="reader-description">
+                    Share your thoughts, discuss the story and respond
+                    to other readers. Please keep discussions respectful.
+                </p>
+
+                <div id="commentSignInNotice" class="hidden">
+                    <p class="rating-summary">
+                        Sign in to participate in this discussion.
+                    </p>
+                </div>
+
+                <div class="comment-form" id="newCommentForm">
+                    <textarea class="field" id="newComment"
+                        placeholder="Write your comment or review..."></textarea>
+
+                    <button class="btn btn-primary" id="postComment">
+                        Post Comment
+                    </button>
+                </div>
+
+                <div id="commentsList">
+                    <div class="loading">Loading discussion...</div>
+                </div>
+            </section>
+
+            <div id="actionMessage"></div>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <strong>MASTERBOOK Literature & Stories</strong><br>
+    Discover stories. Explore imagination. Share your thoughts.<br>
+    © <span id="currentYear"></span> MASTERBOOK. All rights reserved.
+</footer>
+
+<script>
+"use strict";
+
+/* ==========================================
+   MASTERBOOK SUPABASE CONFIGURATION
+========================================== */
+
+const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_Hgg2m91Ht2OOWCUH7H3H7wGrw_mC9yCj7S";
+
+const STORAGE_BUCKET = "masterbook-resources";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+/* ==========================================
+   APPLICATION STATE
+========================================== */
+
+let currentUser = null;
+let allBooks = [];
+let selectedBook = null;
+let selectedRating = 0;
+let bookRatings = {};
+
+/* ==========================================
+   GENERAL HELPERS
+========================================== */
+
+const $ = id => document.getElementById(id);
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[char]);
+}
+
+function showMessage(elementId, message, type = "success") {
+    const element = $(elementId);
+    element.textContent = message;
+    element.className =
+        type === "error" ? "error-text" : "success-text";
+}
+
+function clearMessage(elementId) {
+    $(elementId).textContent = "";
+}
+
+function formatDate(value) {
+    if (!value) return "";
+    return new Date(value).toLocaleDateString(undefined, {
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+    });
+}
+
+function fileExtension(path) {
+    const clean = String(path || "").split("?")[0];
+    const parts = clean.split(".");
+    return parts.length > 1 ? parts.pop().toLowerCase() : "";
+}
+
+function displayName(user) {
+    if (!user) return "Reader";
+
+    return user.email
+        ? user.email.split("@")[0]
+        : "MASTERBOOK Reader";
+}
+
+function requireLogin() {
+    if (!currentUser) {
+        showMessage(
+            "actionMessage",
+            "Please sign in to use this feature.",
+            "error"
+        );
+
+        $("accountPanel").scrollIntoView({
+            behavior: "smooth"
+        });
+
+        return false;
+    }
+
+    return true;
+}
+
+/* ==========================================
+   AUTHENTICATION
+========================================== */
+
+async function refreshAuthentication() {
+    const { data, error } = await supabaseClient.auth.getSession();
+
+    if (error) {
+        console.error(error);
+    }
+
+    currentUser = data?.session?.user || null;
+    updateAccountInterface();
+}
+
+function updateAccountInterface() {
+    const signedIn = Boolean(currentUser);
+
+    $("signedOutArea").classList.toggle("hidden", signedIn);
+    $("signedInArea").classList.toggle("hidden", !signedIn);
+
+    $("headerAccount").textContent = signedIn
+        ? "Reader: " + displayName(currentUser)
+        : "Reader: Guest";
+
+    if (signedIn) {
+        $("signedInMessage").textContent =
+            "You are signed in as " + currentUser.email;
+
+        $("newCommentForm").classList.remove("hidden");
+        $("commentSignInNotice").classList.add("hidden");
+    } else {
+        $("newCommentForm").classList.add("hidden");
+        $("commentSignInNotice").classList.remove("hidden");
+    }
+}
+
+async function signIn() {
+    clearMessage("accountMessage");
+
+    const email = $("authEmail").value.trim();
+    const password = $("authPassword").value;
+
+    if (!email || !password) {
+        showMessage(
+            "accountMessage",
+            "Enter your email address and password.",
+            "error"
+        );
+        return;
+    }
+
+    $("signInBtn").disabled = true;
+
+    const { error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+    });
+
+    $("signInBtn").disabled = false;
+
+    if (error) {
+        showMessage("accountMessage", error.message, "error");
+        return;
+    }
+
+    $("authPassword").value = "";
+    await refreshAuthentication();
+
+    showMessage("accountMessage", "You are now signed in.");
+
+    if (selectedBook) {
+        await loadDiscussion(selectedBook.id);
+    }
+}
+
+async function signUp() {
+    clearMessage("accountMessage");
+
+    const email = $("authEmail").value.trim();
+    const password = $("authPassword").value;
+
+    if (!email || !password) {
+        showMessage(
+            "accountMessage",
+            "Enter your email address and password.",
+            "error"
+        );
+        return;
+    }
+
+    if (password.length < 6) {
+        showMessage(
+            "accountMessage",
+            "Your password must contain at least six characters.",
+            "error"
+        );
+        return;
+    }
+
+    $("signUpBtn").disabled = true;
+
+    const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password
+    });
+
+    $("signUpBtn").disabled = false;
+
+    if (error) {
+        showMessage("accountMessage", error.message, "error");
+        return;
+    }
+
+    if (data.session) {
+        currentUser = data.session.user;
+        updateAccountInterface();
+
+        showMessage(
+            "accountMessage",
+            "Your account has been created successfully."
+        );
+    } else {
+        showMessage(
+            "accountMessage",
+            "Registration received. Check your email to confirm your account before signing in."
+        );
+    }
+}
+
+async function signOut() {
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) {
+        showMessage("accountMessage", error.message, "error");
+        return;
+    }
+
+    currentUser = null;
+    updateAccountInterface();
+
+    if (selectedBook) {
+        await loadDiscussion(selectedBook.id);
+    }
+
+    showMessage("accountMessage", "You have signed out.");
+}
+
+$("signInBtn").addEventListener("click", signIn);
+$("signUpBtn").addEventListener("click", signUp);
+$("signOutBtn").addEventListener("click", signOut);
+
+supabaseClient.auth.onAuthStateChange((_event, session) => {
+    currentUser = session?.user || null;
+    updateAccountInterface();
+});
+
+/* ==========================================
+   STORAGE URLS
+========================================== */
+
+async function getSignedFileUrl(path) {
+    if (!path) return null;
+
+    const { data, error } = await supabaseClient.storage
+        .from(STORAGE_BUCKET)
+        .createSignedUrl(path, 3600);
+
+    if (error) {
+        console.error("Storage URL error:", error);
+        return null;
+    }
+
+    return data?.signedUrl || null;
+}
+
+/* ==========================================
+   BOOK COLLECTION
+========================================== */
+
+async function loadBooks() {
+    $("bookGrid").innerHTML =
+        '<div class="loading">Loading literary collection...</div>';
+
+    const { data, error } = await supabaseClient
+        .from("literary_books")
+        .select(
+            "id,title,author_name,description,genre,book_type,cover_path,storage_path,access_tier,status,created_at"
+        )
+        .eq("status", "Published")
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        console.error(error);
+
+        $("bookGrid").innerHTML =
+            '<div class="empty-state">Unable to load the literary collection. Please try again later.</div>';
+
+        $("bookCount").textContent = "Unable to load books";
+        return;
+    }
+
+    allBooks = data || [];
+
+    await loadRatingSummaries();
+    await populateGenres();
+    renderBooks();
+
+    $("bookCount").textContent =
+        allBooks.length + (allBooks.length === 1 ? " published book" : " published books");
+}
+
+async function loadRatingSummaries() {
+    bookRatings = {};
+
+    if (!allBooks.length) return;
+
+    const ids = allBooks.map(book => book.id);
+
+    const { data, error } = await supabaseClient
+        .from("literary_ratings")
+        .select("book_id,rating")
+        .in("book_id", ids);
+
+    if (error) {
+        console.error("Rating summary error:", error);
+        return;
+    }
+
+    for (const item of data || []) {
+        if (!bookRatings[item.book_id]) {
+            bookRatings[item.book_id] = {
+                total: 0,
+                count: 0
+            };
+        }
+
+        bookRatings[item.book_id].total += item.rating;
+        bookRatings[item.book_id].count++;
+    }
+}
+
+async function populateGenres() {
+    const select = $("genreFilter");
+    const previous = select.value;
+
+    const genres = [
+        ...new Set(
+            allBooks
+                .map(book => book.genre)
+                .filter(Boolean)
+        )
+    ].sort();
+
+    select.innerHTML = '<option value="">All genres</option>';
+
+    genres.forEach(genre => {
+        const option = document.createElement("option");
+        option.value = genre;
+        option.textContent = genre;
+        select.appendChild(option);
+    });
+
+    select.value = previous;
+}
+
+function ratingLabel(bookId) {
+    const summary = bookRatings[bookId];
+
+    if (!summary || !summary.count) {
+        return "☆☆☆☆☆ · No ratings yet";
+    }
+
+    const average = summary.total / summary.count;
+
+    return "★ " + average.toFixed(1) +
+        " / 5 · " + summary.count +
+        (summary.count === 1 ? " rating" : " ratings");
+}
+
+function renderBooks() {
+    const query = $("searchInput").value.toLowerCase().trim();
+    const genre = $("genreFilter").value;
+
+    const filtered = allBooks.filter(book => {
+        const searchable = [
+            book.title,
+            book.author_name,
+            book.description,
+            book.genre,
+            book.book_type
+        ].join(" ").toLowerCase();
+
+        return searchable.includes(query) &&
+            (!genre || book.genre === genre);
+    });
+
+    if (!filtered.length) {
+        $("bookGrid").innerHTML =
+            '<div class="empty-state">No books match your search. Try another title or genre.</div>';
+        return;
+    }
+
+    $("bookGrid").innerHTML = "";
+
+    filtered.forEach(book => {
+        const card = document.createElement("article");
+        card.className = "book-card";
+
+        const cover = document.createElement("div");
+        cover.className = "cover-wrap";
+        cover.innerHTML = '<div class="cover-placeholder">▤</div>';
+
+        if (book.cover_path) {
+            getSignedFileUrl(book.cover_path).then(url => {
+                if (url) {
+                    const img = document.createElement("img");
+                    img.src = url;
+                    img.alt = book.title + " cover";
+                    img.loading = "lazy";
+                    cover.innerHTML = "";
+                    cover.appendChild(img);
+                }
+            });
+        }
+
+        const info = document.createElement("div");
+        info.className = "book-info";
+
+        info.innerHTML = `
+            <span class="genre">${escapeHTML(book.genre || book.book_type || "Literature")}</span>
+            <h3>${escapeHTML(book.title)}</h3>
+            <div class="book-author">By ${escapeHTML(book.author_name || "MASTERBOOK Author")}</div>
+            <div class="book-description">${escapeHTML((book.description || "Explore this literary work.").slice(0, 125))}${(book.description || "").length > 125 ? "..." : ""}</div>
+            <div class="book-rating">${escapeHTML(ratingLabel(book.id))}</div>
+            <button class="btn btn-primary full-btn">View Book</button>
+        `;
+
+        info.querySelector("button").addEventListener("click", () => {
+            openBook(book.id);
+        });
+
+        card.appendChild(cover);
+        card.appendChild(info);
+
+        $("bookGrid").appendChild(card);
+    });
+}
+
+$("searchInput").addEventListener("input", renderBooks);
+$("genreFilter").addEventListener("change", renderBooks);
+
+/* ==========================================
+   OPEN BOOK
+========================================== */
+
+async function openBook(bookId) {
+    const book = allBooks.find(item => item.id === bookId);
+
+    if (!book) return;
+
+    selectedBook = book;
+    selectedRating = 0;
+
+    $("readerSection").style.display = "block";
+    $("actionMessage").textContent = "";
+
+    $("readerSection").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+    $("selectedBookDetails").innerHTML = `
+        <span class="genre">${escapeHTML(book.genre || book.book_type || "Literature")}</span>
+        <h2>${escapeHTML(book.title)}</h2>
+        <p class="reader-description">
+            By <strong>${escapeHTML(book.author_name || "MASTERBOOK Author")}</strong>
+        </p>
+        <p class="reader-description">${escapeHTML(book.description || "No description available.")}</p>
+    `;
+
+    const actions = $("bookActions");
+    actions.innerHTML = "";
+
+    const readButton = document.createElement("button");
+    readButton.className = "btn btn-primary";
+    readButton.textContent = "Read Online";
+
+    readButton.addEventListener("click", () => openBookFile(book));
+
+    actions.appendChild(readButton);
+
+    if (book.access_tier === "Free") {
+        const downloadButton = document.createElement("button");
+        downloadButton.className = "btn btn-gold";
+        downloadButton.textContent = "Download Book";
+
+        downloadButton.addEventListener("click", () => downloadBookFile(book));
+
+        actions.appendChild(downloadButton);
+    } else {
+        const premiumNote = document.createElement("span");
+        premiumNote.className = "rating-summary";
+        premiumNote.textContent = "Premium access";
+        actions.appendChild(premiumNote);
+    }
+
+    await loadDiscussion(book.id);
+}
+
+async function openBookFile(book) {
+    if (book.access_tier !== "Free") {
+        showMessage(
+            "actionMessage",
+            "This book requires premium access. Premium reading will be configured separately.",
+            "error"
+        );
+        return;
+    }
+
+    const url = await getSignedFileUrl(book.storage_path);
+
+    if (!url) {
+        showMessage(
+            "actionMessage",
+            "The book file could not be opened. Please contact the administrator.",
+            "error"
+        );
+        return;
+    }
+
+    const extension = fileExtension(book.storage_path);
+
+    const readerUrl =
+        "document-reader.html?file=" + encodeURIComponent(url) +
+        "&title=" + encodeURIComponent(book.title) +
+        "&type=" + encodeURIComponent(extension);
+
+    window.open(readerUrl, "_blank", "noopener");
+}
+
+async function downloadBookFile(book) {
+    if (book.access_tier !== "Free") {
+        showMessage(
+            "actionMessage",
+            "This book requires premium access.",
+            "error"
+        );
+        return;
+    }
+
+    const url = await getSignedFileUrl(book.storage_path);
+
+    if (!url) {
+        showMessage(
+            "actionMessage",
+            "The download could not be prepared.",
+            "error"
+        );
+        return;
+    }
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = book.title + "." + fileExtension(book.storage_path);
+    link.target = "_blank";
+    link.rel = "noopener";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+}
+
+$("backToBooks").addEventListener("click", () => {
+    $("readerSection").style.display = "none";
+    $("books").scrollIntoView({ behavior: "smooth" });
+});
+
+/* ==========================================
+   RATINGS
+========================================== */
+
+function updateRatingStars() {
+    document.querySelectorAll(".star").forEach(star => {
+        const value = Number(star.dataset.rating);
+        star.classList.toggle("active", value <= selectedRating);
+    });
+}
+
+document.querySelectorAll(".star").forEach(star => {
+    star.addEventListener("click", () => {
+        selectedRating = Number(star.dataset.rating);
+        updateRatingStars();
+    });
+});
+
+async function loadDiscussion(bookId) {
+    selectedRating = 0;
+    updateRatingStars();
+
+    $("ratingSummary").textContent = "Loading ratings...";
+
+    const { data: ratings, error: ratingError } = await supabaseClient
+        .from("literary_ratings")
+        .select("rating,user_id")
+        .eq("book_id", bookId);
+
+    if (ratingError) {
+        console.error(ratingError);
+        $("ratingSummary").textContent = "Unable to load ratings.";
+    } else {
+        const list = ratings || [];
+
+        if (list.length) {
+            const total = list.reduce((sum, item) => sum + item.rating, 0);
+            const average = total / list.length;
+
+            $("ratingSummary").textContent =
+                "Average: " + average.toFixed(1) +
+                " / 5 from " + list.length +
+                (list.length === 1 ? " rating." : " ratings.");
+        } else {
+            $("ratingSummary").textContent = "No ratings yet. Be the first to rate this book.";
+        }
+
+        if (currentUser) {
+            const existing = list.find(item => item.user_id === currentUser.id);
+
+            if (existing) {
+                selectedRating = existing.rating;
+                updateRatingStars();
+            }
+        }
+    }
+
+    await loadComments(bookId);
+}
+
+async function submitRating() {
+    if (!requireLogin()) return;
+
+    if (!selectedBook || !selectedRating) {
+        showMessage(
+            "actionMessage",
+            "Select a star rating before submitting.",
+            "error"
+        );
+        return;
+    }
+
+    const { error } = await supabaseClient
+        .from("literary_ratings")
+        .upsert({
+            book_id: selectedBook.id,
+            user_id: currentUser.id,
+            rating: selectedRating,
+            updated_at: new Date().toISOString()
+        }, {
+            onConflict: "book_id,user_id"
+        });
+
+    if (error) {
+        console.error(error);
+        showMessage("actionMessage", error.message, "error");
+        return;
+    }
+
+    showMessage("actionMessage", "Your rating has been saved.");
+
+    await loadDiscussion(selectedBook.id);
+    await loadRatingSummaries();
+    renderBooks();
+}
+
+$("submitRating").addEventListener("click", submitRating);
+
+/* ==========================================
+   COMMENTS AND REPLIES
+========================================== */
+
+async function loadComments(bookId) {
+    $("commentsList").innerHTML =
+        '<div class="loading">Loading discussion...</div>';
+
+    const { data, error } = await supabaseClient
+        .from("literary_comments")
+        .select("id,book_id,user_id,parent_comment_id,comment,status,created_at")
+        .eq("book_id", bookId)
+        .eq("status", "Published")
+        .order("created_at", { ascending: true });
+
+    if (error) {
+        console.error(error);
+
+        $("commentsList").innerHTML =
+            '<div class="empty-state">Unable to load comments.</div>';
+        return;
+    }
+
+    const comments = data || [];
+
+    if (!comments.length) {
+        $("commentsList").innerHTML =
+            '<div class="empty-state">No comments yet. Start the discussion!</div>';
+        return;
+    }
+
+    const roots = comments.filter(item => !item.parent_comment_id);
+
+    $("commentsList").innerHTML = "";
+
+    roots.forEach(comment => {
+        const replies = comments.filter(
+            item => item.parent_comment_id === comment.id
+        );
+
+        $("commentsList").appendChild(
+            createCommentElement(comment, replies)
+        );
+    });
+}
+
+function createCommentElement(comment, replies = []) {
+    const wrapper = document.createElement("article");
+    wrapper.className = "comment";
+
+    const head = document.createElement("div");
+    head.className = "comment-head";
+
+    const author = document.createElement("div");
+    author.className = "comment-author";
+    author.textContent =
+        "Reader " + comment.user_id.slice(0, 8);
+
+    const date = document.createElement("div");
+    date.className = "comment-date";
+    date.textContent = formatDate(comment.created_at);
+
+    head.appendChild(author);
+    head.appendChild(date);
+
+    const text = document.createElement("div");
+    text.className = "comment-text";
+    text.textContent = comment.comment;
+
+    wrapper.appendChild(head);
+    wrapper.appendChild(text);
+
+    if (currentUser) {
+        const actions = document.createElement("div");
+        actions.className = "comment-actions";
+
+        const replyButton = document.createElement("button");
+        replyButton.className = "reply-button";
+        replyButton.textContent = "Reply";
+
+        replyButton.addEventListener("click", () => {
+            createReplyForm(comment.id, wrapper);
+        });
+
+        actions.appendChild(replyButton);
+        wrapper.appendChild(actions);
+    }
+
+    if (replies.length) {
+        const replyArea = document.createElement("div");
+        replyArea.className = "reply-area";
+
+        replies.forEach(reply => {
+            const replyElement = document.createElement("div");
+            replyElement.className = "comment";
+
+            const replyHead = document.createElement("div");
+            replyHead.className = "comment-head";
+
+            const replyAuthor = document.createElement("div");
+            replyAuthor.className = "comment-author";
+            replyAuthor.textContent =
+                "Reader " + reply.user_id.slice(0, 8);
+
+            const replyDate = document.createElement("div");
+            replyDate.className = "comment-date";
+            replyDate.textContent = formatDate(reply.created_at);
+
+            replyHead.appendChild(replyAuthor);
+            replyHead.appendChild(replyDate);
+
+            const replyText = document.createElement("div");
+            replyText.className = "comment-text";
+            replyText.textContent = reply.comment;
+
+            replyElement.appendChild(replyHead);
+            replyElement.appendChild(replyText);
+
+            replyArea.appendChild(replyElement);
+        });
+
+        wrapper.appendChild(replyArea);
+    }
+
+    return wrapper;
+}
+
+function createReplyForm(parentId, container) {
+    if (!requireLogin()) return;
+
+    const existing = container.querySelector(".reply-form");
+    if (existing) {
+        existing.remove();
+        return;
+    }
+
+    const form = document.createElement("div");
+    form.className = "reply-form";
+
+    const textarea = document.createElement("textarea");
+    textarea.className = "field";
+    textarea.placeholder = "Write your reply...";
+
+    const submit = document.createElement("button");
+    submit.className = "btn btn-primary";
+    submit.textContent = "Post Reply";
+
+    submit.addEventListener("click", async () => {
+        const message = textarea.value.trim();
+
+        if (!message) {
+            textarea.focus();
+            return;
+        }
+
+        submit.disabled = true;
+
+        const { error } = await supabaseClient
+            .from("literary_comments")
+            .insert({
+                book_id: selectedBook.id,
+                user_id: currentUser.id,
+                parent_comment_id: parentId,
+                comment: message,
+                status: "Published"
+            });
+
+        submit.disabled = false;
+
+        if (error) {
+            showMessage("actionMessage", error.message, "error");
+            return;
+        }
+
+        showMessage("actionMessage", "Your reply has been posted.");
+        await loadComments(selectedBook.id);
+    });
+
+    form.appendChild(textarea);
+    form.appendChild(submit);
+
+    container.appendChild(form);
+    textarea.focus();
+}
+
+async function postComment() {
+    if (!requireLogin()) return;
+
+    if (!selectedBook) return;
+
+    const message = $("newComment").value.trim();
+
+    if (!message) {
+        showMessage(
+            "actionMessage",
+            "Write a comment before posting.",
+            "error"
+        );
+        return;
+    }
+
+    $("postComment").disabled = true;
+
+    const { error } = await supabaseClient
+        .from("literary_comments")
+        .insert({
+            book_id: selectedBook.id,
+            user_id: currentUser.id,
+            parent_comment_id: null,
+            comment: message,
+            status: "Published"
+        });
+
+    $("postComment").disabled = false;
+
+    if (error) {
+        console.error(error);
+        showMessage("actionMessage", error.message, "error");
+        return;
+    }
+
+    $("newComment").value = "";
+
+    showMessage("actionMessage", "Your comment has been posted.");
+
+    await loadComments(selectedBook.id);
+}
+
+$("postComment").addEventListener("click", postComment);
+
+/* ==========================================
+   INITIALISE
+========================================== */
+
+async function initialiseLiterature() {
+    $("currentYear").textContent = new Date().getFullYear();
+
+    await refreshAuthentication();
+    await loadBooks();
+}
+
+initialiseLiterature();
+
+</script>
+
+</body>
+</html>
