@@ -4,26 +4,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>MASTERBOOK Digital Library | Free Learning Resources and Revision Notes</title>
-
-<meta name="description" content="Explore the MASTERBOOK Digital Library for educational resources, revision notes, coursebooks and learning materials across primary, junior school, senior school, university and professional education.">
-<meta name="keywords" content="MASTERBOOK library, free learning resources Kenya, CBC learning materials, revision notes, Geography notes, Mathematics notes, Grade 10 learning resources, Grade 12 revision materials, university resources, educational books">
-<meta name="author" content="G.O. Odhiambo">
-<meta name="robots" content="index, follow">
 <meta name="theme-color" content="#10243e">
 
+<title>MASTERBOOK Digital Library | Learning Resources</title>
+<meta name="description" content="Explore MASTERBOOK educational resources, revision notes, coursebooks and learning materials across primary, junior school, senior school, university and professional education.">
+<meta name="keywords" content="MASTERBOOK, Kenyan CBC resources, free learning resources, revision notes, Mathematics, Geography, educational books">
+<meta name="author" content="G.O. Odhiambo">
+<meta name="robots" content="index, follow">
 <link rel="canonical" href="https://godhiambo992-hu.github.io/masterbook-platform/library.html">
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="MASTERBOOK Digital Library | Educational Resources">
-<meta property="og:description" content="Discover learning materials, revision notes, coursebooks and educational resources for every stage of education.">
+<meta property="og:title" content="MASTERBOOK Digital Library">
+<meta property="og:description" content="Discover educational resources for every stage of learning.">
 <meta property="og:url" content="https://godhiambo992-hu.github.io/masterbook-platform/library.html">
 <meta property="og:site_name" content="MASTERBOOK">
-
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MASTERBOOK Digital Library">
-<meta name="twitter:description" content="Explore educational resources, revision materials and coursebooks on MASTERBOOK.">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -33,23 +28,20 @@
   --blue:#1769aa;
   --gold:#e5ad42;
   --light:#f4f7fb;
-  --white:#ffffff;
+  --white:#fff;
   --text:#243449;
   --muted:#64748b;
   --border:#e1e7ef;
   --green:#16834a;
   --red:#b83232;
 }
-
 *{box-sizing:border-box}
-
 body{
   margin:0;
   font-family:Arial,sans-serif;
   color:var(--text);
   background:var(--light);
 }
-
 header{
   background:var(--navy);
   color:white;
@@ -60,7 +52,6 @@ header{
   gap:15px;
   flex-wrap:wrap;
 }
-
 .logo{
   font-size:24px;
   font-weight:bold;
@@ -68,21 +59,14 @@ header{
   color:white;
   text-decoration:none;
 }
-
 .logo span{color:var(--gold)}
-
-header a{
-  color:white;
-  text-decoration:none;
-}
-
+header a{color:white;text-decoration:none}
 main{
   max-width:1250px;
   margin:auto;
   padding:30px 5%;
   min-height:65vh;
 }
-
 .hero{
   background:linear-gradient(120deg,var(--navy),var(--blue));
   color:white;
@@ -90,52 +74,38 @@ main{
   border-radius:13px;
   text-align:center;
 }
-
-.hero h1{
-  font-size:32px;
-  margin:0 0 12px;
-}
-
+.hero h1{font-size:32px;margin:0 0 12px}
 .hero p{
   color:#e4edf7;
   line-height:1.7;
   max-width:700px;
   margin:auto;
 }
-
-.heading{
-  margin:30px 0 15px;
-  color:var(--navy);
-}
-
+.heading{margin:30px 0 15px;color:var(--navy)}
 .summary{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
   gap:12px;
   margin:22px 0;
 }
-
 .summary-card{
   background:white;
   padding:17px;
   border:1px solid var(--border);
   border-radius:9px;
 }
-
 .summary-card strong{
   display:block;
   color:var(--blue);
   font-size:25px;
   margin-top:7px;
 }
-
 .controls{
   display:grid;
   grid-template-columns:2fr 1fr 1fr;
   gap:12px;
   margin:20px 0;
 }
-
 input,select{
   width:100%;
   padding:13px;
@@ -145,7 +115,6 @@ input,select{
   background:white;
   color:var(--text);
 }
-
 button{
   border:0;
   border-radius:7px;
@@ -153,22 +122,9 @@ button{
   font-weight:bold;
   cursor:pointer;
 }
-
-button:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
-
-.primary{
-  background:var(--blue);
-  color:white;
-}
-
-.secondary{
-  background:var(--navy);
-  color:white;
-}
-
+button:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:var(--blue);color:white}
+.secondary{background:var(--navy);color:white}
 .status{
   margin:15px 0;
   padding:13px;
@@ -179,24 +135,14 @@ button:disabled{
   line-height:1.6;
   overflow-wrap:anywhere;
 }
-
-.status.error{
-  background:#fde8e8;
-  color:var(--red);
-}
-
-.status.success{
-  background:#e4f5e9;
-  color:var(--green);
-}
-
+.status.error{background:#fde8e8;color:var(--red)}
+.status.success{background:#e4f5e9;color:var(--green)}
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
   gap:18px;
   align-items:stretch;
 }
-
 .card{
   background:white;
   padding:21px;
@@ -207,49 +153,38 @@ button:disabled{
   flex-direction:column;
   min-width:0;
 }
-
 .card h3{
   color:var(--navy);
   line-height:1.4;
-  margin:7px 0;
+  margin:10px 0;
   overflow-wrap:anywhere;
 }
-
 .card p{
   font-size:14px;
   line-height:1.7;
   overflow-wrap:anywhere;
 }
-
-.tag{
+.tag,.format-tag{
   display:inline-block;
   align-self:flex-start;
   padding:5px 10px;
-  background:#e8f1fb;
-  color:var(--blue);
-  font-size:12px;
   border-radius:20px;
+  font-size:12px;
 }
-
+.tag{background:#e8f1fb;color:var(--blue)}
 .format-tag{
-  display:inline-block;
-  align-self:flex-start;
-  padding:5px 10px;
   background:#fff3d9;
   color:#805400;
-  font-size:11px;
   font-weight:bold;
   border-radius:5px;
   margin-top:8px;
 }
-
 .meta{
   font-size:12px;
   color:var(--muted);
   line-height:1.8;
-  margin:10px 0;
+  margin:8px 0;
 }
-
 .resource-actions{
   display:flex;
   flex-wrap:wrap;
@@ -257,23 +192,13 @@ button:disabled{
   margin-top:auto;
   padding-top:15px;
 }
-
 .resource-actions button{
   flex:1;
   min-width:110px;
   font-size:13px;
 }
-
-.view-button{
-  background:var(--blue);
-  color:white;
-}
-
-.download-button{
-  background:var(--navy);
-  color:white;
-}
-
+.view-button{background:var(--blue);color:white}
+.download-button{background:var(--navy);color:white}
 .empty{
   display:none;
   text-align:center;
@@ -283,7 +208,6 @@ button:disabled{
   border-radius:10px;
   margin:15px 0;
 }
-
 .pagination{
   display:flex;
   align-items:center;
@@ -292,21 +216,9 @@ button:disabled{
   flex-wrap:wrap;
   margin:25px 0;
 }
-
-.pagination button{
-  background:var(--navy);
-  color:white;
-}
-
-.pagination button:disabled{
-  background:#aab6c3;
-}
-
-#pageInfo{
-  font-size:14px;
-  color:var(--muted);
-}
-
+.pagination button{background:var(--navy);color:white}
+.pagination button:disabled{background:#aab6c3}
+#pageInfo{font-size:14px;color:var(--muted)}
 .toolbar{
   display:flex;
   gap:10px;
@@ -314,9 +226,6 @@ button:disabled{
   flex-wrap:wrap;
   margin:15px 0;
 }
-
-.toolbar button{white-space:nowrap}
-
 footer{
   background:var(--navy);
   color:white;
@@ -325,15 +234,12 @@ footer{
   margin-top:45px;
   font-size:13px;
 }
-
 footer p{color:#d3dfed}
-
 @media(max-width:700px){
   main{padding:22px 4%}
   .hero{padding:35px 18px}
   .hero h1{font-size:25px}
   .controls{grid-template-columns:1fr}
-  .toolbar input{flex:1;min-width:150px}
   .resource-actions button{min-width:100px}
 }
 </style>
@@ -342,107 +248,81 @@ footer p{color:#d3dfed}
 <body>
 
 <header>
-  <a href="index.html" class="logo">
-    MASTER<span>BOOK</span>
-  </a>
+  <a href="index.html" class="logo">MASTER<span>BOOK</span></a>
   <a href="index.html">← Back to Home</a>
 </header>
 
 <main>
 
-  <section class="hero">
-    <h1>MASTERBOOK Digital Library</h1>
-    <p>
-      Discover knowledge. Explore subjects. Advance your learning.
-      Access educational resources for every stage of your learning journey.
-    </p>
-  </section>
+<section class="hero">
+  <h1>MASTERBOOK Digital Library</h1>
+  <p>
+    Discover knowledge. Explore subjects. Advance your learning.
+    Access educational resources for every stage of your learning journey.
+  </p>
+</section>
 
-  <section class="summary">
-    <div class="summary-card">
-      Available resources
-      <strong id="resourceCount">0</strong>
-    </div>
-
-    <div class="summary-card">
-      Subjects
-      <strong id="subjectCount">0</strong>
-    </div>
-
-    <div class="summary-card">
-      Education levels
-      <strong id="levelCount">0</strong>
-    </div>
-  </section>
-
-  <h2 class="heading">Explore Educational Resources</h2>
-
-  <div class="controls">
-    <input
-      id="search"
-      type="search"
-      placeholder="Search titles, subjects or resources..."
-      aria-label="Search resources"
-    >
-
-    <select id="level" aria-label="Filter by education level">
-      <option value="">All Education Levels</option>
-      <option value="Primary">Primary</option>
-      <option value="Junior School">Junior School</option>
-      <option value="Senior School">Senior School</option>
-      <option value="University">University</option>
-      <option value="Professional">Professional</option>
-    </select>
-
-    <select id="category" aria-label="Filter by subject">
-      <option value="">All Subjects</option>
-      <option value="Mathematics">Mathematics</option>
-      <option value="Geography">Geography</option>
-      <option value="Science">Science</option>
-      <option value="Languages">Languages</option>
-      <option value="Research">Research</option>
-      <option value="Technology">Technology</option>
-    </select>
+<section class="summary">
+  <div class="summary-card">
+    Available resources
+    <strong id="resourceCount">0</strong>
   </div>
-
-  <div class="toolbar">
-    <button id="refreshButton" class="primary" type="button">
-      ↻ Refresh Library
-    </button>
-
-    <button id="clearFilters" class="secondary" type="button">
-      Clear Filters
-    </button>
+  <div class="summary-card">
+    Subjects
+    <strong id="subjectCount">0</strong>
   </div>
-
-  <div id="libraryStatus" class="status" role="status" aria-live="polite">
-    Connecting to MASTERBOOK Library...
+  <div class="summary-card">
+    Education levels
+    <strong id="levelCount">0</strong>
   </div>
+</section>
 
-  <h2 class="heading">Available Learning Resources</h2>
+<h2 class="heading">Explore Educational Resources</h2>
 
-  <div id="library" class="grid"></div>
+<div class="controls">
+  <input id="search" type="search"
+    placeholder="Search titles, subjects or resources..."
+    aria-label="Search resources">
 
-  <div id="empty" class="empty">
-    <h3>No matching resources found.</h3>
-    <p>Try another search term, subject or education level.</p>
+  <select id="level" aria-label="Filter by education level">
+    <option value="">All Education Levels</option>
+  </select>
 
-    <button id="emptyClear" class="primary" type="button">
-      Clear Filters
-    </button>
-  </div>
+  <select id="category" aria-label="Filter by subject">
+    <option value="">All Subjects</option>
+  </select>
+</div>
 
-  <div class="pagination" id="pagination">
-    <button id="previousPage" type="button" disabled>
-      ← Previous
-    </button>
+<div class="toolbar">
+  <button id="refreshButton" class="primary" type="button">
+    ↻ Refresh Library
+  </button>
+  <button id="clearFilters" class="secondary" type="button">
+    Clear Filters
+  </button>
+</div>
 
-    <span id="pageInfo">Page 1 of 1</span>
+<div id="libraryStatus" class="status" role="status" aria-live="polite">
+  Connecting to MASTERBOOK Library...
+</div>
 
-    <button id="nextPage" type="button" disabled>
-      Next →
-    </button>
-  </div>
+<h2 class="heading">Available Learning Resources</h2>
+
+<div id="library" class="grid"></div>
+
+<div id="empty" class="empty">
+  <h3>No matching resources found.</h3>
+  <p>Try another search term, subject or education level.</p>
+  <button id="emptyClear" class="primary" type="button">
+    Clear Filters
+  </button>
+</div>
+
+<div class="pagination" id="pagination">
+  <button id="previousPage" type="button" disabled>← Previous</button>
+  <span id="pageInfo">Page 1 of 1</span>
+  <button id="nextPage" type="button" disabled>Next →</button>
+</div>
 
 </main>
 
@@ -453,10 +333,10 @@ footer p{color:#d3dfed}
 </footer>
 
 <script>
-
-/* ==================================================
-   MASTERBOOK SUPABASE CONFIGURATION
-================================================== */
+/* =========================================
+   SUPABASE CONFIGURATION
+   Preserved from the existing Library file.
+========================================= */
 
 const SUPABASE_URL =
   "https://bxsrhvcqjjtdnflhoplu.supabase.co";
@@ -467,18 +347,23 @@ const SUPABASE_PUBLISHABLE_KEY =
 const BUCKET_NAME = "masterbook-resources";
 const PAGE_SIZE = 12;
 const SIGNED_URL_SECONDS = 3600;
-
 const DOCUMENT_READER = "document-reader.html";
+
+if (!window.supabase) {
+  document.getElementById("libraryStatus").textContent =
+    "The Supabase library could not load. Check your internet connection and refresh.";
+  document.getElementById("libraryStatus").classList.add("error");
+  throw new Error("Supabase JavaScript library is unavailable.");
+}
 
 const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_PUBLISHABLE_KEY
 );
 
-
-/* ==================================================
-   ELEMENT REFERENCES AND STATE
-================================================== */
+/* =========================================
+   ELEMENTS AND STATE
+========================================= */
 
 const search = document.getElementById("search");
 const level = document.getElementById("level");
@@ -486,182 +371,142 @@ const category = document.getElementById("category");
 const library = document.getElementById("library");
 const empty = document.getElementById("empty");
 const statusMessage = document.getElementById("libraryStatus");
-
 const previousPage = document.getElementById("previousPage");
 const nextPage = document.getElementById("nextPage");
 const pageInfo = document.getElementById("pageInfo");
+const pagination = document.getElementById("pagination");
+const refreshButton = document.getElementById("refreshButton");
 
 let resources = [];
 let filteredResources = [];
 let currentPage = 1;
 let loading = false;
 
-
-/* ==================================================
-   SUPPORTED DOCUMENT FORMATS
-================================================== */
+/* =========================================
+   SUPPORTED FORMATS
+========================================= */
 
 const SUPPORTED_FORMATS = {
-  pdf: "PDF",
-  docx: "DOCX",
-  doc: "DOC",
-  pptx: "PPTX",
-  ppt: "PPT",
-  xlsx: "XLSX",
-  xls: "XLS",
-  csv: "CSV",
-  txt: "TXT",
-  rtf: "RTF",
-  jpg: "JPG",
-  jpeg: "JPEG",
-  png: "PNG",
-  gif: "GIF",
-  webp: "WEBP",
-  bmp: "BMP",
-  svg: "SVG",
-  avif: "AVIF"
+  pdf:"PDF",
+  docx:"DOCX",
+  doc:"DOC",
+  pptx:"PPTX",
+  ppt:"PPT",
+  xlsx:"XLSX",
+  xls:"XLS",
+  csv:"CSV",
+  txt:"TXT",
+  rtf:"RTF",
+  jpg:"JPG",
+  jpeg:"JPEG",
+  png:"PNG",
+  gif:"GIF",
+  webp:"WEBP",
+  bmp:"BMP",
+  svg:"SVG",
+  tif:"TIF",
+  tiff:"TIFF",
+  avif:"AVIF"
 };
 
-
-/* ==================================================
+/* =========================================
    GENERAL HELPERS
-================================================== */
+========================================= */
 
 function createElement(tag, className, text) {
   const element = document.createElement(tag);
-
   if (className) element.className = className;
   if (text !== undefined) element.textContent = text;
-
   return element;
 }
 
 function setStatus(message, type = "normal") {
   statusMessage.textContent = message;
   statusMessage.className = "status";
-
-  if (type === "error") {
-    statusMessage.classList.add("error");
-  }
-
-  if (type === "success") {
-    statusMessage.classList.add("success");
-  }
+  if (type === "error") statusMessage.classList.add("error");
+  if (type === "success") statusMessage.classList.add("success");
 }
 
 function formatDate(value) {
   if (!value) return "Date unavailable";
-
   const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "Date unavailable";
-  }
+  if (Number.isNaN(date.getTime())) return "Date unavailable";
 
   return date.toLocaleDateString("en-KE", {
-    year: "numeric",
-    month: "short",
-    day: "numeric"
+    year:"numeric",
+    month:"short",
+    day:"numeric"
   });
 }
 
-
-/* ==================================================
-   DOCUMENT FORMAT DETECTION
-================================================== */
-
 function getFileExtension(storagePath) {
-
   if (!storagePath) return "";
 
-  try {
+  const cleanPath = String(storagePath)
+    .split("?")[0]
+    .split("#")[0];
 
-    let cleanPath = String(storagePath).split("?")[0];
+  const filename = cleanPath.split("/").pop() || "";
+  const lastDot = filename.lastIndexOf(".");
 
-    cleanPath = cleanPath.split("#")[0];
-
-    const filename = cleanPath.split("/").pop() || "";
-
-    const lastDot = filename.lastIndexOf(".");
-
-    if (lastDot === -1) return "";
-
-    return filename.substring(lastDot + 1).toLowerCase();
-
-  } catch (error) {
-
-    console.error("Format detection error:", error);
-
-    return "";
-
-  }
+  return lastDot === -1
+    ? ""
+    : filename.substring(lastDot + 1).toLowerCase();
 }
 
 function getDocumentFormat(resource) {
-
   const extension = getFileExtension(resource.storage_path);
 
   if (SUPPORTED_FORMATS[extension]) {
     return {
-      extension: extension,
-      label: SUPPORTED_FORMATS[extension]
+      extension,
+      label:SUPPORTED_FORMATS[extension]
     };
   }
 
-  const resourceType = String(
-    resource.resource_type || ""
-  ).trim().toLowerCase();
+  const type = String(resource.resource_type || "")
+    .trim().toLowerCase();
 
   const typeMap = {
-    "pdf": "pdf",
-    "word": "docx",
-    "word document": "docx",
-    "docx": "docx",
-    "doc": "doc",
-    "powerpoint": "pptx",
-    "presentation": "pptx",
-    "pptx": "pptx",
-    "ppt": "ppt",
-    "excel": "xlsx",
-    "spreadsheet": "xlsx",
-    "xlsx": "xlsx",
-    "xls": "xls",
-    "csv": "csv",
-    "text": "txt",
-    "txt": "txt",
-    "rtf": "rtf",
-    "image": "image"
+    pdf:"pdf",
+    word:"docx",
+    "word document":"docx",
+    docx:"docx",
+    doc:"doc",
+    powerpoint:"pptx",
+    presentation:"pptx",
+    pptx:"pptx",
+    ppt:"ppt",
+    excel:"xlsx",
+    spreadsheet:"xlsx",
+    xlsx:"xlsx",
+    xls:"xls",
+    csv:"csv",
+    text:"txt",
+    txt:"txt",
+    rtf:"rtf"
   };
 
-  const mapped = typeMap[resourceType];
+  const mapped = typeMap[type];
 
-  if (mapped && mapped !== "image") {
+  if (mapped && SUPPORTED_FORMATS[mapped]) {
     return {
-      extension: mapped,
-      label: SUPPORTED_FORMATS[mapped]
-    };
-  }
-
-  if (mapped === "image") {
-    return {
-      extension: "image",
-      label: "IMAGE"
+      extension:mapped,
+      label:SUPPORTED_FORMATS[mapped]
     };
   }
 
   return {
-    extension: "",
-    label: "DOCUMENT"
+    extension:"",
+    label:"DOCUMENT"
   };
 }
 
-
-/* ==================================================
-   SUMMARY
-================================================== */
+/* =========================================
+   SUMMARY COUNTS
+========================================= */
 
 function updateSummary() {
-
   const subjects = new Set(
     resources.map(r => r.subject).filter(Boolean)
   );
@@ -680,56 +525,58 @@ function updateSummary() {
     levels.size;
 }
 
+/* =========================================
+   DYNAMIC FILTER OPTIONS
+========================================= */
 
-/* ==================================================
-   DYNAMIC SUBJECT FILTER
-================================================== */
-
-function updateSubjectOptions() {
-
-  const selected = category.value;
+function updateFilterOptions() {
+  const selectedSubject = category.value;
+  const selectedLevel = level.value;
 
   const subjects = [...new Set(
     resources.map(r => r.subject).filter(Boolean)
   )].sort((a,b) => a.localeCompare(b));
 
-  category.innerHTML = "";
+  const levels = [...new Set(
+    resources.map(r => r.education_level).filter(Boolean)
+  )].sort((a,b) => a.localeCompare(b));
 
-  const allOption = document.createElement("option");
-  allOption.value = "";
-  allOption.textContent = "All Subjects";
-
-  category.appendChild(allOption);
+  category.innerHTML = '<option value="">All Subjects</option>';
+  level.innerHTML = '<option value="">All Education Levels</option>';
 
   subjects.forEach(subject => {
-
     const option = document.createElement("option");
-
     option.value = subject;
     option.textContent = subject;
-
     category.appendChild(option);
-
   });
 
-  if (subjects.includes(selected)) {
-    category.value = selected;
+  levels.forEach(item => {
+    const option = document.createElement("option");
+    option.value = item;
+    option.textContent = item;
+    level.appendChild(option);
+  });
+
+  if (subjects.includes(selectedSubject)) {
+    category.value = selectedSubject;
+  }
+
+  if (levels.includes(selectedLevel)) {
+    level.value = selectedLevel;
   }
 }
 
-
-/* ==================================================
-   RESOURCE FILTERING
-================================================== */
+/* =========================================
+   SEARCH AND FILTER
+========================================= */
 
 function applyFilters() {
-
-  const searchTerm = search.value.trim().toLowerCase();
+  const term = search.value.trim().toLowerCase();
   const selectedLevel = level.value;
   const selectedSubject = category.value;
 
   filteredResources = resources.filter(resource => {
-
     const searchableText = [
       resource.title,
       resource.description,
@@ -740,33 +587,22 @@ function applyFilters() {
       getDocumentFormat(resource).label
     ].filter(Boolean).join(" ").toLowerCase();
 
-    const matchesSearch =
-      !searchTerm || searchableText.includes(searchTerm);
-
-    const matchesLevel =
-      !selectedLevel ||
-      resource.education_level === selectedLevel;
-
-    const matchesSubject =
-      !selectedSubject ||
-      resource.subject === selectedSubject;
-
-    return matchesSearch && matchesLevel && matchesSubject;
-
+    return (
+      (!term || searchableText.includes(term)) &&
+      (!selectedLevel || resource.education_level === selectedLevel) &&
+      (!selectedSubject || resource.subject === selectedSubject)
+    );
   });
 
   currentPage = 1;
-
   renderLibrary();
 }
 
-
-/* ==================================================
-   CREATE SIGNED STORAGE URL
-================================================== */
+/* =========================================
+   SECURE SIGNED FILE URL
+========================================= */
 
 async function createResourceUrl(resource, downloadFile) {
-
   const path = resource.storage_path
     ? resource.storage_path.trim()
     : "";
@@ -776,19 +612,13 @@ async function createResourceUrl(resource, downloadFile) {
   }
 
   const options = downloadFile
-    ? {
-        download: true
-      }
+    ? {download:true}
     : {};
 
-  const { data, error } = await supabaseClient
+  const {data,error} = await supabaseClient
     .storage
     .from(BUCKET_NAME)
-    .createSignedUrl(
-      path,
-      SIGNED_URL_SECONDS,
-      options
-    );
+    .createSignedUrl(path, SIGNED_URL_SECONDS, options);
 
   if (error) throw error;
 
@@ -799,104 +629,70 @@ async function createResourceUrl(resource, downloadFile) {
   return data.signedUrl;
 }
 
-
-/* ==================================================
-   OPEN ANY DOCUMENT IN MASTERBOOK READER
-================================================== */
+/* =========================================
+   OPEN OR DOWNLOAD RESOURCE
+========================================= */
 
 async function openResource(resource, downloadFile, button) {
-
-  const format = getDocumentFormat(resource);
-
-  const extension = format.extension;
-
   let newWindow = null;
 
-  /*
-    Open the new tab immediately after the user clicks.
-    This reduces the risk of browser popup blocking.
-  */
-
   if (!downloadFile) {
-
     newWindow = window.open("about:blank", "_blank");
 
     if (!newWindow) {
-
       setStatus(
-        "Your browser blocked the document reader. Allow pop-ups for MASTERBOOK and try again.",
+        "Your browser blocked the document reader. Allow pop-ups and try again.",
         "error"
       );
-
       return;
     }
-
   }
 
   const originalText = button.textContent;
-
   button.disabled = true;
-
   button.textContent = downloadFile
     ? "Preparing download..."
     : "Opening document...";
 
   try {
-
-    const signedUrl = await createResourceUrl(
-      resource,
-      downloadFile
-    );
+    const signedUrl = await createResourceUrl(resource, downloadFile);
 
     if (downloadFile) {
-
       const link = document.createElement("a");
-
       link.href = signedUrl;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
+      link.download = "";
 
       document.body.appendChild(link);
-
       link.click();
-
       link.remove();
 
-      setStatus(
-        "Your original file is ready for download.",
-        "success"
-      );
-
+      setStatus("Your original file is ready for download.", "success");
     } else {
-
       const readerUrl = new URL(
         DOCUMENT_READER,
         window.location.href
       );
 
       readerUrl.searchParams.set("file", signedUrl);
-
       readerUrl.searchParams.set(
         "title",
         resource.title || "MASTERBOOK Resource"
       );
-
       readerUrl.searchParams.set(
         "type",
-        extension
+        getDocumentFormat(resource).extension
       );
 
       newWindow.location.href = readerUrl.toString();
 
       setStatus(
-        "Opening " + format.label + " in MASTERBOOK Document Reader.",
+        "Opening the resource in MASTERBOOK Document Reader.",
         "success"
       );
-
     }
-
   } catch (error) {
-
     console.error("MASTERBOOK document error:", error);
 
     if (newWindow && !newWindow.closed) {
@@ -907,51 +703,45 @@ async function openResource(resource, downloadFile, button) {
       "Unable to access this document: " + error.message,
       "error"
     );
-
   } finally {
-
     button.disabled = false;
     button.textContent = originalText;
-
   }
 }
 
-
-/* ==================================================
+/* =========================================
    RESOURCE CARD
-================================================== */
+========================================= */
 
 function createResourceCard(resource) {
-
   const card = createElement("article", "card");
-
   const format = getDocumentFormat(resource);
 
-  const tag = createElement(
+  card.appendChild(createElement(
     "span",
     "tag",
     resource.education_level || "Education"
-  );
+  ));
 
-  const formatTag = createElement(
+  card.appendChild(createElement(
     "span",
     "format-tag",
     format.label
-  );
+  ));
 
-  const title = createElement(
+  card.appendChild(createElement(
     "h3",
     "",
     resource.title || "Untitled resource"
-  );
+  ));
 
-  const description = createElement(
+  card.appendChild(createElement(
     "p",
     "",
     resource.description || "Educational learning resource."
-  );
+  ));
 
-  const meta = createElement(
+  card.appendChild(createElement(
     "div",
     "meta",
     [
@@ -959,24 +749,21 @@ function createResourceCard(resource) {
       resource.resource_type,
       resource.curriculum
     ].filter(Boolean).join(" · ")
-  );
+  ));
 
-  const date = createElement(
+  card.appendChild(createElement(
     "div",
     "meta",
     "Added: " + formatDate(resource.created_at)
-  );
+  ));
 
-  const access = createElement(
+  card.appendChild(createElement(
     "div",
     "meta",
     "Access: Free"
-  );
+  ));
 
-  const actions = createElement(
-    "div",
-    "resource-actions"
-  );
+  const actions = createElement("div", "resource-actions");
 
   const viewButton = createElement(
     "button",
@@ -991,15 +778,11 @@ function createResourceCard(resource) {
   );
 
   if (!resource.storage_path) {
-
     viewButton.disabled = true;
     downloadButton.disabled = true;
-
     viewButton.title = "Document file path is unavailable";
     downloadButton.title = "Document file path is unavailable";
-
   } else {
-
     viewButton.addEventListener("click", () => {
       openResource(resource, false, viewButton);
     });
@@ -1007,43 +790,31 @@ function createResourceCard(resource) {
     downloadButton.addEventListener("click", () => {
       openResource(resource, true, downloadButton);
     });
-
   }
 
   actions.appendChild(viewButton);
   actions.appendChild(downloadButton);
-
-  card.appendChild(tag);
-  card.appendChild(formatTag);
-  card.appendChild(title);
-  card.appendChild(description);
-  card.appendChild(meta);
-  card.appendChild(date);
-  card.appendChild(access);
   card.appendChild(actions);
 
   return card;
 }
 
-
-/* ==================================================
+/* =========================================
    PAGINATION
-================================================== */
+========================================= */
 
 function updatePagination(totalPages) {
-
   previousPage.disabled = currentPage <= 1;
   nextPage.disabled = currentPage >= totalPages;
 
   pageInfo.textContent =
     "Page " + currentPage + " of " + totalPages;
 
-  document.getElementById("pagination").style.display =
+  pagination.style.display =
     filteredResources.length > 0 ? "flex" : "none";
 }
 
 function changePage(direction) {
-
   const totalPages = Math.max(
     1,
     Math.ceil(filteredResources.length / PAGE_SIZE)
@@ -1054,32 +825,31 @@ function changePage(direction) {
   if (next < 1 || next > totalPages) return;
 
   currentPage = next;
-
   renderLibrary();
 
-  document.getElementById("library").scrollIntoView({
-    behavior: "smooth",
-    block: "start"
+  library.scrollIntoView({
+    behavior:"smooth",
+    block:"start"
   });
 }
 
-
-/* ==================================================
-   RENDER LIBRARY
-================================================== */
+/* =========================================
+   RENDER RESOURCES
+========================================= */
 
 function renderLibrary() {
-
   library.innerHTML = "";
 
   const total = filteredResources.length;
 
   if (!total) {
-
     empty.style.display = "block";
+    empty.querySelector("h3").textContent =
+      "No matching resources found.";
+    empty.querySelector("p").textContent =
+      "Try another search term, subject or education level.";
 
     updatePagination(1);
-
     return;
   }
 
@@ -1095,62 +865,49 @@ function renderLibrary() {
   }
 
   const start = (currentPage - 1) * PAGE_SIZE;
-  const end = start + PAGE_SIZE;
-
-  const pageResources = filteredResources.slice(start, end);
+  const pageResources = filteredResources.slice(
+    start,
+    start + PAGE_SIZE
+  );
 
   pageResources.forEach(resource => {
-
-    library.appendChild(
-      createResourceCard(resource)
-    );
-
+    library.appendChild(createResourceCard(resource));
   });
 
   updatePagination(totalPages);
 }
 
-
-/* ==================================================
-   LOAD RESOURCES FROM SUPABASE
-================================================== */
+/* =========================================
+   LOAD PUBLISHED FREE RESOURCES
+========================================= */
 
 async function loadResources() {
-
   if (loading) return;
 
   loading = true;
-
-  const refreshButton = document.getElementById("refreshButton");
-
   refreshButton.disabled = true;
   refreshButton.textContent = "Loading...";
 
   setStatus("Connecting to the MASTERBOOK database...");
-
   library.innerHTML = "";
-
   empty.style.display = "none";
 
   try {
-
-    const { data, error } = await supabaseClient
+    const {data,error} = await supabaseClient
       .from("resources")
       .select(
-        "id,title,description,education_level,subject,resource_type,curriculum,storage_path,created_at"
+        "id,title,description,education_level,subject,resource_type,curriculum,access_tier,storage_path,created_at"
       )
       .eq("status", "Published")
       .eq("access_tier", "Free")
-      .order("created_at", { ascending: false });
+      .order("created_at", {ascending:false});
 
     if (error) throw error;
 
     resources = data || [];
 
-    updateSubjectOptions();
-
+    updateFilterOptions();
     updateSummary();
-
     applyFilters();
 
     setStatus(
@@ -1164,23 +921,18 @@ async function loadResources() {
       "MASTERBOOK resources retrieved:",
       resources.length
     );
-
   } catch (error) {
-
     console.error("MASTERBOOK database error:", error);
 
     resources = [];
     filteredResources = [];
 
     updateSummary();
-
     library.innerHTML = "";
 
     empty.style.display = "block";
-
     empty.querySelector("h3").textContent =
       "The Library could not be loaded.";
-
     empty.querySelector("p").textContent =
       "Please check your connection and try refreshing.";
 
@@ -1188,27 +940,19 @@ async function loadResources() {
       "Unable to retrieve resources: " + error.message,
       "error"
     );
-
   } finally {
-
     loading = false;
-
     refreshButton.disabled = false;
-
     refreshButton.textContent = "↻ Refresh Library";
-
   }
 }
 
-
-/* ==================================================
+/* =========================================
    FILTER CONTROLS
-================================================== */
+========================================= */
 
 search.addEventListener("input", applyFilters);
-
 level.addEventListener("change", applyFilters);
-
 category.addEventListener("change", applyFilters);
 
 previousPage.addEventListener("click", () => {
@@ -1219,15 +963,12 @@ nextPage.addEventListener("click", () => {
   changePage(1);
 });
 
-document.getElementById("refreshButton")
-  .addEventListener("click", loadResources);
+refreshButton.addEventListener("click", loadResources);
 
 function clearFilters() {
-
   search.value = "";
   level.value = "";
   category.value = "";
-
   applyFilters();
 }
 
@@ -1237,13 +978,11 @@ document.getElementById("clearFilters")
 document.getElementById("emptyClear")
   .addEventListener("click", clearFilters);
 
-
-/* ==================================================
-   START MASTERBOOK LIBRARY
-================================================== */
+/* =========================================
+   START LIBRARY
+========================================= */
 
 loadResources();
-
 </script>
 
 </body>
