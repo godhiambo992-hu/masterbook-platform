@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>MASTERBOOK PDF Reader</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#eef2f7;color:#243449}
+header{background:#10243e;color:white;padding:15px 4%;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+header strong{font-size:20px;letter-spacing:1px}
+header a{color:white;text-decoration:none}
+main{max-width:1200px;margin:auto;padding:18px}
+.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:white;padding:14px;border-radius:9px;margin-bottom:14px}
+button,.download{border:0;border-radius:6px;padding:11px 15px;background:#1769aa;color:white;font-weight:bold;text-decoration:none;cursor:pointer}
+.download{background:#10243e}
+#title{font-size:17px;font-weight:bold;overflow-wrap:anywhere}
+#status{background:#e8f1fb;padding:12px;border-radius:7px;margin-bottom:12px;font-size:14px;line-height:1.5}
+.viewer{height:calc(100vh - 190px);min-height:450px;background:#dce3eb;border-radius:8px;overflow:hidden;position:relative}
+iframe{width:100%;height:100%;border:0;background:white}
+#error{display:none;background:white;padding:25px;border-radius:8px;line-height:1.6}
+@media(max-width:600px){
+main{padding:10px}
+.viewer{height:calc(100vh - 205px);min-height:400px}
+.toolbar{align-items:stretch}
+#title{width:100%}
+}
+</style>
+</head>
+<body>
+<header>
+<strong>MASTERBOOK</strong>
+<a href="library.html">← Back to Library</a>
+</header>
+
+<main>
+<div class="toolbar">
+<div id="title">MASTERBOOK PDF Reader</div>
+<div>
+<a id="downloadLink" class="download" href="#" target="_blank" rel="noopener">Download PDF</a>
+</div>
+</div>
+
+<div id="status" role="status">Preparing your document...</div>
+
+<div class="viewer" id="viewer">
+<iframe id="pdfFrame" title="MASTERBOOK PDF document"></iframe>
+</div>
+
+<div id="error">
+<h3>Unable to display this PDF</h3>
+<p>Your browser may not support embedded PDF viewing. Use the Download PDF button above to read the document.</p>
+</div>
+</main>
+
+<script>
+(function(){
+const params = new URLSearchParams(window.location.search);
+const pdfUrl = params.get("file");
+const title = params.get("title") || "MASTERBOOK Learning Resource";
+
+const titleElement = document.getElementById("title");
+const status = document.getElementById("status");
+const frame = document.getElementById("pdfFrame");
+const download = document.getElementById("downloadLink");
+const viewer = document.getElementById("viewer");
+const error = document.getElementById("error");
+
+titleElement.textContent = title;
+document.title = title + " | MASTERBOOK Reader";
+
+if(!pdfUrl){
+status.textContent = "No PDF link was supplied. Return to the Library and try again.";
+viewer.style.display = "none";
+error.style.display = "block";
+download.style.display = "none";
+return;
+}
+
+try{
+const parsed = new URL(pdfUrl);
+if(parsed.protocol !== "https:" || parsed.hostname !== "bxsrhvcqjjtdnflhoplu.supabase.co"){
+throw new Error("Invalid document address");
+}
+}catch(e){
+status.textContent = "The document link is invalid or has expired. Return to the Library and try again.";
+viewer.style.display = "none";
+error.style.display = "block";
+download.style.display = "none";
+return;
+}
+
+download.href = pdfUrl;
+frame.src = pdfUrl;
+
+frame.addEventListener("load",function(){
+status.textContent = "Your document has been sent to the PDF viewer. If it does not appear, use Download PDF.";
+});
+
+setTimeout(function(){
+status.textContent = "If the document is still loading, use Download PDF or return to the Library and try again.";
+},12000);
+})();
+</script>
+</body>
+</html>
