@@ -72,6 +72,8 @@ textarea:focus-visible,select:focus-visible {
 .approve { background:#e0f4e8; color:#126b3c; }
 .reject { background:#fde7e7; color:#a52222; }
 .edit { background:#e5eef9; color:#174f88; }
+.view-file { background:#e1edf9; color:#174f88; }
+.download-file { background:#e0f4e8; color:#126b3c; }
 .panel {
   background:white;
   border:1px solid var(--border);
@@ -314,10 +316,10 @@ footer {
       <div class="full">
         <label for="uploadFile">Select document or image</label>
         <input id="uploadFile" type="file"
-          accept=".pdf,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.csv,.txt,.rtf,.jpg,.jpeg,.png,.gif,.webp,.svg,.bmp,.tif,.tiff,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv,text/plain,application/rtf,image/*"
+          accept=".pdf,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.csv,.txt,.rtf,.jpg,.jpeg,.png,.gif,.webp,.svg,.bmp,.tif,.tiff,.avif"
           required>
         <p class="small">
-          Supported: PDF, DOCX, DOC, PPTX, PPT, XLSX, XLS, CSV, TXT, RTF, JPG, JPEG, PNG, GIF, WEBP, SVG, BMP and TIFF. Maximum 50 MB per file.
+          Supported: PDF, DOCX, DOC, PPTX, PPT, XLSX, XLS, CSV, TXT, RTF, JPG, JPEG, PNG, GIF, WEBP, SVG, BMP, TIFF and AVIF. Maximum 50 MB per file.
         </p>
       </div>
     </div>
@@ -409,6 +411,7 @@ function setBusy(value) {
   busy = value;
   $("uploadButton").disabled = value;
   $("uploadButton").textContent = value ? "Upload in progress..." : "Upload Resource";
+  $("retryUploadButton").disabled = value;
 }
 
 function showProgress(percent,label) {
@@ -433,13 +436,15 @@ function formatDate(value) {
   return Number.isNaN(date.getTime()) ? "Not recorded" : date.toLocaleString();
 }
 
+/* ADMINISTRATOR ACCESS */
+
 function requireAdmin() {
   if (!administratorVerified || !currentUser) {
     throw new Error("Administrator access has not been verified.");
   }
 }
 
-/* FILE FORMAT VALIDATION */
+/* SUPPORTED FILE FORMATS */
 
 const FILE_TYPES = {
   pdf:{mime:"application/pdf",label:"PDF"},
@@ -460,8 +465,11 @@ const FILE_TYPES = {
   svg:{mime:"image/svg+xml",label:"SVG"},
   bmp:{mime:"image/bmp",label:"BMP"},
   tif:{mime:"image/tiff",label:"TIF"},
-  tiff:{mime:"image/tiff",label:"TIFF"}
+  tiff:{mime:"image/tiff",label:"TIFF"},
+  avif:{mime:"image/avif",label:"AVIF"}
 };
+
+const OFFICE_FORMATS = ["doc","docx","ppt","pptx","xls","xlsx"];
 
 function getExtension(filename) {
   const name = String(filename || "");
@@ -474,7 +482,7 @@ function getFileInfo(file) {
   const definition = FILE_TYPES[extension];
 
   if (!definition) {
-    throw new Error("Unsupported file format. Select one of the listed supported formats.");
+    throw new Error("Unsupported file format. Select one of the supported formats.");
   }
 
   if (!file.size || file.size > MAX_SIZE) {
@@ -484,9 +492,12 @@ function getFileInfo(file) {
   const suppliedMime = (file.type || "").toLowerCase();
   const mime = definition.mime;
 
+  /*
+    The filename extension determines the stored MIME type.
+    Browsers sometimes report an empty MIME type or
+    application/octet-stream for valid document files.
+  */
   if (suppliedMime && suppliedMime !== mime &&
-      !(extension === "jpg" && suppliedMime === "image/jpeg") &&
-      !(extension === "jpeg" && suppliedMime === "image/jpeg") &&
       suppliedMime !== "application/octet-stream") {
     throw new Error("The selected file's reported format does not match its filename extension.");
   }
@@ -499,7 +510,86 @@ function getFileInfo(file) {
 }
 
 function safeName(name) {
-  return name.replace(/[^a-zA-Z0-9._-]/g,"_").slice(-120);
+  return String(name).replace(/[^a-zA-Z0-9._-]/g,"_").slice(-120);
+}
+
+/* ONLINE VIEWING AND DOWNLOADING */
+
+async function openResource(id,mode) {
+  requireAdmin();
+
+  const resource = resources.find(item => item.id === id);
+
+  if (!resource || !resource.storage_path) {
+    notify("The file storage path is unavailable for this resource.","error");
+    return;
+  }
+
+  if (!["view","download"].includes(mode)) return;
+
+  /*
+    Open the viewing tab immediately to reduce popup blocking.
+    The signed URL is generated after the click.
+  */
+  const viewWindow = mode === "view"
+    ? window.open("about:blank","_blank")
+    : null;
+
+  if (mode === "view" && !viewWindow) {
+    notify("Your browser blocked the viewing window. Allow pop-ups for MASTERBOOK and try again.","error");
+    return;
+  }
+
+  try {
+    const filename = getStoredFileName(resource);
+    const extension = getExtension(filename);
+
+    const options = mode === "download"
+      ? {download:filename}
+      : {download:false};
+
+    const {data,error} = await db.storage
+      .from(BUCKET)
+      .createSignedUrl(resource.storage_path,3600,options);
+
+    if (error) throw error;
+    if (!data || !data.signedUrl) {
+      throw new Error("Supabase did not return a secure file link.");
+    }
+
+    const signedUrl = data.signedUrl;
+
+    if (mode === "download") {
+      window.location.assign(signedUrl);
+      return;
+    }
+
+    if (OFFICE_FORMATS.includes(extension)) {
+      const viewerUrl =
+        "https://docs.google.com/gview?embedded=1&url=" +
+        encodeURIComponent(signedUrl);
+
+      viewWindow.location.href = viewerUrl;
+    } else {
+      viewWindow.location.href = signedUrl;
+    }
+
+    notify(
+      mode === "view"
+        ? "Opening the resource for online viewing."
+        : "Preparing the original file for download.",
+      "success"
+    );
+
+  } catch (error) {
+    console.error("File access failed:",error);
+
+    if (viewWindow && !viewWindow.closed) {
+      viewWindow.close();
+    }
+
+    notify("Could not open this resource: " + error.message,"error");
+  }
 }
 
 /* DASHBOARD NAVIGATION */
@@ -555,6 +645,7 @@ function applyNavigationState(state) {
   document.querySelectorAll(".section-btn").forEach(button => {
     button.classList.toggle("active",button.dataset.section === section);
   });
+
   document.querySelectorAll(".tabs button").forEach(button => {
     button.classList.toggle("active",button.dataset.tab === tab);
   });
@@ -595,9 +686,11 @@ function goToSection(sectionId) {
   if (!$(sectionId)) return;
   const nextState = {section:sectionId,tab:activeTab};
   if (!sameNavigationState(getNavigationState(),nextState)) recordNavigation(nextState);
+
   document.querySelectorAll(".section-btn").forEach(button => {
     button.classList.toggle("active",button.dataset.section === sectionId);
   });
+
   $(sectionId).scrollIntoView({behavior:"smooth",block:"start"});
   updateNavigationInfo();
   updateNavigationButtons();
@@ -606,6 +699,7 @@ function goToSection(sectionId) {
 $("backBtn").addEventListener("click",goBack);
 $("forwardBtn").addEventListener("click",goForward);
 $("homeBtn").addEventListener("click",goHome);
+
 document.querySelectorAll(".section-btn").forEach(button => {
   button.addEventListener("click",() => goToSection(button.dataset.section));
 });
@@ -616,14 +710,17 @@ async function initialise() {
   try {
     const {data:{session},error} = await db.auth.getSession();
     if (error) throw error;
+
     if (!session) {
       location.replace("auth.html");
       return;
     }
 
     currentUser = session.user;
+
     const {data:isAdmin,error:adminError} =
       await db.rpc("masterbook_admin_is_admin");
+
     if (adminError) throw adminError;
 
     if (isAdmin !== true) {
@@ -633,11 +730,17 @@ async function initialise() {
     }
 
     administratorVerified = true;
-    $("identity").textContent = "Administrator access verified: " + currentUser.email;
+
+    $("identity").textContent =
+      "Administrator access verified: " + currentUser.email;
 
     restorePendingUpload();
 
-    const results = await Promise.allSettled([loadResources(),loadApplications()]);
+    const results = await Promise.allSettled([
+      loadResources(),
+      loadApplications()
+    ]);
+
     const failures = results.filter(result => result.status === "rejected");
 
     navigationHistory = [getNavigationState()];
@@ -650,6 +753,7 @@ async function initialise() {
     } else {
       notify("Administrator access verified. Dashboard is ready.","success");
     }
+
   } catch (error) {
     console.error(error);
     administratorVerified = false;
@@ -669,11 +773,14 @@ db.auth.onAuthStateChange((event,session) => {
 
 async function loadApplications() {
   requireAdmin();
+
   $("applicationsList").textContent = "Loading applications...";
   setApplicationsMessage("Retrieving pending applications...");
 
   try {
-    const {data,error} = await db.rpc("masterbook_admin_pending_applications");
+    const {data,error} =
+      await db.rpc("masterbook_admin_pending_applications");
+
     if (error) throw error;
 
     applications = data || [];
@@ -682,15 +789,20 @@ async function loadApplications() {
     if (!applications.length) {
       $("applicationsList").innerHTML =
         "<p class='small'>There are currently no pending Teacher or Contributor applications.</p>";
+
       setApplicationsMessage("Application records are up to date.","success");
       return;
     }
 
-    setApplicationsMessage(applications.length + " pending application(s) found.","success");
+    setApplicationsMessage(
+      applications.length + " pending application(s) found.",
+      "success"
+    );
 
     $("applicationsList").innerHTML = applications.map(app => {
       const applicantId = app.user_id;
       const validId = isValidUUID(applicantId);
+
       return `
         <article class="application">
           <h3>${escapeHTML(app.full_name || "Name not provided")}</h3>
@@ -711,41 +823,63 @@ async function loadApplications() {
           </div>
         </article>`;
     }).join("");
+
   } catch (error) {
     console.error("Application loading failed:",error);
     applications = [];
     $("applicationCount").textContent = "—";
     $("applicationsList").textContent = "Applications could not be loaded.";
-    setApplicationsMessage("Application loading failed: " + error.message,"error");
+
+    setApplicationsMessage(
+      "Application loading failed: " + error.message,
+      "error"
+    );
+
     throw error;
   }
 }
 
 async function reviewApplication(userId,decision,button) {
   requireAdmin();
+
   if (!isValidUUID(userId)) {
     notify("Invalid applicant UUID. Refresh applications and try again.","error");
     return;
   }
+
   if (!["approved","rejected"].includes(decision)) {
     notify("Invalid application decision.","error");
     return;
   }
 
   const action = decision === "approved" ? "approve" : "decline";
-  if (!confirm("Are you sure you want to " + action + " this application?")) return;
+
+  if (!confirm("Are you sure you want to " + action + " this application?")) {
+    return;
+  }
+
   if (button) button.disabled = true;
 
   try {
-    const {data,error} = await db.rpc("masterbook_admin_review_application",
-      {p_user_id:userId,p_decision:decision});
-    if (error) throw error;
-    if (data !== true) throw new Error("Supabase did not confirm the application decision.");
+    const {data,error} = await db.rpc(
+      "masterbook_admin_review_application",
+      {p_user_id:userId,p_decision:decision}
+    );
 
-    notify(decision === "approved"
-      ? "Teacher or Contributor application approved successfully."
-      : "Teacher or Contributor application rejected successfully.","success");
+    if (error) throw error;
+    if (data !== true) {
+      throw new Error("Supabase did not confirm the application decision.");
+    }
+
+    notify(
+      decision === "approved"
+        ? "Teacher or Contributor application approved successfully."
+        : "Teacher or Contributor application rejected successfully.",
+      "success"
+    );
+
     await loadApplications();
+
   } catch (error) {
     console.error("Application review failed:",error);
     notify("Application review failed: " + error.message,"error");
@@ -756,14 +890,18 @@ async function reviewApplication(userId,decision,button) {
 $("applicationsList").addEventListener("click",event => {
   const button = event.target.closest("button[data-application-action]");
   if (!button || button.disabled) return;
+
   const userId = button.dataset.userId;
   const action = button.dataset.applicationAction;
+
   const decision = action === "approve" ? "approved" :
     action === "reject" ? "rejected" : null;
+
   if (!decision || !isValidUUID(userId)) {
     notify("Applicant information or action is invalid.","error");
     return;
   }
+
   reviewApplication(userId,decision,button);
 });
 
@@ -775,18 +913,26 @@ $("refreshApplications").addEventListener("click",() => {
 
 async function loadResources() {
   requireAdmin();
+
   $("resourceList").textContent = "Loading resources...";
+
   try {
     const {data,error} = await db.from("resources")
-      .select("*").order("created_at",{ascending:false});
+      .select("*")
+      .order("created_at",{ascending:false});
+
     if (error) throw error;
+
     resources = data || [];
     currentResourceIndex = 0;
+
     updateStats();
     renderResources();
+
   } catch (error) {
     console.error("Resource loading failed:",error);
     $("resourceList").textContent = "Could not load resources.";
+
     notify("Resource loading failed: " + error.message,"error");
     throw error;
   }
@@ -794,32 +940,61 @@ async function loadResources() {
 
 function updateStats() {
   $("totalCount").textContent = resources.length;
+
   $("pendingCount").textContent = resources.filter(
-    r => r.status === "Draft" && !r.rejection_reason).length;
+    r => r.status === "Draft" && !r.rejection_reason
+  ).length;
+
   $("publishedCount").textContent = resources.filter(
-    r => r.status === "Published").length;
+    r => r.status === "Published"
+  ).length;
+
   $("rejectedCount").textContent = resources.filter(
-    r => !!r.rejection_reason).length;
+    r => !!r.rejection_reason
+  ).length;
 }
 
 function getFilteredResources() {
   const term = $("searchBox").value.toLowerCase().trim();
+
   return resources.filter(r => {
     const searchable = [
-      r.title,r.subject,r.education_level,r.resource_type,r.curriculum,r.storage_path
+      r.title,
+      r.subject,
+      r.education_level,
+      r.resource_type,
+      r.curriculum,
+      r.storage_path,
+      r.description
     ].join(" ").toLowerCase();
+
     if (term && !searchable.includes(term)) return false;
-    if (activeTab === "pending") return r.status === "Draft" && !r.rejection_reason;
-    if (activeTab === "published") return r.status === "Published";
-    if (activeTab === "rejected") return !!r.rejection_reason;
+
+    if (activeTab === "pending") {
+      return r.status === "Draft" && !r.rejection_reason;
+    }
+
+    if (activeTab === "published") {
+      return r.status === "Published";
+    }
+
+    if (activeTab === "rejected") {
+      return !!r.rejection_reason;
+    }
+
     return true;
   });
 }
 
 function updateResourceNavigation() {
   const total = visibleResources.length;
-  $("previousResourceBtn").disabled = total === 0 || currentResourceIndex <= 0;
-  $("nextResourceBtn").disabled = total === 0 || currentResourceIndex >= total - 1;
+
+  $("previousResourceBtn").disabled =
+    total === 0 || currentResourceIndex <= 0;
+
+  $("nextResourceBtn").disabled =
+    total === 0 || currentResourceIndex >= total - 1;
+
   $("resourcePosition").textContent = total
     ? "Resource " + (currentResourceIndex + 1) + " of " + total
     : "No resources available";
@@ -827,31 +1002,49 @@ function updateResourceNavigation() {
 
 function navigateResource(direction) {
   if (!visibleResources.length) return;
+
   const nextIndex = currentResourceIndex + direction;
+
   if (nextIndex < 0 || nextIndex >= visibleResources.length) return;
+
   currentResourceIndex = nextIndex;
+
   highlightCurrentResource();
   updateResourceNavigation();
 }
 
 function highlightCurrentResource() {
-  document.querySelectorAll(".resource").forEach(card => card.classList.remove("selected"));
+  document.querySelectorAll(".resource").forEach(card => {
+    card.classList.remove("selected");
+  });
+
   const resource = visibleResources[currentResourceIndex];
   if (!resource) return;
+
   const card = Array.from(document.querySelectorAll(".resource"))
     .find(el => el.dataset.resourceId === resource.id);
+
   if (card) {
     card.classList.add("selected");
     card.scrollIntoView({behavior:"smooth",block:"center"});
   }
 }
 
-$("previousResourceBtn").addEventListener("click",() => navigateResource(-1));
-$("nextResourceBtn").addEventListener("click",() => navigateResource(1));
+$("previousResourceBtn").addEventListener(
+  "click",() => navigateResource(-1)
+);
+
+$("nextResourceBtn").addEventListener(
+  "click",() => navigateResource(1)
+);
 
 function getStoredFileName(resource) {
-  const match = String(resource.description || "").match(/\[MASTERBOOK_FILE:([^\]]+)\]/);
-  return match ? match[1] : (String(resource.storage_path || "").split("/").pop() || "resource");
+  const match = String(resource.description || "")
+    .match(/\[MASTERBOOK_FILE:([^\]]+)\]/);
+
+  return match
+    ? match[1]
+    : (String(resource.storage_path || "").split("/").pop() || "resource");
 }
 
 function getReadableDescription(resource) {
@@ -867,6 +1060,7 @@ function renderResources() {
     rejected:"Rejected Submissions",
     all:"All MASTERBOOK Resources"
   };
+
   $("sectionTitle").textContent = headings[activeTab];
   visibleResources = getFilteredResources();
 
@@ -875,7 +1069,9 @@ function renderResources() {
   }
 
   if (!visibleResources.length) {
-    $("resourceList").innerHTML = "<p class='small'>No resources found in this section.</p>";
+    $("resourceList").innerHTML =
+      "<p class='small'>No resources found in this section.</p>";
+
     updateResourceNavigation();
     updateNavigationInfo();
     return;
@@ -884,16 +1080,27 @@ function renderResources() {
   $("resourceList").innerHTML = visibleResources.map((r,index) => {
     const rejected = !!r.rejection_reason;
     const published = r.status === "Published";
-    const label = rejected ? "Rejected" : published ? "Published" : "Pending review";
-    const statusClass = rejected ? "rejected" : published ? "published" : "pending";
+
+    const label = rejected
+      ? "Rejected"
+      : published ? "Published" : "Pending review";
+
+    const statusClass = rejected
+      ? "rejected"
+      : published ? "published" : "pending";
+
     const filename = getStoredFileName(r);
     const extension = getExtension(filename).toUpperCase() || "FILE";
     const description = getReadableDescription(r);
 
+    const hasFile = !!r.storage_path;
+
     return `
       <article class="resource ${index === currentResourceIndex ? "selected" : ""}"
         data-resource-id="${escapeHTML(r.id)}">
+
         <h3>${escapeHTML(r.title)}</h3>
+
         <div class="meta">
           <strong>Subject:</strong> ${escapeHTML(r.subject)}<br>
           <strong>Education level:</strong> ${escapeHTML(r.education_level)}<br>
@@ -905,17 +1112,59 @@ function renderResources() {
           <strong>Created:</strong> ${escapeHTML(formatDate(r.created_at))}<br>
           <strong>Creator ID:</strong> ${escapeHTML(r.created_by || "Not recorded")}
         </div>
+
         <span class="status ${statusClass}">${label}</span>
+
         ${description ? `<p>${escapeHTML(description)}</p>` : ""}
-        ${rejected ? `<p class="meta"><strong>Rejection reason:</strong> ${escapeHTML(r.rejection_reason)}</p>` : ""}
-        ${r.reviewed_at ? `<p class="meta"><strong>Reviewed:</strong> ${escapeHTML(formatDate(r.reviewed_at))}</p>` : ""}
-        ${r.reviewed_by ? `<p class="meta"><strong>Reviewed by:</strong> ${escapeHTML(r.reviewed_by)}</p>` : ""}
+
+        ${rejected
+          ? `<p class="meta"><strong>Rejection reason:</strong> ${escapeHTML(r.rejection_reason)}</p>`
+          : ""}
+
+        ${r.reviewed_at
+          ? `<p class="meta"><strong>Reviewed:</strong> ${escapeHTML(formatDate(r.reviewed_at))}</p>`
+          : ""}
+
+        ${r.reviewed_by
+          ? `<p class="meta"><strong>Reviewed by:</strong> ${escapeHTML(r.reviewed_by)}</p>`
+          : ""}
+
+        ${hasFile ? `
+          <div class="actions">
+            <button class="view-file"
+              data-action="view"
+              data-id="${escapeHTML(r.id)}">
+              View Online
+            </button>
+
+            <button class="download-file"
+              data-action="download"
+              data-id="${escapeHTML(r.id)}">
+              Download
+            </button>
+          </div>
+        ` : `
+          <p class="small">No storage file is attached to this resource.</p>
+        `}
+
         <div class="actions">
-          <button class="approve" data-action="approve" data-id="${escapeHTML(r.id)}">
+          <button class="approve"
+            data-action="approve"
+            data-id="${escapeHTML(r.id)}">
             ${published ? "Publish again" : "Approve and Publish"}
           </button>
-          <button class="reject" data-action="reject" data-id="${escapeHTML(r.id)}">Reject</button>
-          <button class="edit" data-action="edit" data-id="${escapeHTML(r.id)}">Edit Details</button>
+
+          <button class="reject"
+            data-action="reject"
+            data-id="${escapeHTML(r.id)}">
+            Reject
+          </button>
+
+          <button class="edit"
+            data-action="edit"
+            data-id="${escapeHTML(r.id)}">
+            Edit Details
+          </button>
         </div>
       </article>`;
   }).join("");
@@ -928,9 +1177,11 @@ function renderResources() {
 
 async function updateReview(id,decision,reason="") {
   requireAdmin();
+
   if (busy) return;
 
   const resource = resources.find(r => r.id === id);
+
   if (!resource) {
     notify("Resource not found. Refresh the dashboard and try again.","error");
     return;
@@ -946,39 +1197,61 @@ async function updateReview(id,decision,reason="") {
 
   const button = Array.from(document.querySelectorAll("[data-action]"))
     .find(el => el.dataset.id === id && el.dataset.action === decision);
+
   if (button) button.disabled = true;
 
   try {
     const {data,error} = await db.from("resources")
-      .update(update).eq("id",id)
-      .select("id,status,rejection_reason,reviewed_at").maybeSingle();
-    if (error) throw error;
-    if (!data) throw new Error("No resource was updated. Check administrator UPDATE permissions.");
+      .update(update)
+      .eq("id",id)
+      .select("id,status,rejection_reason,reviewed_at")
+      .maybeSingle();
 
-    notify(decision === "approve"
-      ? "Resource approved and published successfully."
-      : "Rejection saved. The resource remains unpublished.","success");
+    if (error) throw error;
+
+    if (!data) {
+      throw new Error("No resource was updated. Check administrator UPDATE permissions.");
+    }
+
+    notify(
+      decision === "approve"
+        ? "Resource approved and published successfully."
+        : "Rejection saved. The resource remains unpublished.",
+      "success"
+    );
+
     await loadResources();
+
   } catch (error) {
     console.error("Review action failed:",error);
     notify("The review action was not confirmed: " + error.message,"error");
+
     if (button) button.disabled = false;
   }
 }
 
 async function approveResource(id) {
-  if (!confirm("Approve and publish this resource in the MASTERBOOK Library?")) return;
+  if (!confirm("Approve and publish this resource in the MASTERBOOK Library?")) {
+    return;
+  }
+
   await updateReview(id,"approve");
 }
 
 async function rejectResource(id) {
   const reason = prompt("Enter a clear reason for rejecting this resource:");
+
   if (reason === null) return;
+
   if (!reason.trim()) {
     alert("A rejection reason is required.");
     return;
   }
-  if (!confirm("Confirm rejection? The resource will remain unpublished.")) return;
+
+  if (!confirm("Confirm rejection? The resource will remain unpublished.")) {
+    return;
+  }
+
   await updateReview(id,"reject",reason.trim());
 }
 
@@ -986,25 +1259,40 @@ async function rejectResource(id) {
 
 async function editResource(id) {
   requireAdmin();
+
   if (busy) return;
+
   const r = resources.find(item => item.id === id);
   if (!r) return;
 
   const title = prompt("Resource title:",r.title || "");
   if (title === null) return;
-  const description = prompt("Description:",getReadableDescription(r));
+
+  const description = prompt(
+    "Description:",
+    getReadableDescription(r)
+  );
+
   if (description === null) return;
+
   const subject = prompt("Subject:",r.subject || "");
   if (subject === null) return;
+
   const level = prompt("Education level:",r.education_level || "");
   if (level === null) return;
-  const tier = prompt("Access tier: Free or Premium",r.access_tier || "Free");
+
+  const tier = prompt(
+    "Access tier: Free or Premium",
+    r.access_tier || "Free"
+  );
+
   if (tier === null) return;
 
   if (!title.trim() || !subject.trim() || !level.trim()) {
     alert("Title, subject and education level are required.");
     return;
   }
+
   if (!["Free","Premium"].includes(tier.trim())) {
     alert("Access tier must be Free or Premium.");
     return;
@@ -1012,8 +1300,10 @@ async function editResource(id) {
 
   try {
     const filename = getStoredFileName(r);
+
     const storedDescription = description.trim() +
       "\n[MASTERBOOK_FILE:" + filename + "]";
+
     const {data,error} = await db.from("resources")
       .update({
         title:title.trim(),
@@ -1023,11 +1313,16 @@ async function editResource(id) {
         access_tier:tier.trim(),
         updated_at:new Date().toISOString()
       })
-      .eq("id",id).select("id").maybeSingle();
+      .eq("id",id)
+      .select("id")
+      .maybeSingle();
+
     if (error) throw error;
     if (!data) throw new Error("No resource was updated.");
+
     notify("Resource details updated successfully.","success");
     await loadResources();
+
   } catch (error) {
     console.error(error);
     notify("Edit failed: " + error.message,"error");
@@ -1057,7 +1352,9 @@ function restorePendingUpload() {
   try {
     const saved = localStorage.getItem(PENDING_KEY);
     if (!saved) return;
+
     pendingUpload = JSON.parse(saved);
+
     if (!pendingUpload || typeof pendingUpload !== "object") {
       throw new Error("Invalid saved upload information.");
     }
@@ -1069,9 +1366,13 @@ function restorePendingUpload() {
     $("uploadType").value = pendingUpload.resource_type || "";
     $("uploadCurriculum").value = pendingUpload.curriculum || "Kenyan CBC";
     $("uploadTier").value = pendingUpload.access_tier || "Free";
+
     $("retryUploadButton").classList.remove("hidden");
 
-    notify("An unfinished upload was recovered. Select the original file again if the upload itself needs to resume.");
+    notify(
+      "An unfinished upload was recovered. Select the original file again if the upload itself needs to resume."
+    );
+
   } catch (error) {
     console.error("Pending upload recovery failed:",error);
     localStorage.removeItem(PENDING_KEY);
@@ -1081,43 +1382,73 @@ function restorePendingUpload() {
 
 async function uploadFileResumable(file,path,fileInfo) {
   requireAdmin();
-  const {data:{session},error:sessionError} = await db.auth.getSession();
+
+  const {data:{session},error:sessionError} =
+    await db.auth.getSession();
+
   if (sessionError) throw sessionError;
   if (!session) throw new Error("Login session expired.");
 
   return new Promise(async (resolve,reject) => {
     const upload = new tus.Upload(file,{
       endpoint:SUPABASE_URL + "/storage/v1/upload/resumable",
+
       retryDelays:[0,1000,3000,5000,10000,20000],
+
       chunkSize:CHUNK_SIZE,
+
       uploadDataDuringCreation:true,
+
       removeFingerprintOnSuccess:true,
+
       headers:{
         authorization:"Bearer " + session.access_token,
         apikey:SUPABASE_KEY,
         "x-upsert":"false"
       },
+
       metadata:{
         bucketName:BUCKET,
         objectName:path,
         contentType:fileInfo.mime,
         cacheControl:"3600"
       },
+
       onProgress(sent,total) {
-        const percent = Math.min(99,Math.round(sent / total * 100));
-        showProgress(percent,"Uploading " + fileInfo.label + "...");
+        const percent = Math.min(
+          99,
+          Math.round(sent / total * 100)
+        );
+
+        showProgress(
+          percent,
+          "Uploading " + fileInfo.label + "..."
+        );
       },
-      onError(error) { reject(error); },
+
+      onError(error) {
+        reject(error);
+      },
+
       onSuccess() {
-        showProgress(100,"File uploaded. Saving resource record...");
+        showProgress(
+          100,
+          "File uploaded. Saving resource record..."
+        );
+
         resolve();
       }
     });
 
     try {
       const previous = await upload.findPreviousUploads();
-      if (previous.length) upload.resumeFromPreviousUpload(previous[0]);
+
+      if (previous.length) {
+        upload.resumeFromPreviousUpload(previous[0]);
+      }
+
       upload.start();
+
     } catch (error) {
       reject(error);
     }
@@ -1126,26 +1457,44 @@ async function uploadFileResumable(file,path,fileInfo) {
 
 async function saveResourceRecord(data) {
   requireAdmin();
-  if (!data.storage_path) throw new Error("The file has not been uploaded yet.");
 
-  const {data:existing,error:lookupError} = await db.from("resources")
-    .select("id").eq("storage_path",data.storage_path).maybeSingle();
+  if (!data.storage_path) {
+    throw new Error("The file has not been uploaded yet.");
+  }
+
+  const {data:existing,error:lookupError} =
+    await db.from("resources")
+      .select("id")
+      .eq("storage_path",data.storage_path)
+      .maybeSingle();
+
   if (lookupError) throw lookupError;
 
   if (existing) {
     localStorage.removeItem(PENDING_KEY);
     pendingUpload = null;
+
     $("retryUploadButton").classList.add("hidden");
     $("uploadForm").reset();
     $("uploadProgress").classList.add("hidden");
-    notify("This file already has a database record. Duplicate insertion prevented.","success");
+
+    notify(
+      "This file already has a database record. Duplicate insertion prevented.",
+      "success"
+    );
+
     await loadResources();
     return;
   }
 
-  const descriptionWithFile = (data.description || "") +
+  const descriptionWithFile =
+    (data.description || "") +
     "\n[MASTERBOOK_FILE:" + data.file_name + "]";
 
+  /*
+    Keep the database insert compatible with the existing
+    resources table. No new database columns are required.
+  */
   const record = {
     title:data.title,
     description:descriptionWithFile,
@@ -1160,43 +1509,65 @@ async function saveResourceRecord(data) {
   };
 
   const {data:inserted,error} = await db.from("resources")
-    .insert(record).select("id").single();
+    .insert(record)
+    .select("id")
+    .single();
+
   if (error) throw error;
-  if (!inserted) throw new Error("The resource record was not confirmed.");
+  if (!inserted) {
+    throw new Error("The resource record was not confirmed.");
+  }
 
   localStorage.removeItem(PENDING_KEY);
   pendingUpload = null;
+
   $("retryUploadButton").classList.add("hidden");
   $("uploadForm").reset();
   $("uploadProgress").classList.add("hidden");
 
-  notify("Resource uploaded and registered successfully as a draft.","success");
+  notify(
+    "Resource uploaded and registered successfully as a draft.",
+    "success"
+  );
+
   await loadResources();
 }
 
 async function handleUpload(event) {
   event.preventDefault();
+
   requireAdmin();
+
   if (busy) return;
 
   if (pendingUpload) {
-    notify("Finish or retry the existing upload before starting another.","error");
+    notify(
+      "Finish or retry the existing upload before starting another.",
+      "error"
+    );
     return;
   }
 
   const file = $("uploadFile").files[0];
   const data = readUploadForm();
 
-  if (!data.title || !data.subject || !data.education_level || !data.resource_type) {
+  if (
+    !data.title ||
+    !data.subject ||
+    !data.education_level ||
+    !data.resource_type
+  ) {
     notify("Complete all required resource details.","error");
     return;
   }
+
   if (!file) {
     notify("Select a document or image.","error");
     return;
   }
 
   let fileInfo;
+
   try {
     fileInfo = getFileInfo(file);
   } catch (error) {
@@ -1205,7 +1576,11 @@ async function handleUpload(event) {
   }
 
   setBusy(true);
-  const path = currentUser.id + "/" + makeId() + "-" + safeName(file.name);
+
+  const path =
+    currentUser.id + "/" +
+    makeId() + "-" +
+    safeName(file.name);
 
   const pending = {
     ...data,
@@ -1219,19 +1594,32 @@ async function handleUpload(event) {
 
   try {
     savePendingUpload(pending);
+
     showProgress(0,"Preparing secure upload...");
-    notify("Upload started. Keep this page open until it finishes.");
+
+    notify(
+      "Upload started. Keep this page open until it finishes."
+    );
 
     await uploadFileResumable(file,path,fileInfo);
 
     pending.storage_path = path;
     savePendingUpload(pending);
+
     await saveResourceRecord(pending);
+
   } catch (error) {
     console.error("Administrator upload failed:",error);
+
     $("retryUploadButton").classList.remove("hidden");
-    notify("Upload or record saving failed: " + error.message +
-      ". Your details have been retained. Retry the operation.","error");
+
+    notify(
+      "Upload or record saving failed: " +
+      error.message +
+      ". Your details have been retained. Retry the operation.",
+      "error"
+    );
+
   } finally {
     setBusy(false);
   }
@@ -1239,35 +1627,62 @@ async function handleUpload(event) {
 
 async function retryUpload() {
   requireAdmin();
+
   if (busy || !pendingUpload) return;
+
   setBusy(true);
 
   try {
     if (pendingUpload.storage_path) {
       showProgress(100,"Retrying database record...");
       await saveResourceRecord(pendingUpload);
+
     } else {
       const file = $("uploadFile").files[0];
-      if (!file) throw new Error("Select the original file again to resume the upload.");
-      if (file.name !== pendingUpload.file_name ||
-          file.size !== pendingUpload.file_size) {
-        throw new Error("Select the original file used in the interrupted upload.");
+
+      if (!file) {
+        throw new Error(
+          "Select the original file again to resume the upload."
+        );
+      }
+
+      if (
+        file.name !== pendingUpload.file_name ||
+        file.size !== pendingUpload.file_size
+      ) {
+        throw new Error(
+          "Select the original file used in the interrupted upload."
+        );
       }
 
       const fileInfo = getFileInfo(file);
+
       if (fileInfo.mime !== pendingUpload.file_mime_type) {
-        throw new Error("The selected file format does not match the original upload.");
+        throw new Error(
+          "The selected file format does not match the original upload."
+        );
       }
 
-      await uploadFileResumable(file,pendingUpload.object_path,fileInfo);
+      await uploadFileResumable(
+        file,
+        pendingUpload.object_path,
+        fileInfo
+      );
+
       pendingUpload.storage_path = pendingUpload.object_path;
+
       savePendingUpload(pendingUpload);
+
       await saveResourceRecord(pendingUpload);
     }
+
   } catch (error) {
     console.error(error);
+
     $("retryUploadButton").classList.remove("hidden");
+
     notify("Retry failed: " + error.message,"error");
+
   } finally {
     setBusy(false);
   }
@@ -1277,28 +1692,51 @@ async function retryUpload() {
 
 $("resourceList").addEventListener("click",event => {
   const button = event.target.closest("button[data-action]");
+
   if (!button || button.disabled) return;
+
   const id = button.dataset.id;
   const action = button.dataset.action;
+
   if (action === "approve") approveResource(id);
   if (action === "reject") rejectResource(id);
   if (action === "edit") editResource(id);
+  if (action === "view") openResource(id,"view");
+  if (action === "download") openResource(id,"download");
 });
 
 document.querySelectorAll(".tabs button").forEach(button => {
   button.addEventListener("click",() => {
-    const nextState = {section:"resourcePanel",tab:button.dataset.tab};
+    const nextState = {
+      section:"resourcePanel",
+      tab:button.dataset.tab
+    };
+
     recordNavigation(nextState);
-    document.querySelectorAll(".tabs button").forEach(b => b.classList.remove("active"));
-    button.classList.add("active");
-    document.querySelectorAll(".section-btn").forEach(b => {
-      b.classList.toggle("active",b.dataset.section === "resourcePanel");
+
+    document.querySelectorAll(".tabs button").forEach(b => {
+      b.classList.remove("active");
     });
+
+    button.classList.add("active");
+
+    document.querySelectorAll(".section-btn").forEach(b => {
+      b.classList.toggle(
+        "active",
+        b.dataset.section === "resourcePanel"
+      );
+    });
+
     activeTab = button.dataset.tab;
     currentResourceIndex = 0;
+
     renderResources();
     updateNavigationInfo();
-    $("resourcePanel").scrollIntoView({behavior:"smooth",block:"start"});
+
+    $("resourcePanel").scrollIntoView({
+      behavior:"smooth",
+      block:"start"
+    });
   });
 });
 
@@ -1306,24 +1744,30 @@ $("searchBox").addEventListener("input",() => {
   currentResourceIndex = 0;
   renderResources();
 });
+
 $("refreshButton").addEventListener("click",() => {
   loadResources().catch(error => console.error(error));
 });
+
 $("uploadForm").addEventListener("submit",handleUpload);
+
 $("retryUploadButton").addEventListener("click",retryUpload);
 
 /* SIGN OUT */
 
 $("logoutBtn").addEventListener("click",async () => {
   const {error} = await db.auth.signOut();
+
   if (error) {
     notify("Sign out failed: " + error.message,"error");
     return;
   }
+
   location.replace("auth.html");
 });
 
 /* START DASHBOARD */
+
 initialise();
 </script>
 </body>
