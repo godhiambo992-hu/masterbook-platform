@@ -242,6 +242,14 @@ margin-top:40px
 
 footer p{margin:5px}
 
+footer a{
+color:#e5ad42;
+text-decoration:none;
+font-weight:bold
+}
+
+footer a:hover{text-decoration:underline}
+
 @media(max-width:700px){
 nav{align-items:flex-start}
 .navlinks{width:100%;gap:12px}
@@ -256,11 +264,14 @@ main{padding:25px 15px}
 
 <header>
 <nav>
+
 <div class="logo">MASTER<span>BOOK</span></div>
 
 <div class="navlinks">
 <a href="index.html">Home</a>
 <a href="library.html">Library</a>
+<a href="literature.html">Literature & Stories</a>
+<a href="author.html">Author Profile</a>
 <a href="#education">Education</a>
 <a href="#portals">Portals</a>
 <a href="#about">About</a>
@@ -271,6 +282,7 @@ main{padding:25px 15px}
 <span id="userEmail" class="hidden"></span>
 <button id="logoutButton" class="hidden" type="button">Sign Out</button>
 </div>
+
 </nav>
 </header>
 
@@ -389,6 +401,18 @@ Open My Workspace
 <a href="admin.html">Open Administration →</a>
 </div>
 
+<div class="card">
+<h3>Literature & Stories</h3>
+<p>Discover novels, African fiction, short stories and other literary works published on MASTERBOOK.</p>
+<a href="literature.html">Explore Literature →</a>
+</div>
+
+<div class="card">
+<h3>Author Profile</h3>
+<p>Meet G.O. Odhiambo, explore his literary works and discover published books.</p>
+<a href="author.html">Visit Author Profile →</a>
+</div>
+
 </div>
 </section>
 
@@ -411,7 +435,7 @@ Our mission is to expand access to quality knowledge through technology.
 <div class="logo">MASTER<span>BOOK</span></div>
 <p>Learning Without Boundaries.</p>
 <p>© 2026 MASTERBOOK. All rights reserved.</p>
-<p>Founded by G.O. Odhiambo.</p>
+<p>Founded by <a href="author.html">G.O. Odhiambo</a>.</p>
 </footer>
 
 <script>
@@ -421,7 +445,7 @@ const SUPABASE_URL =
 "https://bxsrhvcqjjtdnflhoplu.supabase.co";
 
 const SUPABASE_KEY =
-"sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+"sb_publishable_DSUz-W5eeLBioVBQ1HywoQ_Rp4f3nur";
 
 const db = window.supabase.createClient(
 SUPABASE_URL,
