@@ -1,0 +1,833 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10243e">
+
+<title>G.O. Odhiambo | Author Profile | MASTERBOOK</title>
+
+<meta name="description" content="Discover the literary works of G.O. Odhiambo, Kenyan writer, educator and researcher. Explore novels, African fiction and storybooks on MASTERBOOK.">
+<meta name="author" content="G.O. Odhiambo">
+
+<meta property="og:title" content="G.O. Odhiambo | Author Profile">
+<meta property="og:description" content="Explore the novels and literary works of G.O. Odhiambo on MASTERBOOK.">
+<meta property="og:type" content="profile">
+
+<style>
+:root{
+  --navy:#10243e;
+  --navy2:#183b60;
+  --blue:#1769aa;
+  --gold:#d6a84f;
+  --cream:#f8f6f1;
+  --light:#f2f5f9;
+  --white:#fff;
+  --text:#263449;
+  --muted:#738096;
+  --border:#e1e6ed;
+  --shadow:0 12px 35px rgba(16,36,62,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--light);
+  color:var(--text);
+  font-family:Georgia,"Times New Roman",serif;
+}
+a{color:inherit}
+button{font-family:Arial,sans-serif}
+.topbar{
+  background:var(--navy);
+  color:white;
+  padding:15px 5%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  flex-wrap:wrap;
+}
+.logo{
+  font-family:Arial,sans-serif;
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+.logo span{color:var(--gold)}
+.toplinks{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+  font-family:Arial,sans-serif;
+  font-size:13px;
+}
+.toplinks a{
+  color:white;
+  text-decoration:none;
+}
+.toplinks a:hover{color:var(--gold)}
+.hero{
+  background:
+    linear-gradient(115deg,rgba(16,36,62,.97),rgba(24,59,96,.92)),
+    radial-gradient(circle at 85% 20%,#d6a84f,transparent 35%);
+  color:white;
+  padding:75px 7%;
+}
+.hero-inner{
+  max-width:1100px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:1fr 260px;
+  gap:45px;
+  align-items:center;
+}
+.eyebrow{
+  color:var(--gold);
+  font-family:Arial,sans-serif;
+  font-size:12px;
+  font-weight:bold;
+  letter-spacing:3px;
+  text-transform:uppercase;
+}
+.hero h1{
+  font-size:clamp(38px,6vw,64px);
+  line-height:1.05;
+  margin:15px 0;
+  color:white;
+}
+.hero h1 span{color:var(--gold)}
+.hero-description{
+  max-width:650px;
+  font-size:18px;
+  line-height:1.8;
+  color:#e2eaf3;
+}
+.hero-actions{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:28px;
+}
+.btn{
+  display:inline-block;
+  padding:13px 20px;
+  border-radius:7px;
+  text-decoration:none;
+  font-family:Arial,sans-serif;
+  font-size:13px;
+  font-weight:bold;
+}
+.btn-gold{background:var(--gold);color:var(--navy)}
+.btn-outline{border:1px solid #ffffff80;color:white}
+.btn:hover{opacity:.88}
+.portrait{
+  width:230px;
+  height:280px;
+  margin:auto;
+  border:2px solid #d6a84f88;
+  border-radius:115px 115px 12px 12px;
+  background:linear-gradient(145deg,#294a6c,#10243e);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:20px;
+  box-shadow:0 15px 40px #0003;
+}
+.portrait-placeholder{
+  color:#f1dfb8;
+  font-family:Arial,sans-serif;
+}
+.portrait-placeholder strong{
+  display:block;
+  font-size:48px;
+  letter-spacing:2px;
+  margin-bottom:12px;
+}
+.portrait-placeholder span{
+  font-size:12px;
+  line-height:1.6;
+}
+main{
+  max-width:1120px;
+  margin:auto;
+  padding:55px 20px;
+}
+.section-heading{
+  margin-bottom:24px;
+}
+.section-heading .eyebrow{color:#9a7228}
+.section-heading h2{
+  font-size:32px;
+  color:var(--navy);
+  margin:9px 0;
+}
+.section-heading p{
+  color:var(--muted);
+  line-height:1.7;
+  font-size:15px;
+  margin:0;
+}
+.about-grid{
+  display:grid;
+  grid-template-columns:1.5fr 1fr;
+  gap:25px;
+  margin-bottom:65px;
+}
+.about-card,.facts-card{
+  background:white;
+  padding:30px;
+  border-radius:13px;
+  box-shadow:var(--shadow);
+}
+.about-card h2,.facts-card h2{
+  color:var(--navy);
+  font-size:25px;
+  margin-top:0;
+}
+.about-card p{
+  line-height:1.9;
+  font-size:16px;
+  color:#46556b;
+  margin-bottom:15px;
+}
+.facts-card{
+  background:var(--cream);
+  border:1px solid #eee5d4;
+}
+.fact{
+  padding:14px 0;
+  border-bottom:1px solid #e8dfcf;
+}
+.fact:last-child{border:0}
+.fact strong{
+  display:block;
+  color:var(--navy);
+  font-family:Arial,sans-serif;
+  font-size:13px;
+  margin-bottom:5px;
+}
+.fact span{font-size:14px;color:#657185}
+.works-section{margin-bottom:60px}
+.works-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  flex-wrap:wrap;
+  gap:15px;
+  margin-bottom:22px;
+}
+.search{
+  width:min(100%,280px);
+  padding:12px 14px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  font-size:14px;
+  background:white;
+}
+.book-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:22px;
+}
+.book-card{
+  background:white;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+  transition:transform .2s;
+}
+.book-card:hover{transform:translateY(-4px)}
+.book-cover{
+  width:100%;
+  height:280px;
+  object-fit:contain;
+  background:#e9edf3;
+}
+.cover-placeholder{
+  height:280px;
+  background:linear-gradient(145deg,#10243e,#294d70);
+  color:#f3d99e;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:25px;
+  font-size:23px;
+}
+.book-info{padding:20px;flex:1}
+.book-info h3{
+  font-size:21px;
+  color:var(--navy);
+  margin:0 0 8px;
+}
+.book-author{
+  color:var(--muted);
+  font-family:Arial,sans-serif;
+  font-size:12px;
+}
+.book-description{
+  color:#58667a;
+  font-size:14px;
+  line-height:1.65;
+  margin:14px 0;
+}
+.book-meta{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-bottom:13px;
+}
+.tag{
+  padding:5px 9px;
+  border-radius:20px;
+  background:#edf2f7;
+  color:#40516a;
+  font-family:Arial,sans-serif;
+  font-size:10px;
+}
+.rating{
+  color:#a16d0c;
+  font-family:Arial,sans-serif;
+  font-size:13px;
+  margin-bottom:14px;
+}
+.book-link{
+  display:block;
+  text-align:center;
+  padding:12px;
+  border-radius:7px;
+  background:var(--navy);
+  color:white;
+  text-decoration:none;
+  font-family:Arial,sans-serif;
+  font-size:13px;
+  font-weight:bold;
+}
+.book-link:hover{background:var(--blue)}
+.empty{
+  background:white;
+  padding:35px;
+  text-align:center;
+  border-radius:12px;
+  color:var(--muted);
+  line-height:1.7;
+}
+.loading{
+  padding:30px;
+  text-align:center;
+  color:var(--muted);
+}
+.vision{
+  background:var(--navy);
+  color:white;
+  border-radius:14px;
+  padding:40px;
+  margin-bottom:45px;
+}
+.vision h2{color:var(--gold);font-size:27px;margin-top:0}
+.vision p{font-size:16px;line-height:1.9;color:#e0e8f1}
+.closing{
+  text-align:center;
+  padding:35px 15px;
+}
+.closing h2{color:var(--navy);font-size:28px}
+.closing p{color:var(--muted);line-height:1.7}
+footer{
+  background:#0b1b30;
+  color:#c7d2df;
+  text-align:center;
+  padding:30px 15px;
+  font-family:Arial,sans-serif;
+  font-size:12px;
+  line-height:1.9;
+}
+footer a{color:var(--gold);text-decoration:none}
+@media(max-width:760px){
+  .hero-inner{grid-template-columns:1fr;text-align:center}
+  .hero-description{margin:auto}
+  .hero-actions{justify-content:center}
+  .portrait{grid-row:1;width:170px;height:205px}
+  .about-grid{grid-template-columns:1fr}
+  .book-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:480px){
+  .book-grid{grid-template-columns:1fr}
+  .book-cover,.cover-placeholder{height:320px}
+  .hero{padding:50px 6%}
+  .hero-description{font-size:16px}
+  main{padding:38px 14px}
+  .about-card,.facts-card{padding:22px}
+  .vision{padding:25px}
+  .toplinks{gap:12px}
+}
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <a href="index.html" class="logo" style="color:white;text-decoration:none">
+    MASTER<span>BOOK</span>
+  </a>
+
+  <nav class="toplinks">
+    <a href="index.html">Home</a>
+    <a href="library.html">Academic Library</a>
+    <a href="literature.html">Literature & Stories</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+
+    <div>
+      <div class="eyebrow">Author • Educator • Researcher</div>
+
+      <h1>G.O. <span>Odhiambo</span></h1>
+
+      <p class="hero-description">
+        Exploring human experiences through stories, ideas and imagination.
+        Discover literary works that examine friendship, ambition, betrayal,
+        society, relationships and the complexities of everyday life.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#books" class="btn btn-gold">Explore My Books</a>
+        <a href="literature.html" class="btn btn-outline">
+          Literature Collection
+        </a>
+      </div>
+    </div>
+
+    <div class="portrait" aria-label="Author portrait placeholder">
+      <div class="portrait-placeholder">
+        <strong>G.O.</strong>
+        <span>AUTHOR PROFILE<br>G.O. ODHIAMBO</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<main>
+
+  <section class="about-grid">
+
+    <article class="about-card">
+      <div class="section-heading">
+        <div class="eyebrow">Meet the Author</div>
+        <h2>About G.O. Odhiambo</h2>
+      </div>
+
+      <p>
+        G.O. Odhiambo is a Kenyan writer, educator and researcher whose
+        interests extend across literature, education, human relationships
+        and social realities.
+      </p>
+
+      <p>
+        His writing explores the experiences that shape individuals and
+        communities. Through fiction, he examines friendship, love,
+        ambition, betrayal, faith, identity, social pressure and the
+        consequences of human decisions.
+      </p>
+
+      <p>
+        Drawing inspiration from African experiences and contemporary
+        society, his literary approach places ordinary people in
+        extraordinary circumstances, revealing the tensions between
+        appearance and reality, intention and consequence, hope and
+        disappointment.
+      </p>
+
+      <p>
+        His broader vision is to make literature accessible to readers,
+        encourage thoughtful discussion and contribute to a growing
+        culture of African storytelling.
+      </p>
+    </article>
+
+    <aside class="facts-card">
+      <h2>Author Information</h2>
+
+      <div class="fact">
+        <strong>AUTHOR NAME</strong>
+        <span>G.O. Odhiambo</span>
+      </div>
+
+      <div class="fact">
+        <strong>COUNTRY</strong>
+        <span>Kenya</span>
+      </div>
+
+      <div class="fact">
+        <strong>PROFESSIONAL INTERESTS</strong>
+        <span>Education, Research and Literature</span>
+      </div>
+
+      <div class="fact">
+        <strong>LITERARY INTERESTS</strong>
+        <span>African Fiction, Drama, Mystery and Social Commentary</span>
+      </div>
+
+      <div class="fact">
+        <strong>PUBLISHING PLATFORM</strong>
+        <span>MASTERBOOK</span>
+      </div>
+    </aside>
+
+  </section>
+
+  <section class="works-section" id="books">
+
+    <div class="works-header">
+      <div class="section-heading">
+        <div class="eyebrow">The Literary Collection</div>
+        <h2>Books by G.O. Odhiambo</h2>
+        <p>
+          Explore published novels and storybooks from the MASTERBOOK
+          literary collection.
+        </p>
+      </div>
+
+      <input
+        class="search"
+        id="bookSearch"
+        type="search"
+        placeholder="Search my books..."
+        aria-label="Search books">
+    </div>
+
+    <div id="bookGrid" class="book-grid">
+      <div class="loading">Loading published books...</div>
+    </div>
+
+  </section>
+
+  <section class="vision">
+    <h2>Writing Beyond the Ordinary</h2>
+
+    <p>
+      Stories are more than entertainment. They are a way of examining
+      society, questioning assumptions, preserving experiences and
+      understanding the people around us.
+    </p>
+
+    <p>
+      Through MASTERBOOK, this collection aims to bring African literary
+      voices closer to readers while creating room for meaningful
+      conversations between authors and audiences.
+    </p>
+  </section>
+
+  <section class="closing">
+    <h2>Discover More Stories</h2>
+    <p>
+      Explore the wider MASTERBOOK Literature & Stories collection and
+      discover more voices, perspectives and literary experiences.
+    </p>
+
+    <a href="literature.html" class="btn btn-gold"
+       style="background:#10243e;color:white">
+      Explore Literature & Stories
+    </a>
+  </section>
+
+</main>
+
+<footer>
+  <strong>G.O. ODHIAMBO</strong><br>
+  Author | Educator | Researcher<br>
+  Published on MASTERBOOK<br><br>
+  © <span id="year"></span> MASTERBOOK. All rights reserved.<br>
+  <a href="literature.html">Literature & Stories</a> |
+  <a href="index.html">MASTERBOOK Home</a>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+"use strict";
+
+/* MASTERBOOK SUPABASE CONNECTION */
+
+const SUPABASE_URL =
+  "https://bxsrhvcqjjtdnflhoplu.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+
+const BUCKET = "masterbook-resources";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const grid = document.getElementById("bookGrid");
+const search = document.getElementById("bookSearch");
+
+let allBooks = [];
+let allRatings = [];
+
+document.getElementById("year").textContent =
+  new Date().getFullYear();
+
+/* SAFE TEXT */
+
+function makeElement(tag, className, content) {
+  const el = document.createElement(tag);
+  if (className) el.className = className;
+  if (content !== undefined) el.textContent = content;
+  return el;
+}
+
+/* SIGNED COVER URL */
+
+async function getCover(path) {
+  if (!path) return null;
+
+  const { data, error } = await db.storage
+    .from(BUCKET)
+    .createSignedUrl(path, 3600);
+
+  if (error) return null;
+
+  return data.signedUrl;
+}
+
+/* AVERAGE RATING */
+
+function getBookRating(bookId) {
+  const ratings = allRatings.filter(
+    item => item.book_id === bookId
+  );
+
+  if (!ratings.length) {
+    return {
+      average: null,
+      count: 0
+    };
+  }
+
+  const total = ratings.reduce(
+    (sum, item) => sum + Number(item.rating),
+    0
+  );
+
+  return {
+    average: (total / ratings.length).toFixed(1),
+    count: ratings.length
+  };
+}
+
+/* CREATE BOOK CARD */
+
+async function createBookCard(book) {
+  const card = makeElement("article", "book-card");
+
+  if (book.cover_path) {
+    const image = makeElement("img", "book-cover");
+    image.alt = book.title + " book cover";
+    image.loading = "lazy";
+
+    const coverUrl = await getCover(book.cover_path);
+
+    if (coverUrl) {
+      image.src = coverUrl;
+      card.appendChild(image);
+    } else {
+      const placeholder = makeElement(
+        "div",
+        "cover-placeholder",
+        book.title
+      );
+      card.appendChild(placeholder);
+    }
+
+  } else {
+    const placeholder = makeElement(
+      "div",
+      "cover-placeholder",
+      book.title
+    );
+    card.appendChild(placeholder);
+  }
+
+  const info = makeElement("div", "book-info");
+
+  info.appendChild(
+    makeElement("h3", "", book.title)
+  );
+
+  info.appendChild(
+    makeElement(
+      "div",
+      "book-author",
+      "By " + (book.author_name || "G.O. Odhiambo")
+    )
+  );
+
+  const description = book.description || "";
+
+  info.appendChild(
+    makeElement(
+      "p",
+      "book-description",
+      description.length > 155
+        ? description.substring(0, 155) + "..."
+        : description
+    )
+  );
+
+  const meta = makeElement("div", "book-meta");
+
+  [book.book_type, book.genre, book.access_tier]
+    .filter(Boolean)
+    .forEach(value => {
+      meta.appendChild(
+        makeElement("span", "tag", value)
+      );
+    });
+
+  info.appendChild(meta);
+
+  const rating = getBookRating(book.id);
+
+  const ratingText = rating.average
+    ? "★ " + rating.average + "/5 (" +
+      rating.count + " ratings)"
+    : "Not yet rated";
+
+  info.appendChild(
+    makeElement("div", "rating", ratingText)
+  );
+
+  const link = makeElement("a", "book-link", "View Book");
+
+  link.href =
+    "literature.html?book=" +
+    encodeURIComponent(book.id);
+
+  info.appendChild(link);
+
+  card.appendChild(info);
+
+  return card;
+}
+
+/* RENDER BOOKS */
+
+async function renderBooks(filter = "") {
+  grid.innerHTML = "";
+
+  const normalized = filter.toLowerCase().trim();
+
+  const filtered = allBooks.filter(book => {
+    const searchable = [
+      book.title,
+      book.author_name,
+      book.genre,
+      book.description,
+      book.book_type
+    ].filter(Boolean).join(" ").toLowerCase();
+
+    return searchable.includes(normalized);
+  });
+
+  if (!filtered.length) {
+    grid.appendChild(
+      makeElement(
+        "div",
+        "empty",
+        normalized
+          ? "No books match your search."
+          : "No published books are available yet."
+      )
+    );
+    return;
+  }
+
+  for (const book of filtered) {
+    const card = await createBookCard(book);
+    grid.appendChild(card);
+  }
+}
+
+/* LOAD PUBLIC BOOKS */
+
+async function loadAuthorBooks() {
+  grid.innerHTML =
+    '<div class="loading">Loading published books...</div>';
+
+  try {
+    const { data: books, error: bookError } = await db
+      .from("literary_books")
+      .select(
+        "id,title,author_name,description,genre,book_type,cover_path,access_tier,status,created_at"
+      )
+      .eq("status", "Published")
+      .order("created_at", { ascending: false });
+
+    if (bookError) throw bookError;
+
+    allBooks = (books || []).filter(book => {
+      const author = (book.author_name || "").trim().toLowerCase();
+
+      return author === "g.o. odhiambo" ||
+             author === "george okoth odhiambo";
+    });
+
+    const bookIds = allBooks.map(book => book.id);
+
+    allRatings = [];
+
+    if (bookIds.length) {
+      const { data: ratings, error: ratingError } = await db
+        .from("literary_ratings")
+        .select("book_id,rating")
+        .in("book_id", bookIds);
+
+      if (ratingError) {
+        console.warn("Ratings could not be loaded:", ratingError.message);
+      } else {
+        allRatings = ratings || [];
+      }
+    }
+
+    await renderBooks(search.value);
+
+  } catch (error) {
+    console.error(error);
+
+    grid.innerHTML = "";
+
+    grid.appendChild(
+      makeElement(
+        "div",
+        "empty",
+        "We could not load the published books at the moment. Please refresh the page and try again."
+      )
+    );
+  }
+}
+
+/* SEARCH */
+
+search.addEventListener("input", () => {
+  renderBooks(search.value);
+});
+
+/* INITIALISE */
+
+loadAuthorBooks();
+
+</script>
+
+</body>
+</html>
