@@ -8,31 +8,30 @@
 <meta name="google-site-verification" content="ne5zeoFbC7xAIlj8Vuk8mZa3BW_EaHdGdZOjT6Ok5os">
 
 <title>MASTERBOOK | Online Learning Resources for Students and Teachers</title>
-
-<meta name="description" content="Discover MASTERBOOK, an educational platform offering learning materials, revision notes, courses and resources for primary, secondary, university and professional education.">
-
-<meta name="keywords" content="MASTERBOOK, online learning Kenya, CBC learning materials, Grade 10 notes, Grade 12 revision, secondary school resources, university learning materials, educational resources, teacher resources, student revision notes">
-
+<meta name="description" content="Discover MASTERBOOK, an educational and literary platform offering learning materials, revision notes, novels, stories, research and courses.">
+<meta name="keywords" content="MASTERBOOK, online learning Kenya, CBC learning materials, Grade 10 notes, revision resources, university learning materials, African literature, novels, educational resources">
 <meta name="author" content="G.O. Odhiambo">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#102b46">
 
 <link rel="canonical" href="https://godhiambo992-hu.github.io/masterbook-platform/">
-
 <meta property="og:type" content="website">
-<meta property="og:title" content="MASTERBOOK | Online Learning Resources">
-<meta property="og:description" content="Access educational resources, revision notes, courses and learning materials for every stage of education.">
+<meta property="og:title" content="MASTERBOOK | Learning, Literature and Knowledge">
+<meta property="og:description" content="Explore educational resources, books, stories, research and learning materials.">
 <meta property="og:url" content="https://godhiambo992-hu.github.io/masterbook-platform/">
 <meta property="og:site_name" content="MASTERBOOK">
-
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MASTERBOOK | Online Learning Resources">
-<meta name="twitter:description" content="Educational resources, revision notes and courses for students, teachers and researchers.">
+<meta name="twitter:title" content="MASTERBOOK">
+<meta name="twitter:description" content="Educational resources, literature, research and learning materials.">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{
+box-sizing:border-box;
+margin:0;
+padding:0
+}
 
 body{
 font-family:Arial,sans-serif;
@@ -125,15 +124,29 @@ margin:auto;
 font-size:18px
 }
 
-.hero a{
+.hero-actions{
+display:flex;
+justify-content:center;
+align-items:center;
+flex-wrap:wrap;
+gap:14px;
+margin-top:25px
+}
+
+.hero-actions a{
 display:inline-block;
-margin-top:25px;
 background:#e0a43b;
 color:#102b46;
 padding:13px 24px;
 border-radius:7px;
 text-decoration:none;
 font-weight:bold
+}
+
+.hero-actions a.secondary{
+background:transparent;
+border:2px solid white;
+color:white
 }
 
 main{
@@ -197,6 +210,10 @@ text-align:center;
 margin-bottom:25px
 }
 
+.section-title h2{
+margin-bottom:7px
+}
+
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
@@ -217,6 +234,38 @@ text-decoration:none
 }
 
 .card a:hover{text-decoration:underline}
+
+.literature-section{
+background:linear-gradient(135deg,#102b46,#174b55);
+color:white;
+padding:35px;
+border-radius:14px
+}
+
+.literature-section .section-title h2{
+color:#ffffff
+}
+
+.literature-section .section-title p{
+color:#e0eaf0
+}
+
+.literature-section .card{
+background:#ffffff;
+color:#183047;
+border-top:4px solid #e0a43b
+}
+
+.literature-section .card h3{
+color:#176b63
+}
+
+.literature-intro{
+max-width:760px;
+margin:0 auto 25px;
+text-align:center;
+color:#e0eaf0
+}
 
 .info{
 margin-top:40px;
@@ -242,13 +291,21 @@ margin-top:40px
 
 footer p{margin:5px}
 
-footer a{
-color:#e5ad42;
-text-decoration:none;
-font-weight:bold
+.footer-links{
+display:flex;
+justify-content:center;
+flex-wrap:wrap;
+gap:18px;
+margin:15px 0
 }
 
-footer a:hover{text-decoration:underline}
+.footer-links a{
+color:#e5ad42;
+text-decoration:none;
+font-size:14px
+}
+
+.footer-links a:hover{text-decoration:underline}
 
 @media(max-width:700px){
 nav{align-items:flex-start}
@@ -256,6 +313,7 @@ nav{align-items:flex-start}
 .account{width:100%}
 .hero{padding:55px 20px}
 main{padding:25px 15px}
+.literature-section{padding:25px 18px}
 }
 </style>
 </head>
@@ -264,13 +322,12 @@ main{padding:25px 15px}
 
 <header>
 <nav>
-
 <div class="logo">MASTER<span>BOOK</span></div>
 
 <div class="navlinks">
 <a href="index.html">Home</a>
-<a href="library.html">Library</a>
-<a href="literature.html">Literature & Stories</a>
+<a href="library.html">Academic Library</a>
+<a href="literature.html">Literature</a>
 <a href="author.html">Author Profile</a>
 <a href="#education">Education</a>
 <a href="#portals">Portals</a>
@@ -282,19 +339,23 @@ main{padding:25px 15px}
 <span id="userEmail" class="hidden"></span>
 <button id="logoutButton" class="hidden" type="button">Sign Out</button>
 </div>
-
 </nav>
 </header>
 
 <section class="hero">
 <h1>Learning Without Boundaries</h1>
+
 <p>
 A digital educational platform connecting learners,
-teachers, researchers and educational contributors.
-Access learning materials, revision resources and courses
-across different levels of education.
+teachers, researchers, writers and educational contributors.
+Access learning materials, revision resources, literature
+and courses across different levels of education.
 </p>
+
+<div class="hero-actions">
 <a href="library.html">Explore Learning Library</a>
+<a href="literature.html" class="secondary">Explore Literature</a>
+</div>
 </section>
 
 <main>
@@ -303,10 +364,12 @@ across different levels of education.
 
 <section class="welcome">
 <h2 id="welcomeTitle">Welcome to MASTERBOOK</h2>
+
 <p id="welcomeText">
 Discover quality educational resources and learning
 materials across different levels of education.
 </p>
+
 <p id="roleText" class="hidden"></p>
 </section>
 
@@ -368,6 +431,50 @@ Open My Workspace
 </div>
 </section>
 
+<section class="section literature-section" id="literature">
+
+<div class="section-title">
+<h2>Literature, Stories & Creative Writing</h2>
+</div>
+
+<p class="literature-intro">
+Discover novels, African stories, creative writing and literary
+works. Read, explore ideas, participate in discussions and
+connect with authors through the MASTERBOOK literary collection.
+</p>
+
+<div class="grid">
+
+<div class="card">
+<h3>Explore the Literary Collection</h3>
+<p>
+Discover published novels, contemporary African fiction,
+mystery, drama and other literary works.
+</p>
+<a href="literature.html">Explore Literature →</a>
+</div>
+
+<div class="card">
+<h3>Game of Shadows</h3>
+<p>
+Explore the campus drama by G.O. Odhiambo, a story examining
+friendship, betrayal, financial pressure and misplaced trust.
+</p>
+<a href="literature.html">Discover the Book →</a>
+</div>
+
+<div class="card">
+<h3>Meet the Author</h3>
+<p>
+Learn about the author, explore published works and discover
+the ideas behind the writing.
+</p>
+<a href="author.html">View Author Profile →</a>
+</div>
+
+</div>
+</section>
+
 <section class="section" id="portals">
 
 <div class="section-title">
@@ -401,41 +508,43 @@ Open My Workspace
 <a href="admin.html">Open Administration →</a>
 </div>
 
-<div class="card">
-<h3>Literature & Stories</h3>
-<p>Discover novels, African fiction, short stories and other literary works published on MASTERBOOK.</p>
-<a href="literature.html">Explore Literature →</a>
-</div>
-
-<div class="card">
-<h3>Author Profile</h3>
-<p>Meet G.O. Odhiambo, explore his literary works and discover published books.</p>
-<a href="author.html">Visit Author Profile →</a>
-</div>
-
 </div>
 </section>
 
 <section class="info" id="about">
+
 <h2>About MASTERBOOK</h2>
 
 <p>
 MASTERBOOK brings together learners, educators,
-researchers and contributors in one learning environment.
+researchers, writers and contributors in one learning environment.
 </p>
 
 <p>
-Our mission is to expand access to quality knowledge through technology.
+Our mission is to expand access to quality knowledge through technology,
+education, research and literature.
 </p>
+
 </section>
 
 </main>
 
 <footer>
+
 <div class="logo">MASTER<span>BOOK</span></div>
+
 <p>Learning Without Boundaries.</p>
+
+<div class="footer-links">
+<a href="library.html">Academic Library</a>
+<a href="literature.html">Literature</a>
+<a href="author.html">Author Profile</a>
+<a href="auth.html">Account</a>
+</div>
+
 <p>© 2026 MASTERBOOK. All rights reserved.</p>
-<p>Founded by <a href="author.html">G.O. Odhiambo</a>.</p>
+<p>Founded by G.O. Odhiambo.</p>
+
 </footer>
 
 <script>
@@ -445,7 +554,7 @@ const SUPABASE_URL =
 "https://bxsrhvcqjjtdnflhoplu.supabase.co";
 
 const SUPABASE_KEY =
-"sb_publishable_DSUz-W5eeLBioVBQ1HywoQ_Rp4f3nur";
+"sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
 
 const db = window.supabase.createClient(
 SUPABASE_URL,
@@ -481,6 +590,7 @@ statusBox.style.color = isError ? "#991b1b" : "#166534";
 /* RESET ACCOUNT DISPLAY */
 
 function clearAccount(){
+
 loginLink.classList.remove("hidden");
 userEmail.classList.add("hidden");
 logoutButton.classList.add("hidden");
@@ -491,6 +601,7 @@ welcomeTitle.textContent = "Welcome to MASTERBOOK";
 
 welcomeText.textContent =
 "Discover quality educational resources and learning materials across different levels of education.";
+
 }
 
 /* IDENTIFY ACCOUNT ROLE */
