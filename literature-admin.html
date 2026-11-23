@@ -6,23 +6,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#10243e">
 
-<title>MASTERBOOK | Literature Author Dashboard</title>
-<meta name="description" content="Secure MASTERBOOK Literature Author Dashboard for uploading, publishing and managing novels and storybooks.">
+<title>MASTERBOOK | Literature Administration</title>
+<meta name="description" content="Secure MASTERBOOK Literature Administration and Premium M-Pesa payment verification dashboard.">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root {
-  --navy:#10243e;
-  --blue:#1769aa;
-  --gold:#d6a84f;
-  --light:#f3f6fa;
-  --white:#ffffff;
-  --text:#263449;
-  --muted:#718096;
-  --border:#dce4ed;
-  --green:#168451;
-  --red:#c0392b;
+:root{
+  --navy:#10243e;--blue:#1769aa;--gold:#d6a84f;
+  --light:#f3f6fa;--white:#fff;--text:#263449;
+  --muted:#718096;--border:#dce4ed;
+  --green:#168451;--red:#c0392b;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--light);color:var(--text);font-family:Arial,Helvetica,sans-serif}
@@ -30,11 +24,12 @@ header{background:var(--navy);color:white;padding:22px 5%;display:flex;align-ite
 .brand{font-size:23px;font-weight:800;letter-spacing:1px}
 .brand span{color:var(--gold)}
 header p{margin:5px 0 0;color:#d7e1ef;font-size:13px}
-main{max-width:1150px;margin:28px auto;padding:0 16px}
+main{max-width:1200px;margin:28px auto;padding:0 16px}
 .panel{background:white;border:1px solid var(--border);border-radius:13px;padding:24px;margin-bottom:22px;box-shadow:0 4px 18px rgba(16,36,62,.045)}
 h1,h2,h3{color:var(--navy)}
 h1{font-size:27px;margin:0 0 8px}
 h2{font-size:20px;margin:0 0 18px}
+h3{font-size:17px}
 .subtitle{color:var(--muted);line-height:1.6;margin:0 0 22px}
 label{display:block;font-weight:700;font-size:13px;margin:15px 0 7px}
 input,select,textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;color:var(--text)}
@@ -48,7 +43,7 @@ button{border:0;border-radius:8px;padding:12px 17px;cursor:pointer;font-weight:7
 .danger{background:#fdecea;color:var(--red)}
 button:disabled{opacity:.55;cursor:not-allowed}
 .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
-.status{padding:12px 14px;margin:15px 0;border-radius:8px;font-size:13px;line-height:1.5;display:none}
+.status{padding:12px 14px;margin:15px 0;border-radius:8px;font-size:13px;line-height:1.5;display:none;overflow-wrap:anywhere}
 .status.show{display:block}
 .status.info{background:#eaf3fb;color:#174b77}
 .status.good{background:#e8f6ee;color:#17633d}
@@ -62,22 +57,34 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .book{display:grid;grid-template-columns:95px 1fr;gap:16px;padding:15px;border:1px solid var(--border);border-radius:10px;align-items:start}
 .cover{width:95px;height:125px;object-fit:cover;border-radius:6px;background:#e9eef5}
 .book h3{margin:0 0 6px;font-size:17px}
-.book p{margin:5px 0;color:var(--muted);font-size:13px;line-height:1.5}
+.book p{margin:5px 0;color:var(--muted);font-size:13px;line-height:1.5;overflow-wrap:anywhere}
 .tag{display:inline-block;padding:5px 8px;margin:5px 5px 0 0;border-radius:20px;background:#edf2f7;color:#34445a;font-size:11px}
-.tag.published{background:#e5f5eb;color:#17633d}
-.tag.draft{background:#fff4dc;color:#805b13}
-.tag.unpublished{background:#fdecea;color:#9c2c23}
+.tag.published,.tag.approved{background:#e5f5eb;color:#17633d}
+.tag.draft,.tag.pending{background:#fff4dc;color:#805b13}
+.tag.unpublished,.tag.rejected{background:#fdecea;color:#9c2c23}
 .tag.price{background:#fff2d6;color:#805b13}
 .field-help{color:var(--muted);font-size:12px;line-height:1.5;margin:6px 0 0}
 .empty{text-align:center;color:var(--muted);padding:28px 10px}
+.payment-list{display:grid;gap:14px}
+.payment-card{border:1px solid var(--border);border-radius:10px;padding:17px;background:#fff}
+.payment-card h3{margin:0 0 10px}
+.payment-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.payment-detail{padding:10px;background:#f5f7fa;border-radius:8px;min-width:0}
+.payment-detail span{display:block;color:var(--muted);font-size:11px;margin-bottom:5px}
+.payment-detail strong{font-size:13px;overflow-wrap:anywhere}
+.payment-card .actions{margin-top:14px}
+.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}
+.filter-row select{max-width:220px}
 footer{text-align:center;padding:25px 12px;color:var(--muted);font-size:12px}
 @media(max-width:650px){
-  .grid{grid-template-columns:1fr}
-  .stats{grid-template-columns:1fr 1fr}
-  .panel{padding:17px}
-  header{padding:18px}
-  .book{grid-template-columns:75px 1fr}
-  .cover{width:75px;height:105px}
+ .grid{grid-template-columns:1fr}
+ .stats{grid-template-columns:1fr 1fr}
+ .panel{padding:17px}
+ header{padding:18px}
+ .book{grid-template-columns:75px 1fr}
+ .cover{width:75px;height:105px}
+ .payment-details{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -85,135 +92,177 @@ footer{text-align:center;padding:25px 12px;color:var(--muted);font-size:12px}
 <body>
 
 <header>
-  <div>
-    <div class="brand">MASTER<span>BOOK</span></div>
-    <p>Literature & Stories | Author Administration</p>
-  </div>
-  <button class="secondary hidden" id="signOutBtn">Sign Out</button>
+ <div>
+  <div class="brand">MASTER<span>BOOK</span></div>
+  <p>Literature, Stories & Premium Payment Administration</p>
+ </div>
+ <button class="secondary hidden" id="signOutBtn">Sign Out</button>
 </header>
 
 <main>
 
 <section class="panel" id="loginPanel">
-  <h1>Author Dashboard</h1>
-  <p class="subtitle">Sign in using your MASTERBOOK administrator account to upload and manage novels and storybooks.</p>
+ <h1>Administrator Dashboard</h1>
+ <p class="subtitle">Sign in using your MASTERBOOK administrator account to manage literary books and verify Premium payments.</p>
 
-  <label for="email">Administrator email</label>
-  <input id="email" type="email" autocomplete="username" placeholder="Enter your account email">
+ <label for="email">Administrator email</label>
+ <input id="email" type="email" autocomplete="username" placeholder="Enter your account email">
 
-  <label for="password">Password</label>
-  <input id="password" type="password" autocomplete="current-password" placeholder="Enter your password">
+ <label for="password">Password</label>
+ <input id="password" type="password" autocomplete="current-password" placeholder="Enter your password">
 
-  <div class="actions">
-    <button class="primary" id="loginBtn">Sign In</button>
-  </div>
-  <div class="status" id="loginMessage"></div>
+ <div class="actions">
+  <button class="primary" id="loginBtn">Sign In</button>
+ </div>
+ <div class="status" id="loginMessage"></div>
 </section>
 
 <section id="dashboard" class="hidden">
 
-  <div class="panel">
-    <h1>Literature Management</h1>
-    <p class="subtitle">Upload your original literary works and manage their publication on the public MASTERBOOK Literature & Stories page.</p>
+ <div class="panel">
+  <h1>MASTERBOOK Literature Administration</h1>
+  <p class="subtitle">Manage literary publications, monitor Premium sales and verify individual M-Pesa book purchases.</p>
 
-    <div class="stats">
-      <div class="stat"><strong id="totalBooks">0</strong><span>Total books</span></div>
-      <div class="stat"><strong id="publishedBooks">0</strong><span>Published</span></div>
-      <div class="stat"><strong id="draftBooks">0</strong><span>Drafts</span></div>
-    </div>
+  <div class="stats">
+   <div class="stat"><strong id="totalBooks">0</strong><span>Total books</span></div>
+   <div class="stat"><strong id="publishedBooks">0</strong><span>Published books</span></div>
+   <div class="stat"><strong id="draftBooks">0</strong><span>Drafts</span></div>
+   <div class="stat"><strong id="pendingPayments">0</strong><span>Pending payments</span></div>
+   <div class="stat"><strong id="approvedPayments">0</strong><span>Approved payments</span></div>
+   <div class="stat"><strong id="rejectedPayments">0</strong><span>Rejected payments</span></div>
+  </div>
+ </div>
+
+ <!-- PREMIUM PAYMENT MANAGEMENT -->
+
+ <section class="panel" id="paymentsPanel">
+  <div class="section-heading">
+   <div>
+    <h2>Premium M-Pesa Payment Verification</h2>
+    <p class="subtitle">Review individual Premium book purchases. Approving a genuine payment grants access to that particular book.</p>
+   </div>
+   <button class="secondary" id="refreshPaymentsBtn">Refresh Payments</button>
   </div>
 
-  <div class="panel">
-    <h2 id="formHeading">Upload a Novel or Storybook</h2>
-    <p class="subtitle">Complete the book details below. Your book file and cover image will be stored securely in MASTERBOOK storage.</p>
-
-    <form id="bookForm">
-
-      <label for="bookTitle">Book title *</label>
-      <input id="bookTitle" type="text" maxlength="200" placeholder="Enter the title of your book" required>
-
-      <div class="grid">
-        <div>
-          <label for="authorName">Author name *</label>
-          <input id="authorName" type="text" value="G.O. Odhiambo" maxlength="150" required>
-        </div>
-        <div>
-          <label for="bookType">Book type *</label>
-          <select id="bookType" required>
-            <option value="Novel">Novel</option>
-            <option value="Storybook">Storybook</option>
-            <option value="Short Story">Short Story</option>
-            <option value="Collection of Stories">Collection of Stories</option>
-            <option value="Novella">Novella</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-      </div>
-
-      <label for="genre">Genre *</label>
-      <input id="genre" type="text" maxlength="100" placeholder="e.g. African fiction, romance, mystery, drama" required>
-
-      <label for="description">Book description *</label>
-      <textarea id="description" maxlength="5000" placeholder="Write an engaging description of your book..." required></textarea>
-
-      <div class="grid">
-        <div>
-          <label for="accessTier">Access level *</label>
-          <select id="accessTier" required>
-            <option value="Free">Free</option>
-            <option value="Premium">Premium</option>
-          </select>
-        </div>
-        <div>
-          <label for="bookStatus">Publication status *</label>
-          <select id="bookStatus" required>
-            <option value="Draft">Save as Draft</option>
-            <option value="Published">Publish Book</option>
-          </select>
-        </div>
-      </div>
-
-      <div id="premiumPriceGroup" class="hidden">
-        <label for="priceKes">Premium book price (KSh) *</label>
-        <input id="priceKes" type="number" min="1" step="1" inputmode="numeric" placeholder="320">
-        <p class="field-help">
-          Default price: KSh 320. You may change the price for each individual Premium book. Readers pay separately for each book.
-        </p>
-      </div>
-
-      <label for="bookFile">Book document * (PDF, DOCX or TXT)</label>
-      <input id="bookFile" type="file" accept=".pdf,.docx,.txt,application/pdf,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
-
-      <label for="coverFile">Book cover image (optional)</label>
-      <input id="coverFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
-
-      <p class="subtitle">Maximum file size: 50 MB. PDF is recommended for the best reading experience. Cover images should be JPG, PNG, WEBP or GIF.</p>
-
-      <div class="actions">
-        <button class="primary" type="submit" id="saveBtn">Upload and Save Book</button>
-        <button class="secondary hidden" type="button" id="cancelEditBtn">Cancel Editing</button>
-      </div>
-
-      <div class="status" id="uploadMessage"></div>
-    </form>
+  <div class="payment-details">
+   <div class="payment-detail">
+    <span>MASTERBOOK M-Pesa Till Number</span>
+    <strong>1881389</strong>
+   </div>
+   <div class="payment-detail">
+    <span>Payment verification method</span>
+    <strong>Manual administrator verification</strong>
+   </div>
   </div>
 
-  <div class="panel">
-    <h2>Your Literary Collection</h2>
-    <p class="subtitle">View, edit, publish, unpublish or remove books from your collection.</p>
-
-    <div class="actions">
-      <button class="secondary" id="refreshBtn">Refresh Collection</button>
-      <a href="literature.html" target="_blank" rel="noopener" style="text-decoration:none">
-        <button class="secondary" type="button">Open Public Literature Page</button>
-      </a>
-    </div>
-
-    <div id="collectionMessage" class="status"></div>
-    <div id="bookList" class="book-list">
-      <div class="empty">Loading your collection...</div>
-    </div>
+  <div class="filter-row">
+   <select id="paymentFilter" aria-label="Filter payment requests">
+    <option value="All">All payment requests</option>
+    <option value="Pending">Pending</option>
+    <option value="Approved">Approved</option>
+    <option value="Rejected">Rejected</option>
+   </select>
   </div>
+
+  <div class="status" id="paymentMessage"></div>
+  <div id="paymentList" class="payment-list">
+   <div class="empty">Payment requests will appear here after loading.</div>
+  </div>
+ </section>
+
+ <!-- BOOK UPLOAD FORM -->
+
+ <div class="panel">
+  <h2 id="formHeading">Upload a Novel or Storybook</h2>
+  <p class="subtitle">Upload original literary works and manage their publication on the public MASTERBOOK Literature page.</p>
+
+  <form id="bookForm">
+
+   <label for="bookTitle">Book title *</label>
+   <input id="bookTitle" type="text" maxlength="200" placeholder="Enter the title of your book" required>
+
+   <div class="grid">
+    <div>
+     <label for="authorName">Author name *</label>
+     <input id="authorName" type="text" value="G.O. Odhiambo" maxlength="150" required>
+    </div>
+    <div>
+     <label for="bookType">Book type *</label>
+     <select id="bookType" required>
+      <option value="Novel">Novel</option>
+      <option value="Storybook">Storybook</option>
+      <option value="Short Story">Short Story</option>
+      <option value="Collection of Stories">Collection of Stories</option>
+      <option value="Novella">Novella</option>
+      <option value="Other">Other</option>
+     </select>
+    </div>
+   </div>
+
+   <label for="genre">Genre *</label>
+   <input id="genre" type="text" maxlength="100" placeholder="e.g. African fiction, romance, mystery, drama" required>
+
+   <label for="description">Book description *</label>
+   <textarea id="description" maxlength="5000" placeholder="Write an engaging description of your book..." required></textarea>
+
+   <div class="grid">
+    <div>
+     <label for="accessTier">Access level *</label>
+     <select id="accessTier" required>
+      <option value="Free">Free</option>
+      <option value="Premium">Premium</option>
+     </select>
+    </div>
+    <div>
+     <label for="bookStatus">Publication status *</label>
+     <select id="bookStatus" required>
+      <option value="Draft">Save as Draft</option>
+      <option value="Published">Publish Book</option>
+     </select>
+    </div>
+   </div>
+
+   <div id="premiumPriceGroup" class="hidden">
+    <label for="priceKes">Premium book price (KSh) *</label>
+    <input id="priceKes" type="number" min="1" step="1" inputmode="numeric" placeholder="320">
+    <p class="field-help">Default price: KSh 320. Readers pay separately for each individual Premium book.</p>
+   </div>
+
+   <label for="bookFile">Book document * (PDF, DOCX or TXT)</label>
+   <input id="bookFile" type="file" accept=".pdf,.docx,.txt,application/pdf,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+
+   <label for="coverFile">Book cover image (optional)</label>
+   <input id="coverFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+
+   <p class="subtitle">Maximum file size: 50 MB. PDF is recommended for the best reading experience.</p>
+
+   <div class="actions">
+    <button class="primary" type="submit" id="saveBtn">Upload and Save Book</button>
+    <button class="secondary hidden" type="button" id="cancelEditBtn">Cancel Editing</button>
+   </div>
+
+   <div class="status" id="uploadMessage"></div>
+  </form>
+ </div>
+
+ <!-- LITERARY COLLECTION -->
+
+ <div class="panel">
+  <h2>Your Literary Collection</h2>
+  <p class="subtitle">View, edit, publish, unpublish or remove books from your collection.</p>
+
+  <div class="actions">
+   <button class="secondary" id="refreshBtn">Refresh Collection</button>
+   <a href="literature.html" target="_blank" rel="noopener" style="text-decoration:none">
+    <button class="secondary" type="button">Open Public Literature Page</button>
+   </a>
+  </div>
+
+  <div id="collectionMessage" class="status"></div>
+  <div id="bookList" class="book-list">
+   <div class="empty">Loading your collection...</div>
+  </div>
+ </div>
 
 </section>
 </main>
@@ -234,501 +283,437 @@ const BUCKET = "masterbook-resources";
 const DEFAULT_PREMIUM_PRICE = 320;
 
 if (!window.supabase) {
-  document.getElementById("loginMessage").textContent =
-    "The Supabase library could not load. Check your internet connection and reload the page.";
-  document.getElementById("loginMessage").className = "status show error";
-  throw new Error("Supabase JavaScript library unavailable.");
+ const message=document.getElementById("loginMessage");
+ message.textContent="The Supabase library could not load. Check your internet connection and reload.";
+ message.className="status show error";
+ throw new Error("Supabase JavaScript library unavailable.");
 }
 
-const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-let currentUser = null;
-let editingBookId = null;
-let literaryBooks = [];
+let currentUser=null;
+let editingBookId=null;
+let literaryBooks=[];
+let paymentRequests=[];
 
-const $ = id => document.getElementById(id);
-$("year").textContent = new Date().getFullYear();
+const $=id=>document.getElementById(id);
+$("year").textContent=new Date().getFullYear();
 
 /* MESSAGES */
 
 function showMessage(id,message,type="info"){
-  const element=$(id);
-  element.textContent=message;
-  element.className="status show "+type;
+ const element=$(id);
+ element.textContent=message;
+ element.className="status show "+type;
 }
 
 function hideMessage(id){
-  $(id).className="status";
-  $(id).textContent="";
+ $(id).className="status";
+ $(id).textContent="";
 }
 
 function readableError(error){
-  if(!error)return "An unknown error occurred.";
+ if(!error)return "An unknown error occurred.";
+ const message=error.message||String(error);
+ const lower=message.toLowerCase();
 
-  const message=error.message||String(error);
-
-  if(message.toLowerCase().includes("failed to fetch")){
-    return "The browser could not reach Supabase Storage. Check your internet connection, confirm the Supabase project is available, and retry. If the problem continues, inspect the browser network request.";
-  }
-
-  if(message.toLowerCase().includes("row-level security")){
-    return "Storage rejected this upload under its security policies. Confirm that you are signed in with the administrator account and that the file path begins with your authenticated user ID. Details: "+message;
-  }
-
-  if(message.toLowerCase().includes("duplicate")){
-    return "A file with this storage path already exists. Please retry the upload. Details: "+message;
-  }
-
-  return message;
-}
-
-/* PREMIUM PRICE */
-
-function updatePremiumPriceVisibility(){
-  const isPremium=$("accessTier").value==="Premium";
-
-  $("premiumPriceGroup").classList.toggle("hidden",!isPremium);
-  $("priceKes").required=isPremium;
-
-  if(isPremium&&!$("priceKes").value.trim()){
-    $("priceKes").value=String(DEFAULT_PREMIUM_PRICE);
-  }
-
-  if(!isPremium){
-    $("priceKes").value="";
-  }
-}
-
-$("accessTier").addEventListener("change",updatePremiumPriceVisibility);
-
-function getValidatedPrice(){
-  if($("accessTier").value!=="Premium")return null;
-
-  const raw=$("priceKes").value.trim();
-  const price=Number(raw);
-
-  if(!raw||!Number.isInteger(price)||price<=0){
-    throw new Error("Enter a valid Premium book price in Kenyan shillings. The price must be a whole number greater than zero.");
-  }
-
-  return price;
+ if(lower.includes("failed to fetch")){
+  return "The browser could not reach Supabase. Check your internet connection and retry.";
+ }
+ if(lower.includes("row-level security")){
+  return "Supabase rejected the operation under its security policies. Details: "+message;
+ }
+ if(lower.includes("administrator access required")){
+  return "Administrator privileges are required for this operation.";
+ }
+ return message;
 }
 
 /* ADMIN AUTHENTICATION */
 
 async function verifyAdministrator(){
-  const {data,error}=await client.rpc("masterbook_admin_is_admin");
+ const {data,error}=await client.rpc("masterbook_admin_is_admin");
+ if(error)throw new Error("Administrator verification failed: "+error.message);
 
-  if(error)throw new Error("Administrator verification failed: "+error.message);
+ const allowed=data===true||data?.is_admin===true||data?.is_admin==="true";
+ if(!allowed)throw new Error("This account does not have MASTERBOOK administrator access.");
 
-  const allowed=data===true||data?.is_admin===true||data?.is_admin==="true";
-
-  if(!allowed)throw new Error("This account does not have MASTERBOOK administrator access.");
-
-  return true;
+ return true;
 }
 
 async function activateDashboard(user){
-  currentUser=user;
-  await verifyAdministrator();
+ currentUser=user;
+ await verifyAdministrator();
 
-  $("loginPanel").classList.add("hidden");
-  $("dashboard").classList.remove("hidden");
-  $("signOutBtn").classList.remove("hidden");
+ $("loginPanel").classList.add("hidden");
+ $("dashboard").classList.remove("hidden");
+ $("signOutBtn").classList.remove("hidden");
 
-  await loadBooks();
+ await loadBooks();
+ await loadPayments();
 }
 
 async function signIn(){
-  const email=$("email").value.trim();
-  const password=$("password").value;
+ const email=$("email").value.trim();
+ const password=$("password").value;
 
-  if(!email||!password){
-    showMessage("loginMessage","Enter your email address and password.","error");
-    return;
-  }
+ if(!email||!password){
+  showMessage("loginMessage","Enter your email address and password.","error");
+  return;
+ }
 
-  $("loginBtn").disabled=true;
-  $("loginBtn").textContent="Signing In...";
+ $("loginBtn").disabled=true;
+ $("loginBtn").textContent="Signing In...";
 
-  try{
-    const {data,error}=await client.auth.signInWithPassword({email,password});
-    if(error)throw error;
-
-    await activateDashboard(data.user);
-    showMessage("collectionMessage","Administrator access verified successfully.","good");
-
-  }catch(error){
-    await client.auth.signOut();
-    showMessage("loginMessage",readableError(error),"error");
-  }finally{
-    $("loginBtn").disabled=false;
-    $("loginBtn").textContent="Sign In";
-  }
+ try{
+  const {data,error}=await client.auth.signInWithPassword({email,password});
+  if(error)throw error;
+  await activateDashboard(data.user);
+  showMessage("collectionMessage","Administrator access verified successfully.","good");
+ }catch(error){
+  await client.auth.signOut();
+  showMessage("loginMessage",readableError(error),"error");
+ }finally{
+  $("loginBtn").disabled=false;
+  $("loginBtn").textContent="Sign In";
+ }
 }
 
 $("loginBtn").addEventListener("click",signIn);
 $("password").addEventListener("keydown",event=>{
-  if(event.key==="Enter")signIn();
+ if(event.key==="Enter")signIn();
 });
 
 $("signOutBtn").addEventListener("click",async()=>{
-  await client.auth.signOut();
-  currentUser=null;
-  literaryBooks=[];
+ await client.auth.signOut();
+ currentUser=null;
+ literaryBooks=[];
+ paymentRequests=[];
 
-  $("dashboard").classList.add("hidden");
-  $("loginPanel").classList.remove("hidden");
-  $("signOutBtn").classList.add("hidden");
-  $("password").value="";
+ $("dashboard").classList.add("hidden");
+ $("loginPanel").classList.remove("hidden");
+ $("signOutBtn").classList.add("hidden");
+ $("password").value="";
 
-  showMessage("loginMessage","You have signed out successfully.","good");
+ showMessage("loginMessage","You have signed out successfully.","good");
 });
+
+/* PREMIUM PRICE */
+
+function updatePremiumPriceVisibility(){
+ const isPremium=$("accessTier").value==="Premium";
+ $("premiumPriceGroup").classList.toggle("hidden",!isPremium);
+ $("priceKes").required=isPremium;
+
+ if(isPremium&&!$("priceKes").value.trim()){
+  $("priceKes").value=String(DEFAULT_PREMIUM_PRICE);
+ }
+ if(!isPremium)$("priceKes").value="";
+}
+
+$("accessTier").addEventListener("change",updatePremiumPriceVisibility);
+
+function getValidatedPrice(){
+ if($("accessTier").value!=="Premium")return null;
+
+ const raw=$("priceKes").value.trim();
+ const price=Number(raw);
+
+ if(!raw||!Number.isInteger(price)||price<=0){
+  throw new Error("Enter a valid Premium book price in Kenyan shillings.");
+ }
+ return price;
+}
 
 /* FILE VALIDATION AND STORAGE */
 
 function validateFile(file,type){
-  if(!file)return;
+ if(!file)return;
 
-  if(file.size>50*1024*1024){
-    throw new Error("Each file must be 50 MB or smaller.");
-  }
+ if(file.size>50*1024*1024)throw new Error("Each file must be 50 MB or smaller.");
+ if(file.size===0)throw new Error("The selected file is empty.");
 
-  if(file.size===0){
-    throw new Error("The selected file is empty. Choose a valid document.");
-  }
+ const extension=file.name.split(".").pop().toLowerCase();
 
-  const extension=file.name.split(".").pop().toLowerCase();
-
-  if(type==="book"&&!["pdf","docx","txt"].includes(extension)){
-    throw new Error("Book files must be PDF, DOCX or TXT.");
-  }
-
-  if(type==="cover"&&!["jpg","jpeg","png","webp","gif"].includes(extension)){
-    throw new Error("Cover images must be JPG, PNG, WEBP or GIF.");
-  }
+ if(type==="book"&&!["pdf","docx","txt"].includes(extension)){
+  throw new Error("Book files must be PDF, DOCX or TXT.");
+ }
+ if(type==="cover"&&!["jpg","jpeg","png","webp","gif"].includes(extension)){
+  throw new Error("Cover images must be JPG, PNG, WEBP or GIF.");
+ }
 }
 
 function safeFileName(name){
-  return name.normalize("NFKD")
-    .replace(/[^a-zA-Z0-9._-]/g,"-")
-    .replace(/-+/g,"-")
-    .slice(-120);
+ return name.normalize("NFKD")
+  .replace(/[^a-zA-Z0-9._-]/g,"-")
+  .replace(/-+/g,"-")
+  .slice(-120);
 }
 
 async function uploadStorageFile(file,folder){
-  if(!file)return null;
+ if(!file)return null;
+ validateFile(file,folder==="covers"?"cover":"book");
 
-  validateFile(file,folder==="covers"?"cover":"book");
+ if(!currentUser)throw new Error("Your administrator session has expired.");
 
-  if(!currentUser){
-    throw new Error("Your administrator session has expired. Sign in again.");
-  }
+ const path=currentUser.id+"/literature/"+folder+"/"+Date.now()+"-"+safeFileName(file.name);
 
-  const path=currentUser.id+"/literature/"+folder+"/"+Date.now()+"-"+safeFileName(file.name);
+ showMessage("uploadMessage","Uploading "+file.name+" ("+(file.size/1024).toFixed(1)+" KB)...","info");
 
-  showMessage(
-    "uploadMessage",
-    "Uploading "+file.name+" ("+(file.size/1024).toFixed(1)+" KB)...",
-    "info"
-  );
+ const {data,error}=await client.storage.from(BUCKET).upload(path,file,{
+  cacheControl:"3600",
+  upsert:false,
+  contentType:file.type||undefined
+ });
 
-  try{
-    const {data,error}=await client.storage.from(BUCKET).upload(path,file,{
-      cacheControl:"3600",
-      upsert:false,
-      contentType:file.type||undefined
-    });
+ if(error)throw new Error("File upload failed ("+file.name+"): "+readableError(error));
+ if(!data||!data.path)throw new Error("Supabase did not return a storage path.");
 
-    if(error){
-      throw new Error("Supabase Storage rejected "+file.name+": "+error.message);
-    }
-
-    if(!data||!data.path){
-      throw new Error("Supabase did not return a storage path for "+file.name+".");
-    }
-
-    return data.path;
-
-  }catch(error){
-    throw new Error("File upload failed ("+file.name+"): "+readableError(error));
-  }
+ return data.path;
 }
 
 /* SAVE AND EDIT BOOK */
 
 async function saveBook(event){
-  event.preventDefault();
+ event.preventDefault();
 
-  if(!currentUser){
-    showMessage("uploadMessage","Please sign in again.","error");
-    return;
+ if(!currentUser){
+  showMessage("uploadMessage","Please sign in again.","error");
+  return;
+ }
+
+ const title=$("bookTitle").value.trim();
+ const author=$("authorName").value.trim();
+ const genre=$("genre").value.trim();
+ const description=$("description").value.trim();
+ const bookFile=$("bookFile").files[0];
+ const coverFile=$("coverFile").files[0];
+
+ if(!title||!author||!genre||!description){
+  showMessage("uploadMessage","Complete all required book details.","error");
+  return;
+ }
+ if(!editingBookId&&!bookFile){
+  showMessage("uploadMessage","Select the book document you want to upload.","error");
+  return;
+ }
+
+ try{
+  if(bookFile)validateFile(bookFile,"book");
+  if(coverFile)validateFile(coverFile,"cover");
+
+  const priceKes=getValidatedPrice();
+
+  $("saveBtn").disabled=true;
+  $("saveBtn").textContent="Uploading...";
+
+  let oldBook=null;
+  if(editingBookId){
+   oldBook=literaryBooks.find(book=>book.id===editingBookId);
+   if(!oldBook)throw new Error("The selected book could not be found.");
   }
 
-  const title=$("bookTitle").value.trim();
-  const author=$("authorName").value.trim();
-  const genre=$("genre").value.trim();
-  const description=$("description").value.trim();
+  let storagePath=oldBook?.storage_path||null;
+  let coverPath=oldBook?.cover_path||null;
 
-  const bookFile=$("bookFile").files[0];
-  const coverFile=$("coverFile").files[0];
+  if(bookFile)storagePath=await uploadStorageFile(bookFile,"books");
+  if(coverFile)coverPath=await uploadStorageFile(coverFile,"covers");
 
-  if(!title||!author||!genre||!description){
-    showMessage("uploadMessage","Complete all required book details.","error");
-    return;
+  const bookData={
+   title,
+   author_name:author,
+   description,
+   genre,
+   book_type:$("bookType").value,
+   access_tier:$("accessTier").value,
+   price_kes:priceKes,
+   status:$("bookStatus").value,
+   storage_path:storagePath,
+   cover_path:coverPath,
+   updated_at:new Date().toISOString()
+  };
+
+  let result;
+
+  if(editingBookId){
+   result=await client.from("literary_books")
+    .update(bookData).eq("id",editingBookId).select().single();
+  }else{
+   bookData.created_by=currentUser.id;
+   result=await client.from("literary_books")
+    .insert(bookData).select().single();
   }
 
-  if(!editingBookId&&!bookFile){
-    showMessage("uploadMessage","Select the book document you want to upload.","error");
-    return;
-  }
+  if(result.error)throw result.error;
 
-  try{
-    if(bookFile)validateFile(bookFile,"book");
-    if(coverFile)validateFile(coverFile,"cover");
+  editingBookId=null;
+  $("bookForm").reset();
+  $("authorName").value="G.O. Odhiambo";
+  $("formHeading").textContent="Upload a Novel or Storybook";
+  $("saveBtn").textContent="Upload and Save Book";
+  $("cancelEditBtn").classList.add("hidden");
+  updatePremiumPriceVisibility();
 
-    const priceKes=getValidatedPrice();
+  showMessage("uploadMessage","Your book has been saved successfully. Publication status: "+bookData.status+".","good");
+  await loadBooks();
 
-    $("saveBtn").disabled=true;
-    $("saveBtn").textContent="Uploading...";
-
-    showMessage("uploadMessage","Preparing your book for upload...","info");
-
-    let oldBook=null;
-
-    if(editingBookId){
-      oldBook=literaryBooks.find(book=>book.id===editingBookId);
-      if(!oldBook)throw new Error("The selected book could not be found.");
-    }
-
-    let storagePath=oldBook?.storage_path||null;
-    let coverPath=oldBook?.cover_path||null;
-
-    if(bookFile){
-      storagePath=await uploadStorageFile(bookFile,"books");
-    }
-
-    if(coverFile){
-      coverPath=await uploadStorageFile(coverFile,"covers");
-    }
-
-    const bookData={
-      title,
-      author_name:author,
-      description,
-      genre,
-      book_type:$("bookType").value,
-      access_tier:$("accessTier").value,
-      price_kes:priceKes,
-      status:$("bookStatus").value,
-      storage_path:storagePath,
-      cover_path:coverPath,
-      updated_at:new Date().toISOString()
-    };
-
-    let result;
-
-    if(editingBookId){
-      result=await client.from("literary_books")
-        .update(bookData)
-        .eq("id",editingBookId)
-        .select()
-        .single();
-    }else{
-      bookData.created_by=currentUser.id;
-      result=await client.from("literary_books")
-        .insert(bookData)
-        .select()
-        .single();
-    }
-
-    if(result.error)throw result.error;
-
-    editingBookId=null;
-    $("bookForm").reset();
-    $("authorName").value="G.O. Odhiambo";
-    $("formHeading").textContent="Upload a Novel or Storybook";
-    $("saveBtn").textContent="Upload and Save Book";
-    $("cancelEditBtn").classList.add("hidden");
-
-    updatePremiumPriceVisibility();
-
-    showMessage(
-      "uploadMessage",
-      "Your book has been saved successfully. Publication status: "+bookData.status+".",
-      "good"
-    );
-
-    await loadBooks();
-
-  }catch(error){
-    showMessage("uploadMessage",readableError(error),"error");
-  }finally{
-    $("saveBtn").disabled=false;
-    $("saveBtn").textContent=editingBookId?"Update Book":"Upload and Save Book";
-  }
+ }catch(error){
+  showMessage("uploadMessage",readableError(error),"error");
+ }finally{
+  $("saveBtn").disabled=false;
+  $("saveBtn").textContent=editingBookId?"Update Book":"Upload and Save Book";
+ }
 }
 
 $("bookForm").addEventListener("submit",saveBook);
 
-/* LOAD COLLECTION */
+/* LOAD BOOK COLLECTION */
 
 async function loadBooks(){
-  if(!currentUser)return;
+ if(!currentUser)return;
 
-  $("bookList").innerHTML='<div class="empty">Loading literary collection...</div>';
+ $("bookList").innerHTML='<div class="empty">Loading literary collection...</div>';
 
-  const {data,error}=await client.from("literary_books")
-    .select("*")
-    .order("created_at",{ascending:false});
+ const {data,error}=await client.from("literary_books")
+  .select("*").order("created_at",{ascending:false});
 
-  if(error){
-    $("bookList").innerHTML="";
-    showMessage("collectionMessage","Unable to load books: "+readableError(error),"error");
-    return;
-  }
+ if(error){
+  $("bookList").innerHTML="";
+  showMessage("collectionMessage","Unable to load books: "+readableError(error),"error");
+  return;
+ }
 
-  literaryBooks=data||[];
-  updateStatistics();
-  await renderBooks();
+ literaryBooks=data||[];
+ updateStatistics();
+ await renderBooks();
 }
 
 function updateStatistics(){
-  $("totalBooks").textContent=literaryBooks.length;
-  $("publishedBooks").textContent=literaryBooks.filter(book=>book.status==="Published").length;
-  $("draftBooks").textContent=literaryBooks.filter(book=>book.status==="Draft").length;
+ $("totalBooks").textContent=literaryBooks.length;
+ $("publishedBooks").textContent=literaryBooks.filter(book=>book.status==="Published").length;
+ $("draftBooks").textContent=literaryBooks.filter(book=>book.status==="Draft").length;
 }
-
-/* COVER URL */
 
 async function getCoverUrl(path){
-  if(!path)return null;
-
-  const {data,error}=await client.storage.from(BUCKET).createSignedUrl(path,3600);
-  if(error)return null;
-
-  return data.signedUrl;
+ if(!path)return null;
+ const {data,error}=await client.storage.from(BUCKET).createSignedUrl(path,3600);
+ if(error)return null;
+ return data.signedUrl;
 }
 
-/* RENDER COLLECTION */
+/* RENDER BOOK COLLECTION */
 
 async function renderBooks(){
-  const container=$("bookList");
+ const container=$("bookList");
 
-  if(!literaryBooks.length){
-    container.innerHTML='<div class="empty">You have not uploaded any novels or storybooks yet.</div>';
-    return;
+ if(!literaryBooks.length){
+  container.innerHTML='<div class="empty">You have not uploaded any novels or storybooks yet.</div>';
+  return;
+ }
+
+ container.innerHTML="";
+
+ for(const book of literaryBooks){
+  const item=document.createElement("article");
+  item.className="book";
+
+  const cover=document.createElement("img");
+  cover.className="cover";
+  cover.alt=book.title+" cover";
+  cover.src=await getCoverUrl(book.cover_path)||"data:image/svg+xml,"+
+   encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="130"><rect width="100%" height="100%" fill="#e9eef5"/><text x="50%" y="50%" text-anchor="middle" fill="#718096" font-size="11">No cover</text></svg>');
+
+  const details=document.createElement("div");
+  const title=document.createElement("h3");
+  title.textContent=book.title;
+
+  const author=document.createElement("p");
+  author.textContent="By "+(book.author_name||"Unknown author");
+
+  const description=document.createElement("p");
+  description.textContent=book.description||"";
+
+  const tags=document.createElement("div");
+
+  [book.book_type,book.genre,book.access_tier,book.status].filter(Boolean).forEach(value=>{
+   const tag=document.createElement("span");
+   tag.className="tag "+(
+    value==="Published"?"published":
+    value==="Draft"?"draft":
+    value==="Unpublished"?"unpublished":""
+   );
+   tag.textContent=value;
+   tags.appendChild(tag);
+  });
+
+  if(book.access_tier==="Premium"&&Number(book.price_kes)>0){
+   const priceTag=document.createElement("span");
+   priceTag.className="tag price";
+   priceTag.textContent="KSh "+Number(book.price_kes).toLocaleString("en-KE");
+   tags.appendChild(priceTag);
   }
 
-  container.innerHTML="";
+  const actions=document.createElement("div");
+  actions.className="actions";
 
-  for(const book of literaryBooks){
-    const item=document.createElement("article");
-    item.className="book";
+  const editBtn=document.createElement("button");
+  editBtn.className="secondary";
+  editBtn.textContent="Edit Details";
+  editBtn.addEventListener("click",()=>editBook(book.id));
 
-    const cover=document.createElement("img");
-    cover.className="cover";
-    cover.alt=book.title+" cover";
-    cover.src=await getCoverUrl(book.cover_path)||"data:image/svg+xml,"+
-      encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="130"><rect width="100%" height="100%" fill="#e9eef5"/><text x="50%" y="50%" text-anchor="middle" fill="#718096" font-size="11">No cover</text></svg>');
+  const statusBtn=document.createElement("button");
+  statusBtn.className=book.status==="Published"?"secondary":"success";
+  statusBtn.textContent=book.status==="Published"?"Unpublish":"Publish";
+  statusBtn.addEventListener("click",()=>changeBookStatus(book.id));
 
-    const details=document.createElement("div");
+  const deleteBtn=document.createElement("button");
+  deleteBtn.className="danger";
+  deleteBtn.textContent="Delete";
+  deleteBtn.addEventListener("click",()=>deleteBook(book.id));
 
-    const title=document.createElement("h3");
-    title.textContent=book.title;
-
-    const author=document.createElement("p");
-    author.textContent="By "+(book.author_name||"Unknown author");
-
-    const description=document.createElement("p");
-    description.textContent=book.description||"";
-
-    const tags=document.createElement("div");
-
-    [book.book_type,book.genre,book.access_tier,book.status]
-      .filter(Boolean).forEach(value=>{
-        const tag=document.createElement("span");
-        tag.className="tag "+
-          (value==="Published"?"published":
-          value==="Draft"?"draft":
-          value==="Unpublished"?"unpublished":"");
-        tag.textContent=value;
-        tags.appendChild(tag);
-      });
-
-    if(book.access_tier==="Premium"&&Number(book.price_kes)>0){
-      const priceTag=document.createElement("span");
-      priceTag.className="tag price";
-      priceTag.textContent="KSh "+Number(book.price_kes).toLocaleString("en-KE");
-      tags.appendChild(priceTag);
-    }
-
-    const actions=document.createElement("div");
-    actions.className="actions";
-
-    const editBtn=document.createElement("button");
-    editBtn.className="secondary";
-    editBtn.textContent="Edit Details";
-    editBtn.addEventListener("click",()=>editBook(book.id));
-
-    const statusBtn=document.createElement("button");
-    statusBtn.className=book.status==="Published"?"secondary":"success";
-    statusBtn.textContent=book.status==="Published"?"Unpublish":"Publish";
-    statusBtn.addEventListener("click",()=>changeBookStatus(book.id));
-
-    const deleteBtn=document.createElement("button");
-    deleteBtn.className="danger";
-    deleteBtn.textContent="Delete";
-    deleteBtn.addEventListener("click",()=>deleteBook(book.id));
-
-    actions.append(editBtn,statusBtn,deleteBtn);
-    details.append(title,author,description,tags,actions);
-    item.append(cover,details);
-    container.appendChild(item);
-  }
+  actions.append(editBtn,statusBtn,deleteBtn);
+  details.append(title,author,description,tags,actions);
+  item.append(cover,details);
+  container.appendChild(item);
+ }
 }
 
 /* EDIT BOOK */
 
 function editBook(id){
-  const book=literaryBooks.find(item=>item.id===id);
-  if(!book)return;
+ const book=literaryBooks.find(item=>item.id===id);
+ if(!book)return;
 
-  editingBookId=id;
+ editingBookId=id;
+ $("bookTitle").value=book.title||"";
+ $("authorName").value=book.author_name||"";
+ $("genre").value=book.genre||"";
+ $("description").value=book.description||"";
+ $("bookType").value=book.book_type||"Novel";
+ $("accessTier").value=book.access_tier||"Free";
+ $("bookStatus").value=book.status||"Draft";
+ $("priceKes").value=book.price_kes!==null&&book.price_kes!==undefined?book.price_kes:"";
 
-  $("bookTitle").value=book.title||"";
-  $("authorName").value=book.author_name||"";
-  $("genre").value=book.genre||"";
-  $("description").value=book.description||"";
-  $("bookType").value=book.book_type||"Novel";
-  $("accessTier").value=book.access_tier||"Free";
-  $("bookStatus").value=book.status||"Draft";
-  $("priceKes").value=book.price_kes!==null&&book.price_kes!==undefined?book.price_kes:"";
+ updatePremiumPriceVisibility();
 
-  updatePremiumPriceVisibility();
-
-  $("bookFile").value="";
-  $("coverFile").value="";
-  $("formHeading").textContent="Edit Literary Book";
-  $("saveBtn").textContent="Update Book";
-  $("cancelEditBtn").classList.remove("hidden");
-
-  hideMessage("uploadMessage");
-
-  $("bookForm").scrollIntoView({behavior:"smooth",block:"start"});
+ $("bookFile").value="";
+ $("coverFile").value="";
+ $("formHeading").textContent="Edit Literary Book";
+ $("saveBtn").textContent="Update Book";
+ $("cancelEditBtn").classList.remove("hidden");
+ hideMessage("uploadMessage");
+ $("bookForm").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
 function cancelEditing(){
-  editingBookId=null;
-  $("bookForm").reset();
-  $("authorName").value="G.O. Odhiambo";
-  updatePremiumPriceVisibility();
-
-  $("formHeading").textContent="Upload a Novel or Storybook";
-  $("saveBtn").textContent="Upload and Save Book";
-  $("cancelEditBtn").classList.add("hidden");
-
-  hideMessage("uploadMessage");
+ editingBookId=null;
+ $("bookForm").reset();
+ $("authorName").value="G.O. Odhiambo";
+ updatePremiumPriceVisibility();
+ $("formHeading").textContent="Upload a Novel or Storybook";
+ $("saveBtn").textContent="Upload and Save Book";
+ $("cancelEditBtn").classList.add("hidden");
+ hideMessage("uploadMessage");
 }
 
 $("cancelEditBtn").addEventListener("click",cancelEditing);
@@ -736,93 +721,313 @@ $("cancelEditBtn").addEventListener("click",cancelEditing);
 /* PUBLISH AND UNPUBLISH */
 
 async function changeBookStatus(id){
-  const book=literaryBooks.find(item=>item.id===id);
-  if(!book)return;
+ const book=literaryBooks.find(item=>item.id===id);
+ if(!book)return;
 
-  const newStatus=book.status==="Published"?"Unpublished":"Published";
+ const newStatus=book.status==="Published"?"Unpublished":"Published";
 
-  if(newStatus==="Published"&&(!book.storage_path||!book.title||!book.description)){
-    alert("This book needs a document, title and description before publishing.");
-    return;
-  }
+ if(newStatus==="Published"&&(!book.storage_path||!book.title||!book.description)){
+  alert("This book needs a document, title and description before publishing.");
+  return;
+ }
 
-  if(newStatus==="Published"&&book.access_tier==="Premium"&&
-    (!Number.isInteger(Number(book.price_kes))||Number(book.price_kes)<=0)){
-    alert("This Premium book needs a valid price before it can be published. Select Edit Details and enter its price.");
-    return;
-  }
+ if(newStatus==="Published"&&book.access_tier==="Premium"&&
+  (!Number.isInteger(Number(book.price_kes))||Number(book.price_kes)<=0)){
+  alert("This Premium book needs a valid price before it can be published.");
+  return;
+ }
 
-  if(!confirm("Are you sure you want to change '"+book.title+"' to "+newStatus+"?"))return;
+ if(!confirm("Are you sure you want to change '"+book.title+"' to "+newStatus+"?"))return;
 
-  const {error}=await client.from("literary_books")
-    .update({status:newStatus,updated_at:new Date().toISOString()})
-    .eq("id",id);
+ const {error}=await client.from("literary_books")
+  .update({status:newStatus,updated_at:new Date().toISOString()})
+  .eq("id",id);
 
-  if(error){
-    showMessage("collectionMessage","Could not update publication status: "+readableError(error),"error");
-    return;
-  }
+ if(error){
+  showMessage("collectionMessage","Could not update publication status: "+readableError(error),"error");
+  return;
+ }
 
-  showMessage("collectionMessage","Book status updated to "+newStatus+".","good");
-  await loadBooks();
+ showMessage("collectionMessage","Book status updated to "+newStatus+".","good");
+ await loadBooks();
 }
 
 /* DELETE BOOK */
 
 async function deleteBook(id){
-  const book=literaryBooks.find(item=>item.id===id);
-  if(!book)return;
+ const book=literaryBooks.find(item=>item.id===id);
+ if(!book)return;
 
-  if(!confirm("Permanently delete '"+book.title+"' from MASTERBOOK? This cannot be undone."))return;
+ if(!confirm("Permanently delete '"+book.title+"' from MASTERBOOK? This cannot be undone."))return;
 
-  const {error}=await client.from("literary_books").delete().eq("id",id);
+ const {error}=await client.from("literary_books").delete().eq("id",id);
 
-  if(error){
-    showMessage("collectionMessage","Unable to delete book: "+readableError(error),"error");
-    return;
+ if(error){
+  showMessage("collectionMessage","Unable to delete book: "+readableError(error),"error");
+  return;
+ }
+
+ const paths=[book.storage_path,book.cover_path].filter(Boolean);
+
+ if(paths.length){
+  const {error:storageError}=await client.storage.from(BUCKET).remove(paths);
+  if(storageError){
+   showMessage("collectionMessage","The book record was deleted, but one or more storage files could not be removed: "+readableError(storageError),"error");
+   await loadBooks();
+   return;
   }
+ }
 
-  const paths=[book.storage_path,book.cover_path].filter(Boolean);
-
-  if(paths.length){
-    const {error:storageError}=await client.storage.from(BUCKET).remove(paths);
-
-    if(storageError){
-      showMessage("collectionMessage","The book record was deleted, but one or more storage files could not be removed: "+readableError(storageError),"error");
-      await loadBooks();
-      return;
-    }
-  }
-
-  showMessage("collectionMessage","Book and associated files deleted successfully.","good");
-  await loadBooks();
+ showMessage("collectionMessage","Book and associated files deleted successfully.","good");
+ await loadBooks();
 }
 
-/* SESSION RESTORATION */
+/* PREMIUM PAYMENT MANAGEMENT */
+
+/*
+  The administrator can see payment requests through the existing
+  administrator SELECT policy. Book details are matched locally
+  against the already-loaded literary collection.
+*/
+
+function getBookForPayment(request){
+ return literaryBooks.find(book=>book.id===request.book_id)||null;
+}
+
+function formatDate(value){
+ if(!value)return "Not available";
+ const date=new Date(value);
+ if(Number.isNaN(date.getTime()))return String(value);
+ return date.toLocaleString("en-KE",{
+  dateStyle:"medium",
+  timeStyle:"short"
+ });
+}
+
+function createPaymentDetail(label,value){
+ const box=document.createElement("div");
+ box.className="payment-detail";
+
+ const caption=document.createElement("span");
+ caption.textContent=label;
+
+ const content=document.createElement("strong");
+ content.textContent=value===null||value===undefined||value===""?"Not available":String(value);
+
+ box.append(caption,content);
+ return box;
+}
+
+async function loadPayments(){
+ if(!currentUser)return;
+
+ $("paymentList").innerHTML='<div class="empty">Loading payment requests...</div>';
+
+ const {data,error}=await client.from("literary_payment_requests")
+  .select("*")
+  .order("created_at",{ascending:false});
+
+ if(error){
+  $("paymentList").innerHTML="";
+  showMessage("paymentMessage","Unable to load payment requests: "+readableError(error),"error");
+  return;
+ }
+
+ paymentRequests=data||[];
+ updatePaymentStatistics();
+ renderPayments();
+}
+
+function updatePaymentStatistics(){
+ $("pendingPayments").textContent=paymentRequests.filter(p=>p.status==="Pending").length;
+ $("approvedPayments").textContent=paymentRequests.filter(p=>p.status==="Approved").length;
+ $("rejectedPayments").textContent=paymentRequests.filter(p=>p.status==="Rejected").length;
+}
+
+function renderPayments(){
+ const container=$("paymentList");
+ const filter=$("paymentFilter").value;
+
+ const visible=paymentRequests.filter(request=>
+  filter==="All"||request.status===filter
+ );
+
+ container.innerHTML="";
+
+ if(!visible.length){
+  container.innerHTML='<div class="empty">No payment requests found for this filter.</div>';
+  return;
+ }
+
+ for(const request of visible){
+  const book=getBookForPayment(request);
+  const card=document.createElement("article");
+  card.className="payment-card";
+
+  const heading=document.createElement("h3");
+  heading.textContent=book?book.title:"Book ID: "+request.book_id;
+
+  const status=document.createElement("span");
+  status.className="tag "+String(request.status||"").toLowerCase();
+  status.textContent=request.status||"Unknown";
+
+  const detailGrid=document.createElement("div");
+  detailGrid.className="payment-details";
+
+  detailGrid.append(
+   createPaymentDetail("Book title",book?book.title:"Book record unavailable"),
+   createPaymentDetail("Author",book?book.author_name:"Not available"),
+   createPaymentDetail("Reader phone number",request.payer_phone),
+   createPaymentDetail("M-Pesa transaction code",request.transaction_code),
+   createPaymentDetail("Amount submitted","KSh "+Number(request.amount_kes||0).toLocaleString("en-KE")),
+   createPaymentDetail("Payment request date",formatDate(request.created_at)),
+   createPaymentDetail("Payment request ID",request.id),
+   createPaymentDetail("Reader account ID",request.user_id),
+   createPaymentDetail("Review date",formatDate(request.reviewed_at)),
+   createPaymentDetail("Administrator note",request.admin_note)
+  );
+
+  const actions=document.createElement("div");
+  actions.className="actions";
+
+  if(request.status==="Pending"){
+   const approve=document.createElement("button");
+   approve.className="success";
+   approve.textContent="Approve Payment";
+   approve.addEventListener("click",()=>reviewPayment(request.id,"approved",approve));
+
+   const reject=document.createElement("button");
+   reject.className="danger";
+   reject.textContent="Reject Payment";
+   reject.addEventListener("click",()=>reviewPayment(request.id,"rejected",reject));
+
+   actions.append(approve,reject);
+  }else{
+   const reviewed=document.createElement("p");
+   reviewed.className="field-help";
+   reviewed.textContent="This request has already been reviewed. Its status cannot be changed here.";
+   actions.appendChild(reviewed);
+  }
+
+  card.append(heading,status,detailGrid,actions);
+  container.appendChild(card);
+ }
+}
+
+/* APPROVE OR REJECT PAYMENT */
+
+async function reviewPayment(requestId,decision,button){
+ const request=paymentRequests.find(item=>item.id===requestId);
+ if(!request)return;
+
+ if(request.status!=="Pending"){
+  showMessage("paymentMessage","This payment request has already been reviewed.","error");
+  return;
+ }
+
+ const book=getBookForPayment(request);
+
+ if(decision==="approved"){
+  if(!book){
+   showMessage("paymentMessage","The book record could not be found. The payment cannot be approved until the book record is available.","error");
+   return;
+  }
+
+  if(book.status!=="Published"||book.access_tier!=="Premium"){
+   showMessage("paymentMessage","This book is not currently a published Premium book. Check the book settings before approving.","error");
+   return;
+  }
+
+  if(Number(book.price_kes)!==Number(request.amount_kes)){
+   showMessage("paymentMessage","The submitted payment amount does not match the current book price. Do not approve this request.","error");
+   return;
+  }
+ }
+
+ const decisionLabel=decision==="approved"?"APPROVE":"REJECT";
+
+ if(!confirm(
+  decisionLabel+" this M-Pesa request?\n\n"+
+  "Book: "+(book?.title||"Unavailable")+"\n"+
+  "Phone: "+request.payer_phone+"\n"+
+  "Transaction: "+request.transaction_code+"\n"+
+  "Amount: KSh "+Number(request.amount_kes).toLocaleString("en-KE")+
+  (decision==="approved"?"\n\nApproval will grant this reader access to this individual book.":"\n\nThe reader will not receive book access.")
+ ))return;
+
+ const note=prompt(
+  "Enter an administrator note for this "+decision+" decision (optional):",
+  decision==="approved"?"M-Pesa payment verified. Access granted.":"Payment could not be verified."
+ );
+
+ if(note===null)return;
+
+ if(button)button.disabled=true;
+
+ showMessage(
+  "paymentMessage",
+  "Submitting "+decision+" decision to the secure database...",
+  "info"
+ );
+
+ try{
+  const {data,error}=await client.rpc("masterbook_review_literary_payment",{
+   p_request_id:requestId,
+   p_decision:decision,
+   p_admin_note:note.trim()||null
+  });
+
+  if(error)throw error;
+  if(data!==true)throw new Error("The database did not confirm the payment review.");
+
+  showMessage(
+   "paymentMessage",
+   decision==="approved"
+    ?"Payment approved. The database has granted this reader access to the individual Premium book."
+    :"Payment rejected. No Premium book entitlement was granted.",
+   "good"
+  );
+
+  await loadPayments();
+
+ }catch(error){
+  showMessage("paymentMessage","Payment review failed: "+readableError(error),"error");
+  if(button)button.disabled=false;
+ }
+}
+
+$("refreshPaymentsBtn").addEventListener("click",loadPayments);
+$("paymentFilter").addEventListener("change",renderPayments);
+
+/* REFRESH COLLECTION */
 
 $("refreshBtn").addEventListener("click",loadBooks);
 
-async function restoreSession(){
-  const {data,error}=await client.auth.getSession();
-  if(error||!data.session)return;
+/* SESSION RESTORATION */
 
-  try{
-    await activateDashboard(data.session.user);
-  }catch(error){
-    await client.auth.signOut();
-    $("loginPanel").classList.remove("hidden");
-    $("dashboard").classList.add("hidden");
-    showMessage("loginMessage",readableError(error),"error");
-  }
+async function restoreSession(){
+ const {data,error}=await client.auth.getSession();
+ if(error||!data.session)return;
+
+ try{
+  await activateDashboard(data.session.user);
+ }catch(error){
+  await client.auth.signOut();
+  $("loginPanel").classList.remove("hidden");
+  $("dashboard").classList.add("hidden");
+  showMessage("loginMessage",readableError(error),"error");
+ }
 }
 
 client.auth.onAuthStateChange((event,session)=>{
-  if(event==="SIGNED_OUT"){
-    currentUser=null;
-    $("dashboard").classList.add("hidden");
-    $("loginPanel").classList.remove("hidden");
-    $("signOutBtn").classList.add("hidden");
-  }
+ if(event==="SIGNED_OUT"){
+  currentUser=null;
+  literaryBooks=[];
+  paymentRequests=[];
+  $("dashboard").classList.add("hidden");
+  $("loginPanel").classList.remove("hidden");
+  $("signOutBtn").classList.add("hidden");
+ }
 });
 
 updatePremiumPriceVisibility();
