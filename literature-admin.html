@@ -200,7 +200,7 @@ footer{text-align:center;padding:25px 12px;color:var(--muted);font-size:12px}
 
   <div class="panel">
     <h2>Your Literary Collection</h2>
-    <p class="subtitle">View, publish, unpublish or remove books from your collection.</p>
+    <p class="subtitle">View, edit, publish, unpublish or remove books from your collection.</p>
 
     <div class="actions">
       <button class="secondary" id="refreshBtn">Refresh Collection</button>
@@ -233,6 +233,13 @@ const SUPABASE_KEY = "sb_publishable_DSUz-W5eeLBioVBQ1HywoQ_Rp4f3nur";
 const BUCKET = "masterbook-resources";
 const DEFAULT_PREMIUM_PRICE = 320;
 
+if (!window.supabase) {
+  document.getElementById("loginMessage").textContent =
+    "The Supabase library could not load. Check your internet connection and reload the page.";
+  document.getElementById("loginMessage").className = "status show error";
+  throw new Error("Supabase JavaScript library unavailable.");
+}
+
 const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
@@ -253,6 +260,26 @@ function showMessage(id,message,type="info"){
 function hideMessage(id){
   $(id).className="status";
   $(id).textContent="";
+}
+
+function readableError(error){
+  if(!error)return "An unknown error occurred.";
+
+  const message=error.message||String(error);
+
+  if(message.toLowerCase().includes("failed to fetch")){
+    return "The browser could not reach Supabase Storage. Check your internet connection, confirm the Supabase project is available, and retry. If the problem continues, inspect the browser network request.";
+  }
+
+  if(message.toLowerCase().includes("row-level security")){
+    return "Storage rejected this upload under its security policies. Confirm that you are signed in with the administrator account and that the file path begins with your authenticated user ID. Details: "+message;
+  }
+
+  if(message.toLowerCase().includes("duplicate")){
+    return "A file with this storage path already exists. Please retry the upload. Details: "+message;
+  }
+
+  return message;
 }
 
 /* PREMIUM PRICE */
@@ -333,7 +360,7 @@ async function signIn(){
 
   }catch(error){
     await client.auth.signOut();
-    showMessage("loginMessage",error.message||"Unable to sign in.","error");
+    showMessage("loginMessage",readableError(error),"error");
   }finally{
     $("loginBtn").disabled=false;
     $("loginBtn").textContent="Sign In";
@@ -367,6 +394,10 @@ function validateFile(file,type){
     throw new Error("Each file must be 50 MB or smaller.");
   }
 
+  if(file.size===0){
+    throw new Error("The selected file is empty. Choose a valid document.");
+  }
+
   const extension=file.name.split(".").pop().toLowerCase();
 
   if(type==="book"&&!["pdf","docx","txt"].includes(extension)){
@@ -390,17 +421,38 @@ async function uploadStorageFile(file,folder){
 
   validateFile(file,folder==="covers"?"cover":"book");
 
+  if(!currentUser){
+    throw new Error("Your administrator session has expired. Sign in again.");
+  }
+
   const path=currentUser.id+"/literature/"+folder+"/"+Date.now()+"-"+safeFileName(file.name);
 
-  const {data,error}=await client.storage.from(BUCKET).upload(path,file,{
-    cacheControl:"3600",
-    upsert:false,
-    contentType:file.type||undefined
-  });
+  showMessage(
+    "uploadMessage",
+    "Uploading "+file.name+" ("+(file.size/1024).toFixed(1)+" KB)...",
+    "info"
+  );
 
-  if(error)throw new Error("File upload failed ("+file.name+"): "+error.message);
+  try{
+    const {data,error}=await client.storage.from(BUCKET).upload(path,file,{
+      cacheControl:"3600",
+      upsert:false,
+      contentType:file.type||undefined
+    });
 
-  return data.path;
+    if(error){
+      throw new Error("Supabase Storage rejected "+file.name+": "+error.message);
+    }
+
+    if(!data||!data.path){
+      throw new Error("Supabase did not return a storage path for "+file.name+".");
+    }
+
+    return data.path;
+
+  }catch(error){
+    throw new Error("File upload failed ("+file.name+"): "+readableError(error));
+  }
 }
 
 /* SAVE AND EDIT BOOK */
@@ -440,7 +492,7 @@ async function saveBook(event){
     $("saveBtn").disabled=true;
     $("saveBtn").textContent="Uploading...";
 
-    showMessage("uploadMessage","Please wait while MASTERBOOK uploads your files.","info");
+    showMessage("uploadMessage","Preparing your book for upload...","info");
 
     let oldBook=null;
 
@@ -452,8 +504,13 @@ async function saveBook(event){
     let storagePath=oldBook?.storage_path||null;
     let coverPath=oldBook?.cover_path||null;
 
-    if(bookFile)storagePath=await uploadStorageFile(bookFile,"books");
-    if(coverFile)coverPath=await uploadStorageFile(coverFile,"covers");
+    if(bookFile){
+      storagePath=await uploadStorageFile(bookFile,"books");
+    }
+
+    if(coverFile){
+      coverPath=await uploadStorageFile(coverFile,"covers");
+    }
 
     const bookData={
       title,
@@ -505,7 +562,7 @@ async function saveBook(event){
     await loadBooks();
 
   }catch(error){
-    showMessage("uploadMessage",error.message||"An unexpected upload error occurred.","error");
+    showMessage("uploadMessage",readableError(error),"error");
   }finally{
     $("saveBtn").disabled=false;
     $("saveBtn").textContent=editingBookId?"Update Book":"Upload and Save Book";
@@ -527,7 +584,7 @@ async function loadBooks(){
 
   if(error){
     $("bookList").innerHTML="";
-    showMessage("collectionMessage","Unable to load books: "+error.message,"error");
+    showMessage("collectionMessage","Unable to load books: "+readableError(error),"error");
     return;
   }
 
@@ -702,7 +759,7 @@ async function changeBookStatus(id){
     .eq("id",id);
 
   if(error){
-    showMessage("collectionMessage","Could not update publication status: "+error.message,"error");
+    showMessage("collectionMessage","Could not update publication status: "+readableError(error),"error");
     return;
   }
 
@@ -721,7 +778,7 @@ async function deleteBook(id){
   const {error}=await client.from("literary_books").delete().eq("id",id);
 
   if(error){
-    showMessage("collectionMessage","Unable to delete book: "+error.message,"error");
+    showMessage("collectionMessage","Unable to delete book: "+readableError(error),"error");
     return;
   }
 
@@ -731,7 +788,7 @@ async function deleteBook(id){
     const {error:storageError}=await client.storage.from(BUCKET).remove(paths);
 
     if(storageError){
-      showMessage("collectionMessage","The book record was deleted, but one or more storage files could not be removed: "+storageError.message,"error");
+      showMessage("collectionMessage","The book record was deleted, but one or more storage files could not be removed: "+readableError(storageError),"error");
       await loadBooks();
       return;
     }
@@ -755,7 +812,7 @@ async function restoreSession(){
     await client.auth.signOut();
     $("loginPanel").classList.remove("hidden");
     $("dashboard").classList.add("hidden");
-    showMessage("loginMessage",error.message,"error");
+    showMessage("loginMessage",readableError(error),"error");
   }
 }
 
