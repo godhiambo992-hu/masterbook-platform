@@ -845,19 +845,78 @@ return true;
 }
 
 /* ==========================================
+   ANALYTICS RECORDING
+========================================== */
+
+/*
+   Events are sent to the secure Supabase RPC.
+   Analytics errors must never prevent reading
+   or downloading a published free resource.
+*/
+
+async function recordAnalytics(resourceId,eventType){
+
+if(!resourceId)return false;
+
+try{
+
+const {data,error}=await supabaseClient.rpc(
+"masterbook_record_analytics",
+{
+p_resource_type:"literature",
+p_resource_id:resourceId,
+p_event_type:eventType
+}
+);
+
+if(error){
+console.error("MASTERBOOK analytics error:",error);
+return false;
+}
+
+if(data!==true){
+console.warn(
+"MASTERBOOK analytics event was not accepted:",
+eventType,
+resourceId
+);
+return false;
+}
+
+console.log(
+"MASTERBOOK analytics recorded:",
+eventType,
+resourceId
+);
+
+return true;
+
+}catch(error){
+
+console.error("Analytics recording failed:",error);
+return false;
+
+}
+
+}
+
+/* ==========================================
    AUTHENTICATION
 ========================================== */
 
 async function refreshAuthentication(){
+
 const {data,error}=await supabaseClient.auth.getSession();
 
 if(error)console.error(error);
 
 currentUser=data?.session?.user||null;
 updateAccountInterface();
+
 }
 
 function updateAccountInterface(){
+
 const signedIn=Boolean(currentUser);
 
 $("signedOutArea").classList.toggle("hidden",signedIn);
@@ -868,26 +927,39 @@ $("headerAccount").textContent=signedIn
 :"Reader: Guest";
 
 if(signedIn){
+
 $("signedInMessage").textContent=
 "You are signed in as "+currentUser.email;
 
 $("newCommentForm").classList.remove("hidden");
 $("commentSignInNotice").classList.add("hidden");
+
 }else{
+
 $("newCommentForm").classList.add("hidden");
 $("commentSignInNotice").classList.remove("hidden");
+
 }
+
 }
 
 async function signIn(){
+
 clearMessage("accountMessage");
 
 const email=$("authEmail").value.trim();
 const password=$("authPassword").value;
 
 if(!email||!password){
-showMessage("accountMessage","Enter your email address and password.","error");
+
+showMessage(
+"accountMessage",
+"Enter your email address and password.",
+"error"
+);
+
 return;
+
 }
 
 $("signInBtn").disabled=true;
@@ -899,32 +971,51 @@ email,password
 $("signInBtn").disabled=false;
 
 if(error){
+
 showMessage("accountMessage",error.message,"error");
 return;
+
 }
 
 $("authPassword").value="";
+
 await refreshAuthentication();
 
 showMessage("accountMessage","You are now signed in.");
 
 if(selectedBook)await loadDiscussion(selectedBook.id);
+
 }
 
 async function signUp(){
+
 clearMessage("accountMessage");
 
 const email=$("authEmail").value.trim();
 const password=$("authPassword").value;
 
 if(!email||!password){
-showMessage("accountMessage","Enter your email address and password.","error");
+
+showMessage(
+"accountMessage",
+"Enter your email address and password.",
+"error"
+);
+
 return;
+
 }
 
 if(password.length<6){
-showMessage("accountMessage","Your password must contain at least six characters.","error");
+
+showMessage(
+"accountMessage",
+"Your password must contain at least six characters.",
+"error"
+);
+
 return;
+
 }
 
 $("signUpBtn").disabled=true;
@@ -936,29 +1027,42 @@ email,password
 $("signUpBtn").disabled=false;
 
 if(error){
+
 showMessage("accountMessage",error.message,"error");
 return;
+
 }
 
 if(data.session){
+
 currentUser=data.session.user;
 updateAccountInterface();
 
-showMessage("accountMessage","Your account has been created successfully.");
+showMessage(
+"accountMessage",
+"Your account has been created successfully."
+);
+
 }else{
+
 showMessage(
 "accountMessage",
 "Registration received. Check your email to confirm your account before signing in."
 );
+
 }
+
 }
 
 async function signOut(){
+
 const {error}=await supabaseClient.auth.signOut();
 
 if(error){
+
 showMessage("accountMessage",error.message,"error");
 return;
+
 }
 
 currentUser=null;
@@ -967,6 +1071,7 @@ updateAccountInterface();
 if(selectedBook)await loadDiscussion(selectedBook.id);
 
 showMessage("accountMessage","You have signed out.");
+
 }
 
 $("signInBtn").addEventListener("click",signIn);
@@ -974,8 +1079,10 @@ $("signUpBtn").addEventListener("click",signUp);
 $("signOutBtn").addEventListener("click",signOut);
 
 supabaseClient.auth.onAuthStateChange((_event,session)=>{
+
 currentUser=session?.user||null;
 updateAccountInterface();
+
 });
 
 /* ==========================================
@@ -983,6 +1090,7 @@ updateAccountInterface();
 ========================================== */
 
 async function getSignedFileUrl(path){
+
 if(!path)return null;
 
 const {data,error}=await supabaseClient.storage
@@ -990,11 +1098,14 @@ const {data,error}=await supabaseClient.storage
 .createSignedUrl(path,3600);
 
 if(error){
+
 console.error("Storage URL error:",error);
 return null;
+
 }
 
 return data?.signedUrl||null;
+
 }
 
 /* ==========================================
@@ -1015,6 +1126,7 @@ const {data,error}=await supabaseClient
 .order("created_at",{ascending:false});
 
 if(error){
+
 console.error(error);
 
 $("bookGrid").innerHTML=
@@ -1022,14 +1134,18 @@ $("bookGrid").innerHTML=
 
 $("bookCount").textContent="Unable to load books";
 $("resultSummary").textContent="Collection unavailable";
+
 return;
+
 }
 
 allBooks=data||[];
 
 await loadRatingSummaries();
 await populateGenres();
+
 renderBooks();
+
 }
 
 async function loadRatingSummaries(){
@@ -1046,22 +1162,28 @@ const {data,error}=await supabaseClient
 .in("book_id",ids);
 
 if(error){
+
 console.error("Rating summary error:",error);
 return;
+
 }
 
 for(const item of data||[]){
 
 if(!bookRatings[item.book_id]){
+
 bookRatings[item.book_id]={
 total:0,
 count:0
 };
+
 }
 
 bookRatings[item.book_id].total+=Number(item.rating);
 bookRatings[item.book_id].count++;
+
 }
+
 }
 
 async function populateGenres(){
@@ -1080,18 +1202,23 @@ allBooks
 select.innerHTML='<option value="">All genres</option>';
 
 genres.forEach(genre=>{
+
 const option=document.createElement("option");
 option.value=genre;
 option.textContent=genre;
+
 select.appendChild(option);
+
 });
 
 if(genres.includes(previous)){
 select.value=previous;
 }
+
 }
 
 function getRatingData(bookId){
+
 const summary=bookRatings[bookId];
 
 if(!summary||!summary.count){
@@ -1102,6 +1229,7 @@ return {
 average:summary.total/summary.count,
 count:summary.count
 };
+
 }
 
 function ratingLabel(bookId){
@@ -1115,6 +1243,7 @@ return "☆☆☆☆☆ · No ratings yet";
 return "★ "+summary.average.toFixed(1)+
 " / 5 · "+summary.count+
 (summary.count===1?" rating":" ratings");
+
 }
 
 /* ==========================================
@@ -1141,42 +1270,57 @@ const matchesSearch=searchable.includes(query);
 const matchesGenre=!genre||book.genre===genre;
 
 return matchesSearch&&matchesGenre;
+
 });
 
 if(sort==="highest"){
+
 filtered.sort((a,b)=>{
+
 const ratingA=getRatingData(a.id);
 const ratingB=getRatingData(b.id);
 
 return ratingB.average-ratingA.average||
 ratingB.count-ratingA.count||
 new Date(b.created_at)-new Date(a.created_at);
+
 });
+
 }
 
 else if(sort==="most"){
+
 filtered.sort((a,b)=>{
+
 const ratingA=getRatingData(a.id);
 const ratingB=getRatingData(b.id);
 
 return ratingB.count-ratingA.count||
-ratingB.average-ratingA.average;
+ratingB.average-ratingA.average||
+new Date(b.created_at)-new Date(a.created_at);
+
 });
+
 }
 
 else if(sort==="title"){
+
 filtered.sort((a,b)=>
 (a.title||"").localeCompare(b.title||"")
 );
+
 }
 
 else{
+
 filtered.sort((a,b)=>
 new Date(b.created_at)-new Date(a.created_at)
 );
+
 }
 
 return filtered;
+
 }
 
 function renderBooks(){
@@ -1198,6 +1342,7 @@ $("bookGrid").innerHTML=
 '<div class="empty-state"><h3>No matching books found</h3><p>Try another title, author or genre, or clear your filters.</p></div>';
 
 return;
+
 }
 
 $("bookGrid").innerHTML="";
@@ -1218,6 +1363,7 @@ getSignedFileUrl(book.cover_path).then(url=>{
 if(url&&card.isConnected){
 
 const img=document.createElement("img");
+
 img.src=url;
 img.alt=book.title+" cover";
 img.loading="lazy";
@@ -1228,9 +1374,11 @@ cover.innerHTML='<div class="cover-placeholder">▤</div>';
 
 cover.innerHTML="";
 cover.appendChild(img);
+
 }
 
 });
+
 }
 
 const info=document.createElement("div");
@@ -1274,6 +1422,7 @@ card.appendChild(info);
 $("bookGrid").appendChild(card);
 
 });
+
 }
 
 $("searchInput").addEventListener("input",renderBooks);
@@ -1297,6 +1446,7 @@ renderBooks();
 async function openBook(bookId){
 
 const book=allBooks.find(item=>item.id===bookId);
+
 if(!book)return;
 
 selectedBook=book;
@@ -1328,53 +1478,75 @@ const actions=$("bookActions");
 actions.innerHTML="";
 
 const readButton=document.createElement("button");
+
 readButton.className="btn btn-primary";
 readButton.textContent="Read Online";
 
-readButton.addEventListener("click",()=>openBookFile(book));
+readButton.addEventListener("click",()=>{
+openBookFile(book);
+});
+
 actions.appendChild(readButton);
 
 if(book.access_tier==="Free"){
 
 const downloadButton=document.createElement("button");
+
 downloadButton.className="btn btn-gold";
 downloadButton.textContent="Download Book";
 
-downloadButton.addEventListener("click",()=>downloadBookFile(book));
+downloadButton.addEventListener("click",()=>{
+downloadBookFile(book);
+});
+
 actions.appendChild(downloadButton);
 
 }else{
 
 const premiumNote=document.createElement("span");
+
 premiumNote.className="rating-summary";
-premiumNote.textContent="Premium access";
+premiumNote.textContent=
+"Premium access is not yet available; this title is currently listed for discovery only.";
+
 actions.appendChild(premiumNote);
 
 }
 
+/* Record one view when book details are opened. */
+
+recordAnalytics(book.id,"view");
+
 await loadDiscussion(book.id);
+
 }
 
 async function openBookFile(book){
 
 if(book.access_tier!=="Free"){
+
 showMessage(
 "actionMessage",
 "This book requires premium access. Premium reading must be configured separately.",
 "error"
 );
+
 return;
+
 }
 
 const url=await getSignedFileUrl(book.storage_path);
 
 if(!url){
+
 showMessage(
 "actionMessage",
 "The book file could not be opened. Please contact the administrator.",
 "error"
 );
+
 return;
+
 }
 
 const extension=fileExtension(book.storage_path);
@@ -1384,24 +1556,44 @@ const readerUrl=
 "&title="+encodeURIComponent(book.title)+
 "&type="+encodeURIComponent(extension);
 
+/* Record the successful read-online launch. */
+
+recordAnalytics(book.id,"view");
+
 window.open(readerUrl,"_blank","noopener");
+
 }
 
 async function downloadBookFile(book){
 
 if(book.access_tier!=="Free"){
-showMessage("actionMessage","This book requires premium access.","error");
+
+showMessage(
+"actionMessage",
+"This book requires premium access.",
+"error"
+);
+
 return;
+
 }
 
 const url=await getSignedFileUrl(book.storage_path);
 
 if(!url){
-showMessage("actionMessage","The download could not be prepared.","error");
+
+showMessage(
+"actionMessage",
+"The download could not be prepared.",
+"error"
+);
+
 return;
+
 }
 
 const link=document.createElement("a");
+
 link.href=url;
 link.download=book.title+"."+fileExtension(book.storage_path);
 link.target="_blank";
@@ -1410,11 +1602,19 @@ link.rel="noopener";
 document.body.appendChild(link);
 link.click();
 link.remove();
+
+/* Record the initiated download. */
+
+recordAnalytics(book.id,"download");
+
 }
 
 $("backToBooks").addEventListener("click",()=>{
+
 $("readerSection").style.display="none";
+
 $("books").scrollIntoView({behavior:"smooth"});
+
 });
 
 /* ==========================================
@@ -1424,9 +1624,13 @@ $("books").scrollIntoView({behavior:"smooth"});
 function updateRatingStars(){
 
 document.querySelectorAll(".star").forEach(star=>{
+
 const value=Number(star.dataset.rating);
+
 star.classList.toggle("active",value<=selectedRating);
+
 });
+
 }
 
 document.querySelectorAll(".star").forEach(star=>{
@@ -1434,6 +1638,7 @@ document.querySelectorAll(".star").forEach(star=>{
 star.addEventListener("click",()=>{
 
 selectedRating=Number(star.dataset.rating);
+
 updateRatingStars();
 
 });
@@ -1455,6 +1660,7 @@ const {data:ratings,error:ratingError}=await supabaseClient
 if(ratingError){
 
 console.error(ratingError);
+
 $("ratingSummary").textContent="Unable to load ratings.";
 
 }else{
@@ -1483,8 +1689,10 @@ if(currentUser){
 const existing=list.find(item=>item.user_id===currentUser.id);
 
 if(existing){
+
 selectedRating=existing.rating;
 updateRatingStars();
+
 }
 
 }
@@ -1492,6 +1700,7 @@ updateRatingStars();
 }
 
 await loadComments(bookId);
+
 }
 
 async function submitRating(){
@@ -1507,6 +1716,7 @@ showMessage(
 );
 
 return;
+
 }
 
 const {error}=await supabaseClient
@@ -1523,7 +1733,9 @@ onConflict:"book_id,user_id"
 if(error){
 
 console.error(error);
+
 showMessage("actionMessage",error.message,"error");
+
 return;
 
 }
@@ -1532,6 +1744,7 @@ showMessage("actionMessage","Your rating has been saved.");
 
 await loadDiscussion(selectedBook.id);
 await loadRatingSummaries();
+
 renderBooks();
 
 }
@@ -1562,6 +1775,7 @@ $("commentsList").innerHTML=
 '<div class="empty-state">Unable to load comments.</div>';
 
 return;
+
 }
 
 const comments=data||[];
@@ -1572,6 +1786,7 @@ $("commentsList").innerHTML=
 '<div class="empty-state">No comments yet. Start the discussion!</div>';
 
 return;
+
 }
 
 const roots=comments.filter(item=>!item.parent_comment_id);
@@ -1624,6 +1839,7 @@ const actions=document.createElement("div");
 actions.className="comment-actions";
 
 const replyButton=document.createElement("button");
+
 replyButton.className="reply-button";
 replyButton.textContent="Reply";
 
@@ -1676,6 +1892,7 @@ wrapper.appendChild(replyArea);
 }
 
 return wrapper;
+
 }
 
 function createReplyForm(parentId,container){
@@ -1685,18 +1902,22 @@ if(!requireLogin())return;
 const existing=container.querySelector(".reply-form");
 
 if(existing){
+
 existing.remove();
 return;
+
 }
 
 const form=document.createElement("div");
 form.className="reply-form";
 
 const textarea=document.createElement("textarea");
+
 textarea.className="field";
 textarea.placeholder="Write your reply...";
 
 const submit=document.createElement("button");
+
 submit.className="btn btn-primary";
 submit.textContent="Post Reply";
 
@@ -1705,8 +1926,10 @@ submit.addEventListener("click",async()=>{
 const message=textarea.value.trim();
 
 if(!message){
+
 textarea.focus();
 return;
+
 }
 
 submit.disabled=true;
@@ -1724,8 +1947,10 @@ status:"Published"
 submit.disabled=false;
 
 if(error){
+
 showMessage("actionMessage",error.message,"error");
 return;
+
 }
 
 showMessage("actionMessage","Your reply has been posted.");
@@ -1738,6 +1963,7 @@ form.appendChild(textarea);
 form.appendChild(submit);
 
 container.appendChild(form);
+
 textarea.focus();
 
 }
@@ -1758,6 +1984,7 @@ showMessage(
 );
 
 return;
+
 }
 
 $("postComment").disabled=true;
@@ -1777,7 +2004,9 @@ $("postComment").disabled=false;
 if(error){
 
 console.error(error);
+
 showMessage("actionMessage",error.message,"error");
+
 return;
 
 }
