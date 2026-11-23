@@ -153,6 +153,13 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .tag.published{background:#e5f5eb;color:#17633d}
 .tag.draft{background:#fff4dc;color:#805b13}
 .tag.unpublished{background:#fdecea;color:#9c2c23}
+.tag.price{background:#fff2d6;color:#805b13}
+.field-help{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+  margin:6px 0 0;
+}
 .empty{
   text-align:center;
   color:var(--muted);
@@ -291,6 +298,22 @@ footer{
           </div>
         </div>
 
+        <!-- PREMIUM BOOK PRICE -->
+        <div id="premiumPriceGroup" class="hidden">
+          <label for="priceKes">Premium book price (KSh) *</label>
+          <input
+            id="priceKes"
+            type="number"
+            min="1"
+            step="1"
+            inputmode="numeric"
+            placeholder="Enter price, e.g. 150">
+          <p class="field-help">
+            Set the amount a reader must pay to unlock this individual book.
+            The price is displayed in Kenyan shillings.
+          </p>
+        </div>
+
         <label for="bookFile">Book document * (PDF, DOCX or TXT)</label>
         <input id="bookFile" type="file"
           accept=".pdf,.docx,.txt,application/pdf,text/plain,
@@ -352,14 +375,12 @@ footer{
 
 /* -------------------------------------------------
    MASTERBOOK SUPABASE CONNECTION
-   Uses the same project and publishable key as the
-   working MASTERBOOK Library and Admin pages.
 -------------------------------------------------- */
 
 const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
 
 const SUPABASE_KEY =
-"sb_publishable_Hgg2m91Ht2OOWCUhH7sGrw_mC9yCj7S";
+"sb_publishable_DSUz-W5eeLBioVBQ1HywoQ_Rp4f3nur";
 
 const BUCKET = "masterbook-resources";
 
@@ -389,6 +410,51 @@ function showMessage(id, message, type="info") {
 function hideMessage(id) {
   $(id).className = "status";
   $(id).textContent = "";
+}
+
+/* -------------------------------------------------
+   PREMIUM PRICE FIELD
+-------------------------------------------------- */
+
+function updatePremiumPriceVisibility() {
+  const isPremium = $("accessTier").value === "Premium";
+
+  $("premiumPriceGroup").classList.toggle(
+    "hidden",
+    !isPremium
+  );
+
+  $("priceKes").required = isPremium;
+
+  if (!isPremium) {
+    $("priceKes").value = "";
+  }
+}
+
+$("accessTier").addEventListener(
+  "change",
+  updatePremiumPriceVisibility
+);
+
+function getValidatedPrice() {
+  const isPremium = $("accessTier").value === "Premium";
+
+  if (!isPremium) return null;
+
+  const rawPrice = $("priceKes").value.trim();
+  const price = Number(rawPrice);
+
+  if (
+    !rawPrice ||
+    !Number.isInteger(price) ||
+    price <= 0
+  ) {
+    throw new Error(
+      "Enter a valid Premium book price in Kenyan shillings. The price must be a whole number greater than zero."
+    );
+  }
+
+  return price;
 }
 
 /* -------------------------------------------------
@@ -620,6 +686,9 @@ async function saveBook(event) {
     if (bookFile) validateFile(bookFile, "book");
     if (coverFile) validateFile(coverFile, "cover");
 
+    // Validate Premium pricing before uploading files.
+    const priceKes = getValidatedPrice();
+
     $("saveBtn").disabled = true;
     $("saveBtn").textContent = "Uploading...";
 
@@ -665,6 +734,7 @@ async function saveBook(event) {
       genre,
       book_type: $("bookType").value,
       access_tier: $("accessTier").value,
+      price_kes: priceKes,
       status: $("bookStatus").value,
       storage_path: storagePath,
       cover_path: coverPath,
@@ -700,6 +770,8 @@ async function saveBook(event) {
 
     $("saveBtn").textContent = "Upload and Save Book";
     $("cancelEditBtn").classList.add("hidden");
+
+    updatePremiumPriceVisibility();
 
     showMessage(
       "uploadMessage",
@@ -844,6 +916,18 @@ async function renderBooks() {
       tags.appendChild(tag);
     });
 
+    // Display the individual Premium book price.
+    if (
+      book.access_tier === "Premium" &&
+      Number(book.price_kes) > 0
+    ) {
+      const priceTag = document.createElement("span");
+      priceTag.className = "tag price";
+      priceTag.textContent =
+        "KSh " + Number(book.price_kes).toLocaleString("en-KE");
+      tags.appendChild(priceTag);
+    }
+
     const actions = document.createElement("div");
     actions.className = "actions";
 
@@ -899,6 +983,13 @@ function editBook(id) {
   $("accessTier").value = book.access_tier || "Free";
   $("bookStatus").value = book.status || "Draft";
 
+  $("priceKes").value =
+    book.price_kes !== null && book.price_kes !== undefined
+      ? book.price_kes
+      : "";
+
+  updatePremiumPriceVisibility();
+
   $("bookFile").value = "";
   $("coverFile").value = "";
 
@@ -918,6 +1009,8 @@ function cancelEditing() {
   editingBookId = null;
   $("bookForm").reset();
   $("authorName").value = "G.O. Odhiambo";
+
+  updatePremiumPriceVisibility();
 
   $("formHeading").textContent =
     "Upload a Novel or Storybook";
@@ -950,6 +1043,18 @@ async function changeBookStatus(id) {
   ) {
     alert(
       "This book needs a document, title and description before publishing."
+    );
+    return;
+  }
+
+  if (
+    newStatus === "Published" &&
+    book.access_tier === "Premium" &&
+    (!Number.isInteger(Number(book.price_kes)) ||
+      Number(book.price_kes) <= 0)
+  ) {
+    alert(
+      "This Premium book needs a valid price before it can be published. Select Edit Details and enter its price."
     );
     return;
   }
@@ -1085,6 +1190,7 @@ client.auth.onAuthStateChange((event, session) => {
   }
 });
 
+updatePremiumPriceVisibility();
 restoreSession();
 
 </script>
