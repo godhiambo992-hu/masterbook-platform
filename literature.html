@@ -114,6 +114,8 @@ header{background:var(--navy);color:white}
 .purchase-form{display:grid;gap:11px;margin-top:14px}
 .purchase-form label{font-size:12px;font-weight:700;color:var(--navy)}
 .purchase-form small{font-size:11px;color:var(--muted);line-height:1.5}
+.admin-preview-notice{background:#e8f3ed;border:1px solid #b9dfc9;color:#176344;border-radius:10px;padding:13px 15px;margin:17px 0;font-size:13px;line-height:1.6}
+.admin-badge{display:inline-block;background:#e5f5ed;color:#176344;border:1px solid #b9dfc9;border-radius:30px;padding:5px 10px;font-size:11px;font-weight:800;margin:5px 0}
 footer{background:var(--navy);color:#dbe4ee;padding:30px 22px;text-align:center;font-size:12px;line-height:1.8}
 footer strong{color:var(--gold)}
 footer a{color:var(--gold)}
@@ -176,6 +178,7 @@ footer a{color:var(--gold)}
 </div>
 <div id="signedInArea" class="hidden">
 <p id="signedInMessage"></p>
+<div id="accountRoleNotice"></div>
 <button class="btn btn-danger" id="signOutBtn">Sign Out</button>
 </div>
 </section>
@@ -209,6 +212,10 @@ footer a{color:var(--gold)}
 <div class="reader-panel">
 <button class="btn btn-light" id="backToBooks">← Back to collection</button>
 <div id="selectedBookDetails"></div>
+<div id="adminPreviewNotice" class="admin-preview-notice hidden">
+<strong>Administrator preview access</strong><br>
+You are viewing this published book using administrator privileges. No payment request or Premium entitlement is required. This preview does not grant access to ordinary readers.
+</div>
 <div class="account-actions" id="bookActions"></div>
 
 <div id="premiumPurchasePanel" class="purchase-panel hidden"></div>
@@ -272,6 +279,8 @@ SUPABASE_KEY
 ========================================== */
 
 let currentUser=null;
+let isAdministrator=false;
+let adminCheckComplete=false;
 let allBooks=[];
 let selectedBook=null;
 let selectedRating=0;
@@ -351,6 +360,50 @@ return /^(?:\+?254|0)?[17]\d{8}$/.test(phone);
 }
 
 /* ==========================================
+   ADMINISTRATOR VERIFICATION
+========================================== */
+
+/*
+  Administrator status is verified by the existing
+  database function. No email address or browser-side
+  role value is used to grant administrator privileges.
+
+  If verification fails, the application fails closed:
+  the user is treated as an ordinary reader.
+*/
+
+async function refreshAdministratorStatus(){
+isAdministrator=false;
+adminCheckComplete=false;
+
+if(!currentUser){
+adminCheckComplete=true;
+updateAccountInterface();
+return false;
+}
+
+try{
+const {data,error}=await supabaseClient.rpc(
+"masterbook_admin_is_admin"
+);
+
+if(error){
+console.error("Administrator verification failed:",error);
+isAdministrator=false;
+}else{
+isAdministrator=data===true;
+}
+}catch(error){
+console.error("Administrator verification error:",error);
+isAdministrator=false;
+}
+
+adminCheckComplete=true;
+updateAccountInterface();
+return isAdministrator;
+}
+
+/* ==========================================
    ANALYTICS
 ========================================== */
 
@@ -383,25 +436,45 @@ return false;
 async function refreshAuthentication(){
 const {data,error}=await supabaseClient.auth.getSession();
 if(error)console.error(error);
+
 currentUser=data?.session?.user||null;
+
+if(currentUser){
+await refreshAdministratorStatus();
+}else{
+isAdministrator=false;
+adminCheckComplete=true;
 updateAccountInterface();
+}
 }
 
 function updateAccountInterface(){
 const signedIn=Boolean(currentUser);
+
 $("signedOutArea").classList.toggle("hidden",signedIn);
 $("signedInArea").classList.toggle("hidden",!signedIn);
-$("headerAccount").textContent=signedIn
-?"Reader: "+displayName(currentUser)
-:"Reader: Guest";
+
+$("headerAccount").textContent=!signedIn
+?"Reader: Guest"
+:isAdministrator
+?"Administrator: "+displayName(currentUser)
+:"Reader: "+displayName(currentUser);
 
 if(signedIn){
-$("signedInMessage").textContent="You are signed in as "+currentUser.email;
+$("signedInMessage").textContent=isAdministrator
+?"Administrator account: "+currentUser.email
+:"You are signed in as "+currentUser.email;
+
+$("accountRoleNotice").innerHTML=isAdministrator
+?'<span class="admin-badge">Administrator · Full literary preview access</span>'
+:"";
+
 $("newCommentForm").classList.remove("hidden");
 $("commentSignInNotice").classList.add("hidden");
 }else{
 $("newCommentForm").classList.add("hidden");
 $("commentSignInNotice").classList.remove("hidden");
+$("accountRoleNotice").innerHTML="";
 }
 
 if(selectedBook){
@@ -411,47 +484,75 @@ refreshSelectedBookAccess();
 
 async function signIn(){
 clearMessage("accountMessage");
+
 const email=$("authEmail").value.trim();
 const password=$("authPassword").value;
+
 if(!email||!password){
 showMessage("accountMessage","Enter your email address and password.","error");
 return;
 }
+
 $("signInBtn").disabled=true;
-const {error}=await supabaseClient.auth.signInWithPassword({email,password});
+
+const {error}=await supabaseClient.auth.signInWithPassword({
+email,password
+});
+
 $("signInBtn").disabled=false;
+
 if(error){
 showMessage("accountMessage",error.message,"error");
 return;
 }
+
 $("authPassword").value="";
 await refreshAuthentication();
-showMessage("accountMessage","You are now signed in.");
-if(selectedBook)await refreshSelectedBookAccess();
-if(selectedBook)await loadDiscussion(selectedBook.id);
+
+showMessage("accountMessage",
+isAdministrator
+?"Administrator sign-in successful. Full published-book preview is enabled."
+:"You are now signed in."
+);
+
+if(selectedBook){
+await refreshSelectedBookAccess();
+await loadDiscussion(selectedBook.id);
+}
 }
 
 async function signUp(){
 clearMessage("accountMessage");
+
 const email=$("authEmail").value.trim();
 const password=$("authPassword").value;
+
 if(!email||!password){
 showMessage("accountMessage","Enter your email address and password.","error");
 return;
 }
+
 if(password.length<6){
 showMessage("accountMessage","Your password must contain at least six characters.","error");
 return;
 }
+
 $("signUpBtn").disabled=true;
-const {data,error}=await supabaseClient.auth.signUp({email,password});
+
+const {data,error}=await supabaseClient.auth.signUp({
+email,password
+});
+
 $("signUpBtn").disabled=false;
+
 if(error){
 showMessage("accountMessage",error.message,"error");
 return;
 }
+
 if(data.session){
 currentUser=data.session.user;
+await refreshAdministratorStatus();
 updateAccountInterface();
 showMessage("accountMessage","Your account has been created successfully.");
 }else{
@@ -461,17 +562,25 @@ showMessage("accountMessage","Registration received. Check your email to confirm
 
 async function signOut(){
 const {error}=await supabaseClient.auth.signOut();
+
 if(error){
 showMessage("accountMessage",error.message,"error");
 return;
 }
+
 currentUser=null;
-updateAccountInterface();
-if(selectedBook){
+isAdministrator=false;
+adminCheckComplete=true;
 selectedBookEntitled=false;
+selectedPaymentRequests=[];
+
+updateAccountInterface();
+
+if(selectedBook){
 await refreshSelectedBookAccess();
 await loadDiscussion(selectedBook.id);
 }
+
 showMessage("accountMessage","You have signed out.");
 }
 
@@ -479,9 +588,26 @@ $("signInBtn").addEventListener("click",signIn);
 $("signUpBtn").addEventListener("click",signUp);
 $("signOutBtn").addEventListener("click",signOut);
 
+/*
+  Keep the authentication callback synchronous.
+  Administrator verification runs after the auth event
+  callback has returned.
+*/
+
 supabaseClient.auth.onAuthStateChange((_event,session)=>{
 currentUser=session?.user||null;
+isAdministrator=false;
+adminCheckComplete=!currentUser;
 updateAccountInterface();
+
+if(currentUser){
+setTimeout(async()=>{
+await refreshAdministratorStatus();
+if(selectedBook){
+await refreshSelectedBookAccess();
+}
+},0);
+}
 });
 
 /* ==========================================
@@ -490,13 +616,16 @@ updateAccountInterface();
 
 async function getSignedFileUrl(path){
 if(!path)return null;
+
 const {data,error}=await supabaseClient.storage
 .from(STORAGE_BUCKET)
 .createSignedUrl(path,3600);
+
 if(error){
 console.error("Storage URL error:",error);
 return null;
 }
+
 return data?.signedUrl||null;
 }
 
@@ -522,6 +651,7 @@ return;
 }
 
 allBooks=data||[];
+
 await loadRatingSummaries();
 await populateGenres();
 renderBooks();
@@ -529,18 +659,25 @@ renderBooks();
 
 async function loadRatingSummaries(){
 bookRatings={};
+
 if(!allBooks.length)return;
+
 const ids=allBooks.map(book=>book.id);
+
 const {data,error}=await supabaseClient
 .from("literary_ratings")
 .select("book_id,rating")
 .in("book_id",ids);
+
 if(error){
 console.error("Rating summary error:",error);
 return;
 }
+
 for(const item of data||[]){
-if(!bookRatings[item.book_id])bookRatings[item.book_id]={total:0,count:0};
+if(!bookRatings[item.book_id]){
+bookRatings[item.book_id]={total:0,count:0};
+}
 bookRatings[item.book_id].total+=Number(item.rating);
 bookRatings[item.book_id].count++;
 }
@@ -549,27 +686,41 @@ bookRatings[item.book_id].count++;
 async function populateGenres(){
 const select=$("genreFilter");
 const previous=select.value;
-const genres=[...new Set(allBooks.map(book=>(book.genre||"").trim()).filter(Boolean))]
-.sort((a,b)=>a.localeCompare(b));
+
+const genres=[...new Set(
+allBooks.map(book=>(book.genre||"").trim()).filter(Boolean)
+)].sort((a,b)=>a.localeCompare(b));
+
 select.innerHTML='<option value="">All genres</option>';
+
 genres.forEach(genre=>{
 const option=document.createElement("option");
 option.value=genre;
 option.textContent=genre;
 select.appendChild(option);
 });
+
 if(genres.includes(previous))select.value=previous;
 }
 
 function getRatingData(bookId){
 const summary=bookRatings[bookId];
-if(!summary||!summary.count)return {average:0,count:0};
-return {average:summary.total/summary.count,count:summary.count};
+
+if(!summary||!summary.count){
+return {average:0,count:0};
+}
+
+return {
+average:summary.total/summary.count,
+count:summary.count
+};
 }
 
 function ratingLabel(bookId){
 const summary=getRatingData(bookId);
+
 if(!summary.count)return "☆☆☆☆☆ · No ratings yet";
+
 return "★ "+summary.average.toFixed(1)+" / 5 · "+summary.count+
 (summary.count===1?" rating":" ratings");
 }
@@ -584,33 +735,47 @@ const genre=$("genreFilter").value;
 const sort=$("sortFilter").value;
 
 let filtered=allBooks.filter(book=>{
-const searchable=[book.title,book.author_name,book.description,book.genre,book.book_type].join(" ").toLowerCase();
+const searchable=[
+book.title,
+book.author_name,
+book.description,
+book.genre,
+book.book_type
+].join(" ").toLowerCase();
+
 return searchable.includes(query)&&(!genre||book.genre===genre);
 });
 
 if(sort==="highest"){
 filtered.sort((a,b)=>{
 const A=getRatingData(a.id),B=getRatingData(b.id);
-return B.average-A.average||B.count-A.count||new Date(b.created_at)-new Date(a.created_at);
+return B.average-A.average||B.count-A.count||
+new Date(b.created_at)-new Date(a.created_at);
 });
 }else if(sort==="most"){
 filtered.sort((a,b)=>{
 const A=getRatingData(a.id),B=getRatingData(b.id);
-return B.count-A.count||B.average-A.average||new Date(b.created_at)-new Date(a.created_at);
+return B.count-A.count||B.average-A.average||
+new Date(b.created_at)-new Date(a.created_at);
 });
 }else if(sort==="title"){
 filtered.sort((a,b)=>(a.title||"").localeCompare(b.title||""));
 }else{
 filtered.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
 }
+
 return filtered;
 }
 
 function renderBooks(){
 const filtered=getFilteredBooks();
-$("bookCount").textContent=allBooks.length+(allBooks.length===1?" published book":" published books");
+
+$("bookCount").textContent=allBooks.length+
+(allBooks.length===1?" published book":" published books");
+
 $("resultSummary").textContent="Showing "+filtered.length+
-(filtered.length===1?" matching book":" matching books")+" out of "+allBooks.length+" published.";
+(filtered.length===1?" matching book":" matching books")+
+" out of "+allBooks.length+" published.";
 
 if(!filtered.length){
 $("bookGrid").innerHTML='<div class="empty-state"><h3>No matching books found</h3><p>Try another title, author or genre, or clear your filters.</p></div>';
@@ -618,9 +783,11 @@ return;
 }
 
 $("bookGrid").innerHTML="";
+
 filtered.forEach(book=>{
 const card=document.createElement("article");
 card.className="book-card";
+
 const cover=document.createElement("div");
 cover.className="cover-wrap";
 cover.innerHTML='<div class="cover-placeholder">▤</div>';
@@ -632,7 +799,9 @@ const img=document.createElement("img");
 img.src=url;
 img.alt=book.title+" cover";
 img.loading="lazy";
-img.onerror=()=>{cover.innerHTML='<div class="cover-placeholder">▤</div>';};
+img.onerror=()=>{
+cover.innerHTML='<div class="cover-placeholder">▤</div>';
+};
 cover.innerHTML="";
 cover.appendChild(img);
 }
@@ -641,7 +810,9 @@ cover.appendChild(img);
 
 const info=document.createElement("div");
 info.className="book-info";
+
 const description=book.description||"Explore this literary work.";
+
 const priceHTML=isPremium(book)
 ?'<div class="price-label">'+escapeHTML(formatKES(bookPrice(book)))+' · Premium</div>'
 :'<div class="price-label">Free access</div>';
@@ -656,7 +827,10 @@ ${priceHTML}
 <div class="book-rating">${escapeHTML(ratingLabel(book.id))}</div>
 <button class="btn btn-primary full-btn" type="button">View Book</button>`;
 
-info.querySelector("button").addEventListener("click",()=>openBook(book.id));
+info.querySelector("button").addEventListener("click",()=>{
+openBook(book.id);
+});
+
 card.appendChild(cover);
 card.appendChild(info);
 $("bookGrid").appendChild(card);
@@ -666,6 +840,7 @@ $("bookGrid").appendChild(card);
 $("searchInput").addEventListener("input",renderBooks);
 $("genreFilter").addEventListener("change",renderBooks);
 $("sortFilter").addEventListener("change",renderBooks);
+
 $("clearFilters").addEventListener("click",()=>{
 $("searchInput").value="";
 $("genreFilter").value="";
@@ -674,8 +849,24 @@ renderBooks();
 });
 
 /* ==========================================
-   PREMIUM ENTITLEMENT AND PAYMENT STATUS
+   PREMIUM ENTITLEMENT AND ADMINISTRATOR ACCESS
 ========================================== */
+
+/*
+  Administrator preview does not create an entitlement.
+  Ordinary Premium readers still require an approved
+  literary_entitlements record.
+*/
+
+function canReadBook(book){
+if(!book)return false;
+
+if(isAdministrator)return true;
+
+if(!isPremium(book))return true;
+
+return selectedBookEntitled;
+}
 
 async function refreshSelectedBookAccess(){
 if(!selectedBook)return;
@@ -685,6 +876,15 @@ selectedPaymentRequests=[];
 
 if(!isPremium(selectedBook)){
 renderBookActions();
+renderPurchasePanel();
+return;
+}
+
+/* Administrator preview bypasses payment and entitlement checks. */
+
+if(isAdministrator){
+renderBookActions();
+renderPurchasePanel();
 return;
 }
 
@@ -694,7 +894,7 @@ renderPurchasePanel();
 return;
 }
 
-/* An entitlement, not a submitted receipt, grants access. */
+/* Ordinary readers must have an actual entitlement. */
 
 const {data:entitlement,error:entitlementError}=await supabaseClient
 .from("literary_entitlements")
@@ -733,7 +933,7 @@ actions.innerHTML="";
 
 if(!selectedBook)return;
 
-const canRead=!isPremium(selectedBook)||selectedBookEntitled;
+const canRead=canReadBook(selectedBook);
 
 if(canRead){
 const readButton=document.createElement("button");
@@ -747,6 +947,13 @@ downloadButton.className="btn btn-gold";
 downloadButton.textContent="Download Book";
 downloadButton.addEventListener("click",()=>downloadBookFile(selectedBook));
 actions.appendChild(downloadButton);
+
+if(isAdministrator&&isPremium(selectedBook)){
+const previewLabel=document.createElement("span");
+previewLabel.className="admin-badge";
+previewLabel.textContent="Administrator preview";
+actions.appendChild(previewLabel);
+}
 }else{
 const locked=document.createElement("span");
 locked.className="rating-summary";
@@ -759,6 +966,10 @@ function renderPurchasePanel(){
 const panel=$("premiumPurchasePanel");
 panel.innerHTML="";
 panel.classList.add("hidden");
+
+/* Administrators never receive a payment request form. */
+
+if(isAdministrator)return;
 
 if(!selectedBook||!isPremium(selectedBook))return;
 
@@ -783,11 +994,14 @@ let html=`
 if(!currentUser){
 html+=`<div class="payment-status">Please sign in to submit a payment request and access your purchase history.</div>
 <button class="btn btn-primary" type="button" id="purchaseSignInButton">Sign In to Continue</button>`;
+
 panel.innerHTML=html;
+
 $("purchaseSignInButton").addEventListener("click",()=>{
 $("accountPanel").scrollIntoView({behavior:"smooth"});
 $("authEmail").focus();
 });
+
 return;
 }
 
@@ -801,7 +1015,13 @@ const latest=selectedPaymentRequests[0];
 
 if(latest){
 const status=String(latest.status||"Pending").toLowerCase();
-const statusClass=status==="approved"?"approved":status==="rejected"?"rejected":"pending";
+
+const statusClass=status==="approved"
+?"approved"
+:status==="rejected"
+?"rejected"
+:"pending";
+
 const statusText=status==="approved"
 ?"Payment marked approved, but the book entitlement has not yet appeared. Please refresh shortly or contact MASTERBOOK support."
 :status==="rejected"
@@ -817,7 +1037,9 @@ ${latest.admin_note?'<br>Administrator note: '+escapeHTML(latest.admin_note):""}
 </div>`;
 }
 
-const hasPending=selectedPaymentRequests.some(r=>String(r.status||"").toLowerCase()==="pending");
+const hasPending=selectedPaymentRequests.some(
+r=>String(r.status||"").toLowerCase()==="pending"
+);
 
 if(hasPending){
 html+=`<div class="payment-status pending">You already have a pending request for this book. Please wait for the administrator to review it. Do not submit another payment request.</div>`;
@@ -838,6 +1060,7 @@ html+=`
 </form>`;
 
 panel.innerHTML=html;
+
 $("premiumPaymentForm").addEventListener("submit",submitPremiumPayment);
 }
 
@@ -846,6 +1069,11 @@ event.preventDefault();
 
 if(!requireLogin())return;
 if(!selectedBook||!isPremium(selectedBook))return;
+
+if(isAdministrator){
+showMessage("actionMessage","Administrator preview accounts do not submit Premium payment requests.","error");
+return;
+}
 
 const phone=normalisePhone($("payerPhone").value);
 const transactionCode=$("transactionCode").value.trim().toUpperCase();
@@ -861,7 +1089,9 @@ showMessage("actionMessage","Enter a valid M-Pesa transaction code using 6 to 30
 return;
 }
 
-if(selectedPaymentRequests.some(r=>String(r.status||"").toLowerCase()==="pending")){
+if(selectedPaymentRequests.some(
+r=>String(r.status||"").toLowerCase()==="pending"
+)){
 showMessage("actionMessage","You already have a pending payment request for this book.","error");
 return;
 }
@@ -870,7 +1100,7 @@ const button=$("submitPaymentButton");
 button.disabled=true;
 button.textContent="Submitting request...";
 
-const {data,error}=await supabaseClient
+const {error}=await supabaseClient
 .from("literary_payment_requests")
 .insert({
 book_id:selectedBook.id,
@@ -893,6 +1123,7 @@ return;
 }
 
 showMessage("actionMessage","Payment request submitted. Your book will unlock after administrator verification.");
+
 await refreshSelectedBookAccess();
 }
 
@@ -911,7 +1142,11 @@ selectedPaymentRequests=[];
 
 $("readerSection").style.display="block";
 clearMessage("actionMessage");
-$("readerSection").scrollIntoView({behavior:"smooth",block:"start"});
+
+$("readerSection").scrollIntoView({
+behavior:"smooth",
+block:"start"
+});
 
 $("selectedBookDetails").innerHTML=`
 <span class="genre">${escapeHTML(book.genre||book.book_type||"Literature")}</span>
@@ -920,47 +1155,55 @@ $("selectedBookDetails").innerHTML=`
 <p class="reader-description">${escapeHTML(book.description||"No description available.")}</p>
 <p class="price-label">${isPremium(book)?"Premium · "+escapeHTML(formatKES(bookPrice(book))):"Free access"}</p>`;
 
-if(isPremium(book)){
+$("adminPreviewNotice").classList.toggle(
+"hidden",
+!(isAdministrator&&isPremium(book))
+);
+
 await refreshSelectedBookAccess();
-}else{
-renderBookActions();
-$("premiumPurchasePanel").classList.add("hidden");
-}
 
 recordAnalytics(book.id,"view");
 await loadDiscussion(book.id);
 }
 
 async function openBookFile(book){
-if(isPremium(book)&&!selectedBookEntitled){
+if(!book)return;
+
+if(isPremium(book)&&!canReadBook(book)){
 showMessage("actionMessage","This Premium book is locked. Submit payment and wait for administrator approval.","error");
 return;
 }
 
 const url=await getSignedFileUrl(book.storage_path);
+
 if(!url){
-showMessage("actionMessage","The book file could not be opened. Please contact the administrator.","error");
+showMessage("actionMessage","The book file could not be opened. Please check the Storage permissions and file path, then try again.","error");
 return;
 }
 
 const extension=fileExtension(book.storage_path);
+
 const readerUrl="document-reader.html?file="+encodeURIComponent(url)+
 "&title="+encodeURIComponent(book.title)+
 "&type="+encodeURIComponent(extension);
 
 recordAnalytics(book.id,"view");
+
 window.open(readerUrl,"_blank","noopener");
 }
 
 async function downloadBookFile(book){
-if(isPremium(book)&&!selectedBookEntitled){
+if(!book)return;
+
+if(isPremium(book)&&!canReadBook(book)){
 showMessage("actionMessage","This Premium book is locked until your payment is approved.","error");
 return;
 }
 
 const url=await getSignedFileUrl(book.storage_path);
+
 if(!url){
-showMessage("actionMessage","The download could not be prepared.","error");
+showMessage("actionMessage","The download could not be prepared. Please check the Storage permissions and file path.","error");
 return;
 }
 
@@ -969,9 +1212,11 @@ link.href=url;
 link.download=book.title+"."+fileExtension(book.storage_path);
 link.target="_blank";
 link.rel="noopener";
+
 document.body.appendChild(link);
 link.click();
 link.remove();
+
 recordAnalytics(book.id,"download");
 }
 
@@ -1013,25 +1258,33 @@ console.error(ratingError);
 $("ratingSummary").textContent="Unable to load ratings.";
 }else{
 const list=ratings||[];
+
 if(list.length){
 const total=list.reduce((sum,item)=>sum+Number(item.rating),0);
-$("ratingSummary").textContent="Average: "+(total/list.length).toFixed(1)+" / 5 from "+list.length+(list.length===1?" rating.":" ratings.");
+
+$("ratingSummary").textContent="Average: "+
+(total/list.length).toFixed(1)+" / 5 from "+list.length+
+(list.length===1?" rating.":" ratings.");
 }else{
 $("ratingSummary").textContent="No ratings yet. Be the first to rate this book.";
 }
+
 if(currentUser){
 const existing=list.find(item=>item.user_id===currentUser.id);
+
 if(existing){
 selectedRating=existing.rating;
 updateRatingStars();
 }
 }
 }
+
 await loadComments(bookId);
 }
 
 async function submitRating(){
 if(!requireLogin())return;
+
 if(!selectedBook||!selectedRating){
 showMessage("actionMessage","Select a star rating before submitting.","error");
 return;
@@ -1053,6 +1306,7 @@ return;
 }
 
 showMessage("actionMessage","Your rating has been saved.");
+
 await loadDiscussion(selectedBook.id);
 await loadRatingSummaries();
 renderBooks();
@@ -1081,13 +1335,16 @@ return;
 }
 
 const comments=data||[];
+
 if(!comments.length){
 $("commentsList").innerHTML='<div class="empty-state">No comments yet. Start the discussion!</div>';
 return;
 }
 
 const roots=comments.filter(item=>!item.parent_comment_id);
+
 $("commentsList").innerHTML="";
+
 roots.forEach(comment=>{
 const replies=comments.filter(item=>item.parent_comment_id===comment.id);
 $("commentsList").appendChild(createCommentElement(comment,replies));
@@ -1100,28 +1357,36 @@ wrapper.className="comment";
 
 const head=document.createElement("div");
 head.className="comment-head";
+
 const author=document.createElement("div");
 author.className="comment-author";
 author.textContent="Reader "+comment.user_id.slice(0,8);
+
 const date=document.createElement("div");
 date.className="comment-date";
 date.textContent=formatDate(comment.created_at);
+
 head.appendChild(author);
 head.appendChild(date);
 
 const text=document.createElement("div");
 text.className="comment-text";
 text.textContent=comment.comment;
+
 wrapper.appendChild(head);
 wrapper.appendChild(text);
 
 if(currentUser){
 const actions=document.createElement("div");
 actions.className="comment-actions";
+
 const replyButton=document.createElement("button");
 replyButton.className="reply-button";
 replyButton.textContent="Reply";
-replyButton.addEventListener("click",()=>createReplyForm(comment.id,wrapper));
+replyButton.addEventListener("click",()=>{
+createReplyForm(comment.id,wrapper);
+});
+
 actions.appendChild(replyButton);
 wrapper.appendChild(actions);
 }
@@ -1129,34 +1394,46 @@ wrapper.appendChild(actions);
 if(replies.length){
 const replyArea=document.createElement("div");
 replyArea.className="reply-area";
+
 replies.forEach(reply=>{
 const replyElement=document.createElement("div");
 replyElement.className="comment";
+
 const replyHead=document.createElement("div");
 replyHead.className="comment-head";
+
 const replyAuthor=document.createElement("div");
 replyAuthor.className="comment-author";
 replyAuthor.textContent="Reader "+reply.user_id.slice(0,8);
+
 const replyDate=document.createElement("div");
 replyDate.className="comment-date";
 replyDate.textContent=formatDate(reply.created_at);
+
 replyHead.appendChild(replyAuthor);
 replyHead.appendChild(replyDate);
+
 const replyText=document.createElement("div");
 replyText.className="comment-text";
 replyText.textContent=reply.comment;
+
 replyElement.appendChild(replyHead);
 replyElement.appendChild(replyText);
+
 replyArea.appendChild(replyElement);
 });
+
 wrapper.appendChild(replyArea);
 }
+
 return wrapper;
 }
 
 function createReplyForm(parentId,container){
 if(!requireLogin())return;
+
 const existing=container.querySelector(".reply-form");
+
 if(existing){
 existing.remove();
 return;
@@ -1164,20 +1441,25 @@ return;
 
 const form=document.createElement("div");
 form.className="reply-form";
+
 const textarea=document.createElement("textarea");
 textarea.className="field";
 textarea.placeholder="Write your reply...";
+
 const submit=document.createElement("button");
 submit.className="btn btn-primary";
 submit.textContent="Post Reply";
 
 submit.addEventListener("click",async()=>{
 const message=textarea.value.trim();
+
 if(!message){
 textarea.focus();
 return;
 }
+
 submit.disabled=true;
+
 const {error}=await supabaseClient
 .from("literary_comments")
 .insert({
@@ -1187,11 +1469,14 @@ parent_comment_id:parentId,
 comment:message,
 status:"Published"
 });
+
 submit.disabled=false;
+
 if(error){
 showMessage("actionMessage",error.message,"error");
 return;
 }
+
 showMessage("actionMessage","Your reply has been posted.");
 await loadComments(selectedBook.id);
 });
@@ -1199,19 +1484,23 @@ await loadComments(selectedBook.id);
 form.appendChild(textarea);
 form.appendChild(submit);
 container.appendChild(form);
+
 textarea.focus();
 }
 
 async function postComment(){
 if(!requireLogin())return;
 if(!selectedBook)return;
+
 const message=$("newComment").value.trim();
+
 if(!message){
 showMessage("actionMessage","Write a comment before posting.","error");
 return;
 }
 
 $("postComment").disabled=true;
+
 const {error}=await supabaseClient
 .from("literary_comments")
 .insert({
@@ -1221,6 +1510,7 @@ parent_comment_id:null,
 comment:message,
 status:"Published"
 });
+
 $("postComment").disabled=false;
 
 if(error){
@@ -1231,6 +1521,7 @@ return;
 
 $("newComment").value="";
 showMessage("actionMessage","Your comment has been posted.");
+
 await loadComments(selectedBook.id);
 }
 
@@ -1242,6 +1533,7 @@ $("postComment").addEventListener("click",postComment);
 
 async function initialiseLiterature(){
 $("currentYear").textContent=new Date().getFullYear();
+
 await refreshAuthentication();
 await loadBooks();
 }
