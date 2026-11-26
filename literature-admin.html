@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#10243e">
 
 <title>MASTERBOOK | Literature Administration</title>
-<meta name="description" content="Secure MASTERBOOK Literature Administration and Premium M-Pesa payment verification dashboard.">
+<meta name="description" content="Secure MASTERBOOK Literature Administration, manuscript version management and Premium M-Pesa payment verification dashboard.">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -65,17 +65,21 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .tag.price{background:#fff2d6;color:#805b13}
 .field-help{color:var(--muted);font-size:12px;line-height:1.5;margin:6px 0 0}
 .empty{text-align:center;color:var(--muted);padding:28px 10px}
-.payment-list{display:grid;gap:14px}
-.payment-card{border:1px solid var(--border);border-radius:10px;padding:17px;background:#fff}
-.payment-card h3{margin:0 0 10px}
+.payment-list,.version-list{display:grid;gap:14px}
+.payment-card,.version-card{border:1px solid var(--border);border-radius:10px;padding:17px;background:#fff}
+.payment-card h3,.version-card h3{margin:0 0 10px}
 .payment-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .payment-detail{padding:10px;background:#f5f7fa;border-radius:8px;min-width:0}
 .payment-detail span{display:block;color:var(--muted);font-size:11px;margin-bottom:5px}
 .payment-detail strong{font-size:13px;overflow-wrap:anywhere}
-.payment-card .actions{margin-top:14px}
+.payment-card .actions,.version-card .actions{margin-top:14px}
 .section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .filter-row{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}
 .filter-row select{max-width:220px}
+.version-current{border-left:4px solid var(--green)}
+.version-pending{border-left:4px solid var(--gold)}
+.version-rejected{border-left:4px solid var(--red)}
+.version-card p{font-size:13px;color:var(--muted);line-height:1.5;overflow-wrap:anywhere}
 footer{text-align:center;padding:25px 12px;color:var(--muted);font-size:12px}
 @media(max-width:650px){
  .grid{grid-template-columns:1fr}
@@ -121,7 +125,7 @@ footer{text-align:center;padding:25px 12px;color:var(--muted);font-size:12px}
 
  <div class="panel">
   <h1>MASTERBOOK Literature Administration</h1>
-  <p class="subtitle">Manage literary publications, monitor Premium sales and verify individual M-Pesa book purchases.</p>
+  <p class="subtitle">Manage literary publications, manuscript revisions, Premium sales and individual M-Pesa book purchases.</p>
 
   <div class="stats">
    <div class="stat"><strong id="totalBooks">0</strong><span>Total books</span></div>
@@ -249,7 +253,7 @@ footer{text-align:center;padding:25px 12px;color:var(--muted);font-size:12px}
 
  <div class="panel">
   <h2>Your Literary Collection</h2>
-  <p class="subtitle">View, edit, publish, unpublish or remove books from your collection.</p>
+  <p class="subtitle">View, edit, publish, unpublish, manage manuscript versions or remove books from your collection.</p>
 
   <div class="actions">
    <button class="secondary" id="refreshBtn">Refresh Collection</button>
@@ -263,6 +267,46 @@ footer{text-align:center;padding:25px 12px;color:var(--muted);font-size:12px}
    <div class="empty">Loading your collection...</div>
   </div>
  </div>
+
+ <!-- MANUSCRIPT VERSION MANAGEMENT -->
+
+ <section class="panel hidden" id="versionPanel">
+  <div class="section-heading">
+   <div>
+    <h2>Manuscript Version Management</h2>
+    <p class="subtitle">Upload revised manuscripts, inspect previous versions and approve or reject pending revisions.</p>
+   </div>
+   <button class="secondary" id="closeVersionsBtn" type="button">Close</button>
+  </div>
+
+  <div class="payment-detail">
+   <span>Selected literary book</span>
+   <strong id="versionBookTitle">No book selected</strong>
+  </div>
+
+  <form id="versionForm">
+   <label for="versionFile">Revised manuscript document *</label>
+   <input id="versionFile" type="file" accept=".pdf,.docx,.txt,application/pdf,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required>
+   <p class="field-help">Accepted formats: PDF, DOCX and TXT. Maximum file size: 50 MB.</p>
+
+   <label for="versionSummary">Revision summary *</label>
+   <textarea id="versionSummary" maxlength="2000" placeholder="Describe the changes made in this manuscript version..." required></textarea>
+
+   <div class="actions">
+    <button class="primary" type="submit" id="uploadVersionBtn">Upload New Version</button>
+   </div>
+   <div class="status" id="versionMessage"></div>
+  </form>
+
+  <div class="section-heading" style="margin-top:25px">
+   <h2>Version History</h2>
+   <button class="secondary" id="refreshVersionsBtn" type="button">Refresh Versions</button>
+  </div>
+
+  <div id="versionList" class="version-list">
+   <div class="empty">Select a book to view its manuscript versions.</div>
+  </div>
+ </section>
 
 </section>
 </main>
@@ -295,6 +339,8 @@ let currentUser=null;
 let editingBookId=null;
 let literaryBooks=[];
 let paymentRequests=[];
+let selectedVersionBookId=null;
+let literaryVersions=[];
 
 const $=id=>document.getElementById(id);
 $("year").textContent=new Date().getFullYear();
@@ -389,10 +435,13 @@ $("signOutBtn").addEventListener("click",async()=>{
  currentUser=null;
  literaryBooks=[];
  paymentRequests=[];
+ literaryVersions=[];
+ selectedVersionBookId=null;
 
  $("dashboard").classList.add("hidden");
  $("loginPanel").classList.remove("hidden");
  $("signOutBtn").classList.add("hidden");
+ $("versionPanel").classList.add("hidden");
  $("password").value="";
 
  showMessage("loginMessage","You have signed out successfully.","good");
@@ -661,6 +710,11 @@ async function renderBooks(){
   editBtn.textContent="Edit Details";
   editBtn.addEventListener("click",()=>editBook(book.id));
 
+  const versionsBtn=document.createElement("button");
+  versionsBtn.className="primary";
+  versionsBtn.textContent="Manage Versions";
+  versionsBtn.addEventListener("click",()=>openVersionManager(book.id));
+
   const statusBtn=document.createElement("button");
   statusBtn.className=book.status==="Published"?"secondary":"success";
   statusBtn.textContent=book.status==="Published"?"Unpublish":"Publish";
@@ -671,7 +725,7 @@ async function renderBooks(){
   deleteBtn.textContent="Delete";
   deleteBtn.addEventListener("click",()=>deleteBook(book.id));
 
-  actions.append(editBtn,statusBtn,deleteBtn);
+  actions.append(editBtn,versionsBtn,statusBtn,deleteBtn);
   details.append(title,author,description,tags,actions);
   item.append(cover,details);
   container.appendChild(item);
@@ -760,6 +814,17 @@ async function deleteBook(id){
 
  if(!confirm("Permanently delete '"+book.title+"' from MASTERBOOK? This cannot be undone."))return;
 
+ /* Collect version storage paths before the book record is deleted. */
+ const {data:versions,error:versionError}=await client
+  .from("literary_book_versions")
+  .select("storage_path")
+  .eq("book_id",id);
+
+ if(versionError){
+  showMessage("collectionMessage","Could not inspect manuscript versions before deletion: "+readableError(versionError),"error");
+  return;
+ }
+
  const {error}=await client.from("literary_books").delete().eq("id",id);
 
  if(error){
@@ -767,10 +832,14 @@ async function deleteBook(id){
   return;
  }
 
- const paths=[book.storage_path,book.cover_path].filter(Boolean);
+ const paths=[
+  book.storage_path,
+  book.cover_path,
+  ...(versions||[]).map(version=>version.storage_path)
+ ].filter(Boolean);
 
  if(paths.length){
-  const {error:storageError}=await client.storage.from(BUCKET).remove(paths);
+  const {error:storageError}=await client.storage.from(BUCKET).remove([...new Set(paths)]);
   if(storageError){
    showMessage("collectionMessage","The book record was deleted, but one or more storage files could not be removed: "+readableError(storageError),"error");
    await loadBooks();
@@ -778,17 +847,354 @@ async function deleteBook(id){
   }
  }
 
- showMessage("collectionMessage","Book and associated files deleted successfully.","good");
+ if(selectedVersionBookId===id){
+  closeVersionManager();
+ }
+
+ showMessage("collectionMessage","Book, version records and associated files deleted successfully.","good");
  await loadBooks();
 }
 
-/* PREMIUM PAYMENT MANAGEMENT */
+/* MANUSCRIPT VERSION MANAGEMENT */
 
-/*
-  The administrator can see payment requests through the existing
-  administrator SELECT policy. Book details are matched locally
-  against the already-loaded literary collection.
-*/
+function openVersionManager(bookId){
+ const book=literaryBooks.find(item=>item.id===bookId);
+ if(!book)return;
+
+ selectedVersionBookId=bookId;
+ literaryVersions=[];
+
+ $("versionBookTitle").textContent=book.title;
+ $("versionPanel").classList.remove("hidden");
+ $("versionForm").reset();
+ $("uploadVersionBtn").disabled=false;
+ $("uploadVersionBtn").textContent="Upload New Version";
+ $("versionList").innerHTML='<div class="empty">Loading manuscript versions...</div>';
+ hideMessage("versionMessage");
+
+ $("versionPanel").scrollIntoView({behavior:"smooth",block:"start"});
+ loadBookVersions(bookId);
+}
+
+function closeVersionManager(){
+ selectedVersionBookId=null;
+ literaryVersions=[];
+ $("versionPanel").classList.add("hidden");
+ $("versionForm").reset();
+ hideMessage("versionMessage");
+}
+
+$("closeVersionsBtn").addEventListener("click",closeVersionManager);
+
+async function loadBookVersions(bookId){
+ if(!currentUser||!bookId)return;
+
+ $("versionList").innerHTML='<div class="empty">Loading manuscript versions...</div>';
+
+ const {data,error}=await client.from("literary_book_versions")
+  .select("*")
+  .eq("book_id",bookId)
+  .order("version_number",{ascending:false});
+
+ if(error){
+  $("versionList").innerHTML="";
+  showMessage("versionMessage","Unable to load manuscript versions: "+readableError(error),"error");
+  return;
+ }
+
+ literaryVersions=data||[];
+ renderBookVersions();
+}
+
+function createVersionDetail(label,value){
+ const box=document.createElement("div");
+ box.className="payment-detail";
+
+ const caption=document.createElement("span");
+ caption.textContent=label;
+
+ const content=document.createElement("strong");
+ content.textContent=value===null||value===undefined||value===""?"Not available":String(value);
+
+ box.append(caption,content);
+ return box;
+}
+
+async function getVersionSignedUrl(path){
+ if(!path)throw new Error("This manuscript version has no storage path.");
+
+ const {data,error}=await client.storage.from(BUCKET).createSignedUrl(path,3600);
+
+ if(error)throw error;
+ if(!data?.signedUrl)throw new Error("Supabase did not generate a download link.");
+
+ return data.signedUrl;
+}
+
+async function openVersionFile(path){
+ try{
+  const url=await getVersionSignedUrl(path);
+  window.open(url,"_blank","noopener");
+ }catch(error){
+  showMessage("versionMessage","Unable to open manuscript: "+readableError(error),"error");
+ }
+}
+
+function renderBookVersions(){
+ const container=$("versionList");
+ container.innerHTML="";
+
+ if(!literaryVersions.length){
+  container.innerHTML='<div class="empty">No manuscript versions have been recorded for this book yet.</div>';
+  return;
+ }
+
+ literaryVersions.forEach(version=>{
+  const card=document.createElement("article");
+  card.className="version-card";
+
+  if(version.is_current)card.classList.add("version-current");
+  else if(version.review_status==="Pending")card.classList.add("version-pending");
+  else if(version.review_status==="Rejected")card.classList.add("version-rejected");
+
+  const heading=document.createElement("h3");
+  heading.textContent="Version "+version.version_number;
+
+  const status=document.createElement("span");
+  status.className="tag "+String(version.review_status||"").toLowerCase();
+  status.textContent=version.review_status||"Unknown";
+
+  const current=document.createElement("span");
+  current.className="tag approved";
+  current.textContent=version.is_current?"Current published manuscript":"Not current";
+
+  const summary=document.createElement("p");
+  summary.textContent=version.change_summary||"No revision summary supplied.";
+
+  const details=document.createElement("div");
+  details.className="payment-details";
+
+  details.append(
+   createVersionDetail("Version number",version.version_number),
+   createVersionDetail("Review status",version.review_status),
+   createVersionDetail("Current manuscript",version.is_current?"Yes":"No"),
+   createVersionDetail("Uploaded on",formatDate(version.created_at)),
+   createVersionDetail("Storage path",version.storage_path)
+  );
+
+  const actions=document.createElement("div");
+  actions.className="actions";
+
+  const viewButton=document.createElement("button");
+  viewButton.className="secondary";
+  viewButton.textContent="Preview / Download";
+  viewButton.addEventListener("click",()=>openVersionFile(version.storage_path));
+  actions.appendChild(viewButton);
+
+  if(version.review_status==="Pending"){
+   const approveButton=document.createElement("button");
+   approveButton.className="success";
+   approveButton.textContent="Approve Version";
+   approveButton.addEventListener("click",()=>reviewBookVersion(version.id,"approved",approveButton));
+
+   const rejectButton=document.createElement("button");
+   rejectButton.className="danger";
+   rejectButton.textContent="Reject Version";
+   rejectButton.addEventListener("click",()=>reviewBookVersion(version.id,"rejected",rejectButton));
+
+   actions.append(approveButton,rejectButton);
+  }
+
+  card.append(heading,status,current,summary,details,actions);
+  container.appendChild(card);
+ });
+}
+
+/* UPLOAD A NEW MANUSCRIPT VERSION */
+
+async function uploadBookVersion(event){
+ event.preventDefault();
+
+ if(!currentUser||!selectedVersionBookId){
+  showMessage("versionMessage","Select a book before uploading a new manuscript version.","error");
+  return;
+ }
+
+ const book=literaryBooks.find(item=>item.id===selectedVersionBookId);
+ if(!book){
+  showMessage("versionMessage","The selected book could not be found. Refresh the collection and try again.","error");
+  return;
+ }
+
+ const file=$("versionFile").files[0];
+ const summary=$("versionSummary").value.trim();
+
+ if(!file){
+  showMessage("versionMessage","Select the revised manuscript document.","error");
+  return;
+ }
+
+ if(!summary){
+  showMessage("versionMessage","Enter a summary of the changes in this revision.","error");
+  return;
+ }
+
+ try{
+  validateFile(file,"book");
+
+  $("uploadVersionBtn").disabled=true;
+  $("uploadVersionBtn").textContent="Uploading Version...";
+
+  showMessage("versionMessage","Preparing the revised manuscript upload...","info");
+
+  /* Determine the next version number for this book. */
+  const {data:existingVersions,error:fetchError}=await client
+   .from("literary_book_versions")
+   .select("version_number")
+   .eq("book_id",selectedVersionBookId)
+   .order("version_number",{ascending:false})
+   .limit(1);
+
+  if(fetchError)throw fetchError;
+
+  const latestNumber=existingVersions?.length
+   ?Number(existingVersions[0].version_number)||0
+   :0;
+
+  const nextVersion=latestNumber+1;
+
+  /*
+    Store the new manuscript under the administrator's own UID folder.
+    This preserves the existing storage ownership path convention.
+  */
+  const storagePath=
+   currentUser.id+
+   "/literature/versions/"+
+   selectedVersionBookId+"/"+
+   Date.now()+"-"+safeFileName(file.name);
+
+  showMessage("versionMessage","Uploading Version "+nextVersion+"...","info");
+
+  const {data:uploaded,error:uploadError}=await client.storage
+   .from(BUCKET)
+   .upload(storagePath,file,{
+    cacheControl:"3600",
+    upsert:false,
+    contentType:file.type||undefined
+   });
+
+  if(uploadError)throw uploadError;
+  if(!uploaded?.path)throw new Error("Supabase did not return a storage path.");
+
+  /*
+    New revisions remain Pending and cannot replace the current
+    published manuscript until the administrator approves them.
+  */
+  const versionRecord={
+   book_id:selectedVersionBookId,
+   version_number:nextVersion,
+   storage_path:uploaded.path,
+   change_summary:summary,
+   uploaded_by:currentUser.id,
+   review_status:"Pending",
+   is_current:false
+  };
+
+  const {error:insertError}=await client
+   .from("literary_book_versions")
+   .insert(versionRecord);
+
+  if(insertError){
+   /* Remove the uploaded file if its database record could not be created. */
+   await client.storage.from(BUCKET).remove([uploaded.path]);
+   throw insertError;
+  }
+
+  $("versionForm").reset();
+
+  showMessage(
+   "versionMessage",
+   "Version "+nextVersion+" uploaded successfully. It is now Pending administrator approval. The currently published manuscript has not been changed.",
+   "good"
+  );
+
+  await loadBookVersions(selectedVersionBookId);
+
+ }catch(error){
+  showMessage("versionMessage","Version upload failed: "+readableError(error),"error");
+ }finally{
+  $("uploadVersionBtn").disabled=false;
+  $("uploadVersionBtn").textContent="Upload New Version";
+ }
+}
+
+$("versionForm").addEventListener("submit",uploadBookVersion);
+
+$("refreshVersionsBtn").addEventListener("click",()=>{
+ if(selectedVersionBookId)loadBookVersions(selectedVersionBookId);
+});
+
+/* APPROVE OR REJECT A MANUSCRIPT VERSION */
+
+async function reviewBookVersion(versionId,decision,button){
+ const version=literaryVersions.find(item=>item.id===versionId);
+ if(!version)return;
+
+ if(version.review_status!=="Pending"){
+  showMessage("versionMessage","This manuscript version has already been reviewed.","error");
+  return;
+ }
+
+ const book=literaryBooks.find(item=>item.id===version.book_id);
+ const decisionLabel=decision==="approved"?"APPROVE":"REJECT";
+
+ const confirmation=
+  decisionLabel+" manuscript Version "+version.version_number+"?"+
+  "\n\nBook: "+(book?.title||"Unknown book")+
+  "\nVersion: "+version.version_number+
+  "\nCurrent status: "+version.review_status+
+  "\n\n"+
+  (decision==="approved"
+   ?"Approval will make this version the current manuscript and update the book's stored manuscript path."
+   :"Rejection will leave the currently published manuscript unchanged.");
+
+ if(!confirm(confirmation))return;
+
+ if(button)button.disabled=true;
+
+ showMessage(
+  "versionMessage",
+  "Submitting the manuscript review decision to the secure database...",
+  "info"
+ );
+
+ try{
+  const {data,error}=await client.rpc("masterbook_review_literary_book_version",{
+   p_version_id:versionId,
+   p_decision:decision
+  });
+
+  if(error)throw error;
+  if(data!==true)throw new Error("The database did not confirm the manuscript review.");
+
+  showMessage(
+   "versionMessage",
+   decision==="approved"
+    ?"Manuscript version approved. The database has updated the current manuscript."
+    :"Manuscript version rejected. The previously current manuscript remains unchanged.",
+   "good"
+  );
+
+  await loadBookVersions(selectedVersionBookId);
+  await loadBooks();
+
+ }catch(error){
+  showMessage("versionMessage","Manuscript review failed: "+readableError(error),"error");
+  if(button)button.disabled=false;
+ }
+}
+
+/* PREMIUM PAYMENT MANAGEMENT */
 
 function getBookForPayment(request){
  return literaryBooks.find(book=>book.id===request.book_id)||null;
@@ -1024,9 +1430,13 @@ client.auth.onAuthStateChange((event,session)=>{
   currentUser=null;
   literaryBooks=[];
   paymentRequests=[];
+  literaryVersions=[];
+  selectedVersionBookId=null;
+
   $("dashboard").classList.add("hidden");
   $("loginPanel").classList.remove("hidden");
   $("signOutBtn").classList.add("hidden");
+  $("versionPanel").classList.add("hidden");
  }
 });
 
