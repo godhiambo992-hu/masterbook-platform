@@ -608,6 +608,17 @@ welcomeText.textContent =
 
 function getRole(profile){
 
+/* ADMINISTRATOR HAS THE HIGHEST DISPLAY PRIORITY */
+
+if(profile.is_admin === true){
+return {
+name:"Administrator",
+title:"Administration Workspace",
+description:"Manage applications, review resources, oversee platform users and administer MASTERBOOK. Other assigned account roles remain accessible through their respective portals.",
+url:"admin.html"
+};
+}
+
 if(profile.requested_role === "student"){
 return {
 name:"Student",
@@ -652,15 +663,6 @@ name:"Contributor",
 title:"Contributor Workspace",
 description:"Submit educational content, research, coursebooks and monitor your submissions.",
 url:"contributor.html"
-};
-}
-
-if(profile.is_admin === true){
-return {
-name:"Administrator",
-title:"Administration Workspace",
-description:"Manage applications, review resources, oversee platform users and administer MASTERBOOK.",
-url:"admin.html"
 };
 }
 
@@ -724,13 +726,10 @@ welcomeTitle.textContent = "Welcome, " + displayName;
 welcomeText.textContent =
 "Your MASTERBOOK account is connected. Your personalized workspace is ready.";
 
-roleText.textContent = "Account type: " + role.name;
-
-if(profile.is_admin === true &&
-profile.requested_role === "student"){
-roleText.textContent +=
-" | Administrator access is also enabled.";
-}
+roleText.textContent =
+profile.is_admin === true
+? "Account type: Administrator | Additional portal access is retained."
+: "Account type: " + role.name;
 
 roleText.classList.remove("hidden");
 
