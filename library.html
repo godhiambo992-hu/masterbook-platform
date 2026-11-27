@@ -18,58 +18,54 @@
 <meta name="twitter:card" content="summary">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--navy:#10243e;--blue:#1769aa;--gold:#e5ad42;--light:#f4f7fb;--white:#fff;--text:#243449;--muted:#64748b;--border:#e1e7ef;--green:#16834a;--red:#b83232}
+:root{--navy:#10243e;--blue:#1769aa;--gold:#e5ad42;--light:#f4f7fb;--white:#fff;--text:#243449;--muted:#64748b;--border:#e1e7ef;--green:#16834a;--red:#b83232;--amber:#805400}
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;color:var(--text);background:var(--light)}
 header{background:var(--navy);color:white;padding:18px 6%;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
-.logo{font-size:24px;font-weight:bold;letter-spacing:2px;color:white;text-decoration:none}
-.logo span{color:var(--gold)}
+.logo{font-size:24px;font-weight:bold;letter-spacing:2px;color:white;text-decoration:none}.logo span{color:var(--gold)}
 header a{color:white;text-decoration:none}
 main{max-width:1250px;margin:auto;padding:30px 5%;min-height:65vh}
 .hero{background:linear-gradient(120deg,var(--navy),var(--blue));color:white;padding:45px 25px;border-radius:13px;text-align:center}
-.hero h1{font-size:32px;margin:0 0 12px}
-.hero p{color:#e4edf7;line-height:1.7;max-width:700px;margin:auto}
+.hero h1{font-size:32px;margin:0 0 12px}.hero p{color:#e4edf7;line-height:1.7;max-width:700px;margin:auto}
 .heading{margin:30px 0 15px;color:var(--navy)}
 .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:22px 0}
-.summary-card{background:white;padding:17px;border:1px solid var(--border);border-radius:9px}
-.summary-card strong{display:block;color:var(--blue);font-size:25px;margin-top:7px}
+.summary-card{background:white;padding:17px;border:1px solid var(--border);border-radius:9px}.summary-card strong{display:block;color:var(--blue);font-size:25px;margin-top:7px}
 .controls{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin:20px 0}
 input,select{width:100%;padding:13px;border:1px solid #ccd5e1;border-radius:7px;font-size:15px;background:white;color:var(--text)}
-button{border:0;border-radius:7px;padding:12px 16px;font-weight:bold;cursor:pointer}
-button:disabled{opacity:.5;cursor:not-allowed}
+button{border:0;border-radius:7px;padding:12px 16px;font-weight:bold;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}
 .primary{background:var(--blue);color:white}.secondary{background:var(--navy);color:white}
 .status{margin:15px 0;padding:13px;border-radius:7px;background:#e8f1fb;color:var(--navy);font-size:14px;line-height:1.6;overflow-wrap:anywhere}
 .status.error{background:#fde8e8;color:var(--red)}.status.success{background:#e4f5e9;color:var(--green)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;align-items:stretch}
-.card{background:white;padding:21px;border-radius:10px;border:1px solid var(--border);box-shadow:0 3px 10px #10243e08;display:flex;flex-direction:column;min-width:0}
-.card h3{color:var(--navy);line-height:1.4;margin:10px 0;overflow-wrap:anywhere}
-.card p{font-size:14px;line-height:1.7;overflow-wrap:anywhere}
-.tag,.format-tag,.access-tag{display:inline-block;align-self:flex-start;padding:5px 10px;border-radius:20px;font-size:12px}
-.tag{background:#e8f1fb;color:var(--blue)}
-.format-tag{background:#fff3d9;color:#805400;font-weight:bold;border-radius:5px;margin-top:8px}
-.access-tag.free{background:#e4f5e9;color:#176b3b}.access-tag.premium{background:#fff0cf;color:#805400}
+.card,.purchase-card{background:white;padding:21px;border-radius:10px;border:1px solid var(--border);box-shadow:0 3px 10px #10243e08;min-width:0}
+.card{display:flex;flex-direction:column}.card h3{color:var(--navy);line-height:1.4;margin:10px 0;overflow-wrap:anywhere}
+.card p,.purchase-card p{font-size:14px;line-height:1.7;overflow-wrap:anywhere}
+.tag,.format-tag,.access-tag,.status-pill{display:inline-block;align-self:flex-start;padding:5px 10px;border-radius:20px;font-size:12px}
+.tag{background:#e8f1fb;color:var(--blue)}.format-tag{background:#fff3d9;color:#805400;font-weight:bold;border-radius:5px;margin-top:8px}
+.access-tag.free,.status-pill.paid,.status-pill.active{background:#e4f5e9;color:#176b3b}
+.access-tag.premium,.status-pill.pending{background:#fff0cf;color:#805400}
+.status-pill.failed,.status-pill.rejected,.status-pill.revoked,.status-pill.expired{background:#fde8e8;color:#a32121}
 .meta{font-size:12px;color:var(--muted);line-height:1.8;margin:8px 0}
 .price{font-size:21px;font-weight:bold;color:var(--navy);margin:10px 0}
 .resource-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:auto;padding-top:15px}
 .resource-actions button{flex:1;min-width:110px;font-size:13px}
 .view-button{background:var(--blue);color:white}.download-button{background:var(--navy);color:white}
 .purchase-panel{border-top:1px solid var(--border);margin-top:16px;padding-top:14px}
-.purchase-panel h4{margin:0 0 8px;color:var(--navy)}
-.purchase-panel p{font-size:13px;color:var(--muted)}
-.purchase-panel input{margin:6px 0}
-.purchase-panel button{width:100%;margin-top:7px}
+.purchase-panel h4{margin:0 0 8px;color:var(--navy)}.purchase-panel p{font-size:13px;color:var(--muted)}
+.purchase-panel input{margin:6px 0}.purchase-panel button{width:100%;margin-top:7px}
 .empty{display:none;text-align:center;padding:35px 20px;color:var(--muted);background:white;border-radius:10px;margin:15px 0}
 .pagination{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:25px 0}
 .pagination button{background:var(--navy);color:white}.pagination button:disabled{background:#aab6c3}
-#pageInfo{font-size:14px;color:var(--muted)}
-.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:15px 0}
-.account-panel{background:white;border:1px solid var(--border);border-radius:10px;padding:18px;margin:20px 0}
-.account-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.account-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-.account-actions button{flex:1}
-.small{font-size:12px;color:var(--muted);line-height:1.6}
-footer{background:var(--navy);color:white;text-align:center;padding:25px;margin-top:45px;font-size:13px}
-footer p{color:#d3dfed}
+#pageInfo{font-size:14px;color:var(--muted)}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:15px 0}
+.account-panel,.history-panel{background:white;border:1px solid var(--border);border-radius:10px;padding:18px;margin:20px 0}
+.account-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.account-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.account-actions button{flex:1}.small{font-size:12px;color:var(--muted);line-height:1.6}
+.history-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.history-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.purchase-card h3{margin:8px 0;color:var(--navy);font-size:17px}.purchase-card .meta{overflow-wrap:anywhere}
+.history-empty{padding:18px;background:#f4f7fb;border-radius:8px;color:var(--muted);line-height:1.6}
+.hidden{display:none!important}
+footer{background:var(--navy);color:white;text-align:center;padding:25px;margin-top:45px;font-size:13px}footer p{color:#d3dfed}
 @media(max-width:700px){main{padding:22px 4%}.hero{padding:35px 18px}.hero h1{font-size:25px}.controls,.account-grid{grid-template-columns:1fr}.resource-actions button{min-width:100px}}
 </style>
 </head>
@@ -108,10 +104,22 @@ footer p{color:#d3dfed}
     </div>
   </div>
   <div id="signedInControls" hidden>
-    <div class="account-actions">
-      <button id="signOutButton" class="secondary" type="button">Sign Out</button>
-    </div>
+    <div class="account-actions"><button id="signOutButton" class="secondary" type="button">Sign Out</button></div>
   </div>
+</section>
+
+<section class="history-panel" id="myPurchases" aria-labelledby="purchasesHeading">
+  <h2 id="purchasesHeading" class="heading" style="margin:0 0 8px">My Purchases & Premium Access</h2>
+  <p class="small" id="purchaseIntro">Sign in to view your submitted payment requests, approval status and unlocked Premium resources.</p>
+  <div class="history-toolbar">
+    <button id="refreshPurchases" class="primary" type="button" disabled>↻ Refresh My Purchases</button>
+    <span class="small" id="purchaseUpdated"></span>
+  </div>
+  <div id="purchaseStatus" class="status">Your purchase history will appear here after you sign in.</div>
+  <h3 class="heading" style="font-size:17px">Payment History</h3>
+  <div id="paymentHistory" class="history-grid"><div class="history-empty">No payment history loaded.</div></div>
+  <h3 class="heading" style="font-size:17px">Unlocked Premium Resources</h3>
+  <div id="entitlementHistory" class="history-grid"><div class="history-empty">Your approved Premium resources will appear here.</div></div>
 </section>
 
 <h2 class="heading">Explore Educational Resources</h2>
@@ -138,16 +146,10 @@ footer p{color:#d3dfed}
   <button id="nextPage" type="button" disabled>Next →</button>
 </div>
 </main>
-<footer>
-  <strong>MASTERBOOK</strong>
-  <p>Learning Without Boundaries.</p>
-  <p>© 2026 MASTERBOOK | G.O. Odhiambo</p>
-</footer>
+<footer><strong>MASTERBOOK</strong><p>Learning Without Boundaries.</p><p>© 2026 MASTERBOOK | G.O. Odhiambo</p></footer>
 
 <script>
 "use strict";
-
-/* MASTERBOOK Supabase configuration */
 const SUPABASE_URL = "https://bxsrhvcqjjtdnflhoplu.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_DSUz-W5eeLBioVBQ1HywoQ_Rp4f3nur";
 const BUCKET_NAME = "masterbook-resources";
@@ -171,369 +173,270 @@ if (!window.supabase) {
   statusBox.classList.add("error");
   throw new Error("Supabase JavaScript library is unavailable.");
 }
-
 const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
 });
-
 let resources = [];
 let filteredResources = [];
 let currentPage = 1;
 let loading = false;
 let currentUser = null;
+let purchaseLoading = false;
 
-const formats = {
-  pdf:"PDF",docx:"DOCX",doc:"DOC",pptx:"PPTX",ppt:"PPT",
-  xlsx:"XLSX",xls:"XLS",csv:"CSV",txt:"TXT",rtf:"RTF",
-  jpg:"JPG",jpeg:"JPEG",png:"PNG",gif:"GIF",webp:"WEBP",
-  bmp:"BMP",svg:"SVG",tif:"TIF",tiff:"TIFF",avif:"AVIF"
-};
-
-function el(tag, className, text) {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (text !== undefined && text !== null) node.textContent = String(text);
-  return node;
-}
-function setStatus(message, type) {
-  statusBox.textContent = message;
-  statusBox.className = "status" + (type ? " " + type : "");
-}
-function setAuthMessage(message, type) {
-  $("authMessage").textContent = message;
-  $("authMessage").style.color = type === "error" ? "#b83232" : type === "success" ? "#16834a" : "";
-}
-function formatDate(value) {
-  if (!value) return "Date unavailable";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "Date unavailable" :
-    date.toLocaleDateString("en-KE", {year:"numeric",month:"short",day:"numeric"});
-}
-function extensionFromPath(path) {
-  const filename = String(path || "").split("?")[0].split("#")[0].split("/").pop() || "";
-  const dot = filename.lastIndexOf(".");
-  return dot < 0 ? "" : filename.slice(dot + 1).toLowerCase();
-}
-function formatFor(resource) {
-  const ext = extensionFromPath(resource.storage_path || resource.file_name);
-  return formats[ext] ? formats[ext] : (resource.resource_type || "DOCUMENT").toUpperCase();
-}
-function money(value) {
-  const amount = Number(value);
-  return Number.isFinite(amount) ? "KSh " + amount.toLocaleString("en-KE", {maximumFractionDigits:2}) : "Price unavailable";
-}
-function updateAuthUI(user) {
-  currentUser = user || null;
-  $("authForms").hidden = !!currentUser;
-  $("signedInControls").hidden = !currentUser;
-  $("accountIndicator").textContent = currentUser ? "Signed in: " + (currentUser.email || "Learner") : "Not signed in";
-  if (currentUser) setAuthMessage("You are signed in. You can submit M-Pesa payment details for Premium resources.", "success");
-  else setAuthMessage("Sign in or create a learner account to submit Premium resource payment details and access purchases.");
-  renderLibrary();
-}
-async function signIn() {
-  const email = $("authEmail").value.trim();
-  const password = $("authPassword").value;
-  if (!email || !password) return setAuthMessage("Enter your email address and password.", "error");
-  $("signInButton").disabled = true;
-  try {
-    const {error} = await client.auth.signInWithPassword({email,password});
-    if (error) throw error;
-    setAuthMessage("Signed in successfully.", "success");
-  } catch (error) {
-    setAuthMessage("Sign-in failed: " + error.message, "error");
-  } finally { $("signInButton").disabled = false; }
-}
-async function signUp() {
-  const email = $("authEmail").value.trim();
-  const password = $("authPassword").value;
-  if (!email || !password) return setAuthMessage("Enter an email address and password.", "error");
-  if (password.length < 6) return setAuthMessage("Use a password with at least 6 characters.", "error");
-  $("signUpButton").disabled = true;
-  try {
-    const {data,error} = await client.auth.signUp({email,password});
-    if (error) throw error;
-    if (data.session) setAuthMessage("Account created and signed in successfully.", "success");
-    else setAuthMessage("Account created. Check your email for the confirmation link, then sign in.", "success");
-  } catch (error) {
-    setAuthMessage("Account creation failed: " + error.message, "error");
-  } finally { $("signUpButton").disabled = false; }
-}
-async function signOut() {
-  const {error} = await client.auth.signOut();
-  if (error) setAuthMessage("Sign-out failed: " + error.message, "error");
-  else setAuthMessage("You have signed out.", "success");
-}
-
-function updateSummary() {
-  $("resourceCount").textContent = resources.length;
-  $("subjectCount").textContent = new Set(resources.map(r => r.subject).filter(Boolean)).size;
-  $("levelCount").textContent = new Set(resources.map(r => r.education_level).filter(Boolean)).size;
-  $("premiumCount").textContent = resources.filter(r => r.access_tier === "Premium").length;
-}
-function updateFilterOptions() {
-  const oldSubject = category.value;
-  const oldLevel = level.value;
-  const subjects = [...new Set(resources.map(r => r.subject).filter(Boolean))].sort((a,b) => a.localeCompare(b));
-  const levels = [...new Set(resources.map(r => r.education_level).filter(Boolean))].sort((a,b) => a.localeCompare(b));
-  category.replaceChildren(new Option("All Subjects",""));
-  level.replaceChildren(new Option("All Education Levels",""));
-  subjects.forEach(value => category.add(new Option(value,value)));
-  levels.forEach(value => level.add(new Option(value,value)));
-  if (subjects.includes(oldSubject)) category.value = oldSubject;
-  if (levels.includes(oldLevel)) level.value = oldLevel;
-}
-function applyFilters() {
-  const term = search.value.trim().toLowerCase();
-  filteredResources = resources.filter(r => {
-    const haystack = [r.title,r.description,r.subject,r.education_level,r.resource_type,r.curriculum]
-      .filter(Boolean).join(" ").toLowerCase();
-    return (!term || haystack.includes(term)) &&
-      (!level.value || r.education_level === level.value) &&
-      (!category.value || r.subject === category.value);
-  });
-  currentPage = 1;
-  renderLibrary();
-}
-function updatePagination(totalPages) {
-  $("previousPage").disabled = currentPage <= 1;
-  $("nextPage").disabled = currentPage >= totalPages;
-  $("pageInfo").textContent = "Page " + currentPage + " of " + totalPages;
-  $("pagination").style.display = filteredResources.length ? "flex" : "none";
-}
-function renderLibrary() {
-  if (!library) return;
-  library.replaceChildren();
-  const total = filteredResources.length;
-  if (!total) {
-    empty.style.display = "block";
-    updatePagination(1);
-    return;
+const formats = {pdf:"PDF",docx:"DOCX",doc:"DOC",pptx:"PPTX",ppt:"PPT",xlsx:"XLSX",xls:"XLS",csv:"CSV",txt:"TXT",rtf:"RTF",jpg:"JPG",jpeg:"JPEG",png:"PNG",gif:"GIF",webp:"WEBP",bmp:"BMP",svg:"SVG",tif:"TIF",tiff:"TIFF",avif:"AVIF"};
+function el(tag,className,text){const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined&&text!==null)node.textContent=String(text);return node;}
+function setStatus(message,type){statusBox.textContent=message;statusBox.className="status"+(type?" "+type:"");}
+function setPurchaseStatus(message,type){$("purchaseStatus").textContent=message;$("purchaseStatus").className="status"+(type?" "+type:"");}
+function setAuthMessage(message,type){$("authMessage").textContent=message;$("authMessage").style.color=type==="error"?"#b83232":type==="success"?"#16834a":"";}
+function formatDate(value){if(!value)return"Date unavailable";const d=new Date(value);return Number.isNaN(d.getTime())?"Date unavailable":d.toLocaleString("en-KE",{dateStyle:"medium",timeStyle:"short"});}
+function extensionFromPath(path){const f=String(path||"").split("?")[0].split("#")[0].split("/").pop()||"";const i=f.lastIndexOf(".");return i<0?"":f.slice(i+1).toLowerCase();}
+function formatFor(r){const ext=extensionFromPath(r.file_name);return formats[ext]||String(r.resource_type||"DOCUMENT").toUpperCase();}
+function money(v){const n=Number(v);return Number.isFinite(n)?"KSh "+n.toLocaleString("en-KE",{maximumFractionDigits:2}):"Price unavailable";}
+function statusClass(value){const s=String(value||"").toLowerCase();if(["paid","active"].includes(s))return s;if(["pending","processing"].includes(s))return"pending";if(["failed","rejected"].includes(s))return"rejected";if(["expired","revoked","cancelled","reversed"].includes(s))return"expired";return"pending";}
+function resourceName(productId){const p=resources.find(r=>r.product_id===productId);return p?p.title:"MASTERBOOK Premium Resource";}
+function updateAuthUI(user){
+  currentUser=user||null;
+  $("authForms").hidden=!!currentUser;
+  $("signedInControls").hidden=!currentUser;
+  $("accountIndicator").textContent=currentUser?"Signed in: "+(currentUser.email||"Learner"):"Not signed in";
+  $("refreshPurchases").disabled=!currentUser;
+  $("purchaseIntro").textContent=currentUser?"Your payment requests and approved Premium access are linked to this learner account.":"Sign in to view your submitted payment requests, approval status and unlocked Premium resources.";
+  if(currentUser){setAuthMessage("You are signed in. You can submit M-Pesa payment details and review your purchases.","success");loadMyPurchases();}
+  else{
+    setAuthMessage("Sign in or create a learner account to submit Premium resource payment details and access purchases.");
+    $("paymentHistory").replaceChildren(el("div","history-empty","Sign in to view your payment history."));
+    $("entitlementHistory").replaceChildren(el("div","history-empty","Sign in to view your unlocked Premium resources."));
+    setPurchaseStatus("Your purchase history will appear here after you sign in.");
+    $("purchaseUpdated").textContent="";
   }
-  empty.style.display = "none";
-  const pages = Math.max(1,Math.ceil(total/PAGE_SIZE));
-  currentPage = Math.min(currentPage,pages);
-  const start = (currentPage-1)*PAGE_SIZE;
-  filteredResources.slice(start,start+PAGE_SIZE).forEach(resource => library.appendChild(createCard(resource)));
+  renderLibrary();
+}
+async function signIn(){
+  const email=$("authEmail").value.trim(),password=$("authPassword").value;
+  if(!email||!password)return setAuthMessage("Enter your email address and password.","error");
+  $("signInButton").disabled=true;
+  try{const{error}=await client.auth.signInWithPassword({email,password});if(error)throw error;setAuthMessage("Signed in successfully.","success");}
+  catch(e){setAuthMessage("Sign-in failed: "+e.message,"error");}
+  finally{$("signInButton").disabled=false;}
+}
+async function signUp(){
+  const email=$("authEmail").value.trim(),password=$("authPassword").value;
+  if(!email||!password)return setAuthMessage("Enter an email address and password.","error");
+  if(password.length<6)return setAuthMessage("Use a password with at least 6 characters.","error");
+  $("signUpButton").disabled=true;
+  try{const{data,error}=await client.auth.signUp({email,password});if(error)throw error;if(data.session)setAuthMessage("Account created and signed in successfully.","success");else setAuthMessage("Account created. Check your email for the confirmation link, then sign in.","success");}
+  catch(e){setAuthMessage("Account creation failed: "+e.message,"error");}
+  finally{$("signUpButton").disabled=false;}
+}
+async function signOut(){const{error}=await client.auth.signOut();if(error)setAuthMessage("Sign-out failed: "+error.message,"error");else setAuthMessage("You have signed out.","success");}
+
+async function loadMyPurchases(){
+  if(!currentUser||purchaseLoading)return;
+  purchaseLoading=true;
+  $("refreshPurchases").disabled=true;
+  $("refreshPurchases").textContent="Loading...";
+  setPurchaseStatus("Retrieving your payment history and Premium access...");
+  try{
+    const [paymentsResult,entitlementsResult]=await Promise.all([
+      client.from("masterbook_payments")
+        .select("id,product_id,amount_kes,currency,phone_number,payment_status,mpesa_receipt_number,created_at,paid_at,admin_note,reviewed_at")
+        .eq("student_id",currentUser.id)
+        .order("created_at",{ascending:false}),
+      client.from("masterbook_entitlements")
+        .select("id,product_id,source_payment_id,entitlement_status,starts_at,expires_at")
+        .eq("student_id",currentUser.id)
+        .order("starts_at",{ascending:false})
+    ]);
+    if(paymentsResult.error)throw new Error("Payment history: "+paymentsResult.error.message);
+    if(entitlementsResult.error)throw new Error("Premium access: "+entitlementsResult.error.message);
+    const payments=paymentsResult.data||[];
+    const entitlements=entitlementsResult.data||[];
+    renderPaymentHistory(payments);
+    renderEntitlements(entitlements,payments);
+    const pending=payments.filter(p=>["pending","processing"].includes(String(p.payment_status).toLowerCase())).length;
+    const approved=payments.filter(p=>String(p.payment_status).toLowerCase()==="paid").length;
+    setPurchaseStatus("Purchase records loaded: "+payments.length+" payment request(s), "+approved+" approved and "+pending+" awaiting review.","success");
+    $("purchaseUpdated").textContent="Updated "+new Date().toLocaleTimeString("en-KE");
+  }catch(e){
+    console.error("MASTERBOOK purchase history error:",e);
+    setPurchaseStatus("Could not load purchase history: "+e.message,"error");
+    $("paymentHistory").replaceChildren(el("div","history-empty","Payment history is temporarily unavailable. Please refresh or contact support."));
+  }finally{
+    purchaseLoading=false;
+    $("refreshPurchases").disabled=!currentUser;
+    $("refreshPurchases").textContent="↻ Refresh My Purchases";
+  }
+}
+function renderPaymentHistory(payments){
+  const host=$("paymentHistory");host.replaceChildren();
+  if(!payments.length){host.appendChild(el("div","history-empty","You have not submitted any Premium resource payment requests yet."));return;}
+  payments.forEach(p=>{
+    const card=el("article","purchase-card");
+    card.appendChild(el("span","status-pill "+statusClass(p.payment_status),String(p.payment_status||"Unknown").toUpperCase()));
+    card.appendChild(el("h3","",resourceName(p.product_id)));
+    card.appendChild(el("p","",money(p.amount_kes)+" · "+(p.currency||"KES")));
+    card.appendChild(el("div","meta","Submitted: "+formatDate(p.created_at)));
+    card.appendChild(el("div","meta","M-Pesa receipt: "+(p.mpesa_receipt_number||"Not recorded")));
+    if(p.phone_number)card.appendChild(el("div","meta","Phone: "+p.phone_number));
+    if(p.paid_at)card.appendChild(el("div","meta","Approved/paid: "+formatDate(p.paid_at)));
+    if(p.reviewed_at)card.appendChild(el("div","meta","Reviewed: "+formatDate(p.reviewed_at)));
+    if(p.admin_note)card.appendChild(el("p","small","Administrator note: "+p.admin_note));
+    const s=String(p.payment_status||"").toLowerCase();
+    if(["pending","processing"].includes(s))card.appendChild(el("p","small","Your payment is awaiting administrator verification. Premium access is not activated until approval."));
+    if(s==="paid")card.appendChild(el("p","small","Payment approved. Check the Premium access section below."));
+    if(["failed","cancelled","reversed","expired"].includes(s))card.appendChild(el("p","small","This payment was not approved. Contact MASTERBOOK support if you believe this is an error."));
+    host.appendChild(card);
+  });
+}
+function renderEntitlements(entitlements,payments){
+  const host=$("entitlementHistory");host.replaceChildren();
+  if(!entitlements.length){host.appendChild(el("div","history-empty","No Premium resources have been unlocked on this account yet. Approved purchases will appear here."));return;}
+  entitlements.forEach(e=>{
+    const card=el("article","purchase-card");
+    const state=String(e.entitlement_status||"unknown").toLowerCase();
+    card.appendChild(el("span","status-pill "+statusClass(state),state.toUpperCase()));
+    card.appendChild(el("h3","",resourceName(e.product_id)));
+    card.appendChild(el("div","meta","Access begins: "+formatDate(e.starts_at)));
+    card.appendChild(el("div","meta","Access expires: "+(e.expires_at?formatDate(e.expires_at):"No expiry recorded")));
+    const payment=payments.find(p=>p.id===e.source_payment_id);
+    if(payment)card.appendChild(el("div","meta","Payment receipt: "+(payment.mpesa_receipt_number||"Not recorded")));
+    if(state==="active"){
+      const note=el("p","small","Your Premium entitlement is active. Open the resource from the Library below while signed in.");
+      card.appendChild(note);
+    }else{
+      card.appendChild(el("p","small","This entitlement is not currently active. Contact MASTERBOOK support if you need assistance."));
+    }
+    host.appendChild(card);
+  });
+}
+
+function updateSummary(){
+  $("resourceCount").textContent=resources.length;
+  $("subjectCount").textContent=new Set(resources.map(r=>r.subject).filter(Boolean)).size;
+  $("levelCount").textContent=new Set(resources.map(r=>r.education_level).filter(Boolean)).size;
+  $("premiumCount").textContent=resources.filter(r=>r.access_tier==="Premium").length;
+}
+function updateFilterOptions(){
+  const oldSubject=category.value,oldLevel=level.value;
+  const subjects=[...new Set(resources.map(r=>r.subject).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  const levels=[...new Set(resources.map(r=>r.education_level).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  category.replaceChildren(new Option("All Subjects",""));level.replaceChildren(new Option("All Education Levels",""));
+  subjects.forEach(v=>category.add(new Option(v,v)));levels.forEach(v=>level.add(new Option(v,v)));
+  if(subjects.includes(oldSubject))category.value=oldSubject;if(levels.includes(oldLevel))level.value=oldLevel;
+}
+function applyFilters(){
+  const term=search.value.trim().toLowerCase();
+  filteredResources=resources.filter(r=>{
+    const hay=[r.title,r.description,r.subject,r.education_level,r.resource_type,r.curriculum].filter(Boolean).join(" ").toLowerCase();
+    return(!term||hay.includes(term))&&(!level.value||r.education_level===level.value)&&(!category.value||r.subject===category.value);
+  });
+  currentPage=1;renderLibrary();
+}
+function updatePagination(pages){
+  $("previousPage").disabled=currentPage<=1;$("nextPage").disabled=currentPage>=pages;
+  $("pageInfo").textContent="Page "+currentPage+" of "+pages;
+  $("pagination").style.display=filteredResources.length?"flex":"none";
+}
+function renderLibrary(){
+  library.replaceChildren();
+  if(!filteredResources.length){empty.style.display="block";updatePagination(1);return;}
+  empty.style.display="none";
+  const pages=Math.max(1,Math.ceil(filteredResources.length/PAGE_SIZE));currentPage=Math.min(currentPage,pages);
+  const start=(currentPage-1)*PAGE_SIZE;
+  filteredResources.slice(start,start+PAGE_SIZE).forEach(r=>library.appendChild(createCard(r)));
   updatePagination(pages);
 }
-function createCard(resource) {
-  const card = el("article","card");
-  card.appendChild(el("span","tag",resource.education_level || "Education"));
+function createCard(resource){
+  const card=el("article","card");
+  card.appendChild(el("span","tag",resource.education_level||"Education"));
   card.appendChild(el("span","format-tag",formatFor(resource)));
-  card.appendChild(el("h3","",resource.title || "Untitled resource"));
-  card.appendChild(el("p","",resource.description || "Educational learning resource."));
+  card.appendChild(el("h3","",resource.title||"Untitled resource"));
+  card.appendChild(el("p","",resource.description||"Educational learning resource."));
   card.appendChild(el("div","meta",[resource.subject,resource.resource_type,resource.curriculum].filter(Boolean).join(" · ")));
-  card.appendChild(el("div","meta","Added: " + formatDate(resource.created_at)));
-
-  const premium = resource.access_tier === "Premium";
-  card.appendChild(el("span","access-tag " + (premium ? "premium" : "free"),premium ? "PREMIUM RESOURCE" : "FREE RESOURCE"));
-  if (premium) card.appendChild(el("div","price",money(resource.price_kes)));
-
-  const actions = el("div","resource-actions");
-  const openButton = el("button","view-button",premium ? "Check / Open Access" : "View Document");
-  openButton.type = "button";
-  openButton.addEventListener("click",() => openResource(resource,false,openButton));
-  actions.appendChild(openButton);
-  if (!premium) {
-    const downloadButton = el("button","download-button","Download Original");
-    downloadButton.type = "button";
-    downloadButton.addEventListener("click",() => openResource(resource,true,downloadButton));
-    actions.appendChild(downloadButton);
-  }
+  card.appendChild(el("div","meta","Added: "+formatDate(resource.created_at)));
+  const premium=resource.access_tier==="Premium";
+  card.appendChild(el("span","access-tag "+(premium?"premium":"free"),premium?"PREMIUM RESOURCE":"FREE RESOURCE"));
+  if(premium)card.appendChild(el("div","price",money(resource.price_kes)));
+  const actions=el("div","resource-actions");
+  const openButton=el("button","view-button",premium?"Check / Open Access":"View Document");
+  openButton.type="button";openButton.addEventListener("click",()=>openResource(resource,false,openButton));actions.appendChild(openButton);
+  if(!premium){const d=el("button","download-button","Download Original");d.type="button";d.addEventListener("click",()=>openResource(resource,true,d));actions.appendChild(d);}
   card.appendChild(actions);
-
-  if (premium) card.appendChild(createPurchasePanel(resource));
+  if(premium)card.appendChild(createPurchasePanel(resource));
   return card;
 }
-function createPurchasePanel(resource) {
-  const panel = el("section","purchase-panel");
-  panel.appendChild(el("h4","","Purchase this resource"));
-  panel.appendChild(el("p","","Pay " + money(resource.price_kes) + " to M-Pesa Buy Goods Till Number " + TILL_NUMBER + ". Enter the transaction receipt below. Access is granted only after administrator verification."));
-  const phone = document.createElement("input");
-  phone.type = "tel"; phone.autocomplete = "tel"; phone.placeholder = "M-Pesa phone number (e.g. 07XXXXXXXX)";
-  phone.setAttribute("aria-label","M-Pesa phone number");
-  const receipt = document.createElement("input");
-  receipt.type = "text"; receipt.autocomplete = "off"; receipt.placeholder = "M-Pesa transaction code";
-  receipt.setAttribute("aria-label","M-Pesa transaction code");
-  const submit = el("button","primary",currentUser ? "Submit payment details" : "Sign in to purchase");
-  submit.type = "button";
-  if (currentUser) {
-    submit.addEventListener("click",() => submitPayment(resource,phone.value,receipt.value,submit));
-  } else {
-    phone.disabled = true; receipt.disabled = true;
-    submit.addEventListener("click",() => {
-      $("authEmail").focus();
-      setAuthMessage("Please sign in or create a learner account before submitting a Premium payment.", "error");
-      $("accountHeading").scrollIntoView({behavior:"smooth",block:"center"});
-    });
-  }
-  panel.appendChild(phone);
-  panel.appendChild(receipt);
-  panel.appendChild(submit);
-  panel.appendChild(el("p","small","Keep your M-Pesa confirmation message. Do not submit a receipt until the payment has actually succeeded. Do not share your M-Pesa PIN."));
+function createPurchasePanel(resource){
+  const panel=el("section","purchase-panel");panel.appendChild(el("h4","","Purchase this resource"));
+  panel.appendChild(el("p","","Pay "+money(resource.price_kes)+" to M-Pesa Buy Goods Till Number "+TILL_NUMBER+". Enter the transaction receipt below. Access is granted only after administrator verification."));
+  const phone=document.createElement("input");phone.type="tel";phone.autocomplete="tel";phone.placeholder="M-Pesa phone number (e.g. 07XXXXXXXX)";phone.setAttribute("aria-label","M-Pesa phone number");
+  const receipt=document.createElement("input");receipt.type="text";receipt.autocomplete="off";receipt.placeholder="M-Pesa transaction code";receipt.setAttribute("aria-label","M-Pesa transaction code");
+  const submit=el("button","primary",currentUser?"Submit payment details":"Sign in to purchase");submit.type="button";
+  if(currentUser)submit.addEventListener("click",()=>submitPayment(resource,phone.value,receipt.value,submit));
+  else{phone.disabled=true;receipt.disabled=true;submit.addEventListener("click",()=>{$("authEmail").focus();setAuthMessage("Please sign in or create a learner account before submitting a Premium payment.","error");$("accountHeading").scrollIntoView({behavior:"smooth",block:"center"});});}
+  panel.appendChild(phone);panel.appendChild(receipt);panel.appendChild(submit);
+  panel.appendChild(el("p","small","Keep your M-Pesa confirmation message. Do not submit a receipt until the payment has actually succeeded. Never share your M-Pesa PIN."));
   return panel;
 }
-function normalizePhone(value) {
-  let phone = String(value || "").replace(/[^\d+]/g,"");
-  if (phone.startsWith("+")) phone = phone.slice(1);
-  if (phone.startsWith("0") && phone.length === 10) phone = "254" + phone.slice(1);
-  if (phone.startsWith("7") && phone.length === 9) phone = "254" + phone;
-  if (phone.startsWith("1") && phone.length === 9) phone = "254" + phone;
-  return /^254[17]\d{8}$/.test(phone) ? "+" + phone : null;
+function normalizePhone(value){
+  let p=String(value||"").replace(/[^\d+]/g,"");if(p.startsWith("+"))p=p.slice(1);
+  if(p.startsWith("0")&&p.length===10)p="254"+p.slice(1);
+  if((p.startsWith("7")||p.startsWith("1"))&&p.length===9)p="254"+p;
+  return/^254[17]\d{8}$/.test(p)?"+"+p:null;
 }
-async function submitPayment(resource,phoneValue,receiptValue,button) {
-  if (!currentUser) return setAuthMessage("Sign in before submitting a payment.", "error");
-  const phone = normalizePhone(phoneValue);
-  const receipt = String(receiptValue || "").trim().toUpperCase();
-  if (!phone) return setStatus("Enter a valid Kenyan M-Pesa phone number, for example 0712345678.", "error");
-  if (!receipt || receipt.length < 6 || receipt.length > 30) return setStatus("Enter the M-Pesa transaction code from your successful payment message.", "error");
-  if (!resource.product_id) return setStatus("This Premium resource has no active product configured. Please contact MASTERBOOK support.", "error");
-  button.disabled = true;
-  const oldText = button.textContent;
-  button.textContent = "Submitting...";
-  try {
-    const {data,error} = await client.rpc(PAYMENT_RPC,{
-      p_product_id:resource.product_id,
-      p_phone_number:phone,
-      p_mpesa_receipt_number:receipt
-    });
-    if (error) throw error;
-    setStatus("Payment details submitted successfully. Your payment is pending administrator verification. Premium access will become available after approval.", "success");
-    button.textContent = "Submitted — awaiting review";
-    button.disabled = true;
-  } catch (error) {
-    console.error("MASTERBOOK payment submission error:",error);
-    setStatus("Payment submission failed: " + error.message, "error");
-    button.disabled = false;
-    button.textContent = oldText;
-  }
+async function submitPayment(resource,phoneValue,receiptValue,button){
+  if(!currentUser)return setAuthMessage("Sign in before submitting a payment.","error");
+  const phone=normalizePhone(phoneValue),receipt=String(receiptValue||"").trim().toUpperCase();
+  if(!phone)return setStatus("Enter a valid Kenyan M-Pesa phone number, for example 0712345678.","error");
+  if(!receipt||receipt.length<6||receipt.length>30)return setStatus("Enter the M-Pesa transaction code from your successful payment message.","error");
+  if(!resource.product_id)return setStatus("This Premium resource has no active product configured. Please contact MASTERBOOK support.","error");
+  button.disabled=true;const old=button.textContent;button.textContent="Submitting...";
+  try{
+    const{error}=await client.rpc(PAYMENT_RPC,{p_product_id:resource.product_id,p_phone_number:phone,p_mpesa_receipt_number:receipt});
+    if(error)throw error;
+    setStatus("Payment details submitted. Your request is pending administrator verification. Premium access will be granted only after approval.","success");
+    button.textContent="Submitted — awaiting review";button.disabled=true;
+    await loadMyPurchases();
+  }catch(e){console.error("MASTERBOOK payment submission error:",e);setStatus("Payment submission failed: "+e.message,"error");button.disabled=false;button.textContent=old;}
 }
-async function openResource(resource,download,button) {
-  let popup = null;
-  if (!download) {
-    popup = window.open("about:blank","_blank");
-    if (!popup) return setStatus("Your browser blocked the new tab. Allow pop-ups and try again.","error");
-  }
-  const oldText = button.textContent;
-  button.disabled = true;
-  button.textContent = "Checking access...";
-  try {
-    if (resource.access_tier === "Premium" && !currentUser) {
-      throw new Error("Sign in to check your Premium access.");
-    }
-    /* RLS must authorize this row. For Premium resources, the existing
-       learner policy should return it only when the learner has an active
-       entitlement backed by an approved payment. */
-    const {data,error} = await client.from("resources")
-      .select("storage_path,title")
-      .eq("id",resource.resource_id)
-      .eq("status","Published")
-      .single();
-    if (error) throw error;
-    if (!data || !data.storage_path) throw new Error("The document file is unavailable or your account does not have access yet.");
-    const options = download ? {download:true} : {};
-    const {data:linkData,error:linkError} = await client.storage
-      .from(BUCKET_NAME)
-      .createSignedUrl(data.storage_path,SIGNED_URL_SECONDS,options);
-    if (linkError) throw linkError;
-    if (!linkData || !linkData.signedUrl) throw new Error("Could not create a secure document link.");
-    if (download) {
-      const a = document.createElement("a");
-      a.href = linkData.signedUrl;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.download = "";
-      document.body.appendChild(a); a.click(); a.remove();
-      setStatus("Your authorized file is ready.","success");
-    } else {
-      const reader = new URL("document-reader.html",window.location.href);
-      reader.searchParams.set("file",linkData.signedUrl);
-      reader.searchParams.set("title",resource.title || data.title || "MASTERBOOK Resource");
-      reader.searchParams.set("type",extensionFromPath(data.storage_path));
-      popup.location.href = reader.toString();
-      setStatus("Opening your authorized resource in MASTERBOOK Document Reader.","success");
-    }
-  } catch (error) {
-    if (popup && !popup.closed) popup.close();
-    console.error("MASTERBOOK resource access error:",error);
-    setStatus(error.message || "Unable to open this resource.", "error");
-  } finally {
-    button.disabled = false;
-    button.textContent = oldText;
-  }
+async function openResource(resource,download,button){
+  let popup=null;if(!download){popup=window.open("about:blank","_blank");if(!popup)return setStatus("Your browser blocked the new tab. Allow pop-ups and try again.","error");}
+  const old=button.textContent;button.disabled=true;button.textContent="Checking access...";
+  try{
+    if(resource.access_tier==="Premium"&&!currentUser)throw new Error("Sign in to check your Premium access.");
+    const{data,error}=await client.from("resources").select("storage_path,title").eq("id",resource.resource_id).eq("status","Published").single();
+    if(error)throw error;
+    if(!data||!data.storage_path)throw new Error("The document file is unavailable or your account does not have access yet.");
+    const{data:linkData,error:linkError}=await client.storage.from(BUCKET_NAME).createSignedUrl(data.storage_path,SIGNED_URL_SECONDS,download?{download:true}:{});
+    if(linkError)throw linkError;if(!linkData||!linkData.signedUrl)throw new Error("Could not create a secure document link.");
+    if(download){const a=document.createElement("a");a.href=linkData.signedUrl;a.target="_blank";a.rel="noopener noreferrer";a.download="";document.body.appendChild(a);a.click();a.remove();setStatus("Your authorized file is ready.","success");}
+    else{const reader=new URL("document-reader.html",window.location.href);reader.searchParams.set("file",linkData.signedUrl);reader.searchParams.set("title",resource.title||data.title||"MASTERBOOK Resource");reader.searchParams.set("type",extensionFromPath(data.storage_path));popup.location.href=reader.toString();setStatus("Opening your authorized resource in MASTERBOOK Document Reader.","success");}
+  }catch(e){if(popup&&!popup.closed)popup.close();console.error("MASTERBOOK resource access error:",e);setStatus(e.message||"Unable to open this resource.","error");}
+  finally{button.disabled=false;button.textContent=old;}
 }
-async function loadResources() {
-  if (loading) return;
-  loading = true;
-  refreshButton.disabled = true;
-  refreshButton.textContent = "Loading...";
-  setStatus("Loading the Free and Premium resource catalogue...");
-  library.replaceChildren();
-  empty.style.display = "none";
-  try {
-    const {data,error} = await client.rpc(CATALOG_RPC);
-    if (error) throw error;
-    resources = (data || []).map(row => ({
-      resource_id:row.resource_id,
-      title:row.title,
-      description:row.description,
-      education_level:row.education_level,
-      subject:row.subject,
-      resource_type:row.resource_type,
-      curriculum:row.curriculum,
-      access_tier:row.access_tier,
-      created_at:row.created_at,
-      product_id:row.product_id,
-      price_kes:row.price_kes
-    }));
-    updateFilterOptions();
-    updateSummary();
-    applyFilters();
-    setStatus("MASTERBOOK catalogue loaded successfully. " + resources.length + " published Free and Premium resources found.","success");
-    console.log("MASTERBOOK catalogue resources:",resources.length);
-  } catch (error) {
-    console.error("MASTERBOOK catalogue error:",error);
-    resources=[]; filteredResources=[];
-    updateSummary();
-    empty.style.display="block";
-    empty.querySelector("h3").textContent="The Library could not be loaded.";
-    empty.querySelector("p").textContent="Please refresh or contact MASTERBOOK support.";
-    setStatus("Unable to load the catalogue: " + error.message,"error");
-  } finally {
-    loading=false;
-    refreshButton.disabled=false;
-    refreshButton.textContent="↻ Refresh Library";
-  }
+async function loadResources(){
+  if(loading)return;loading=true;refreshButton.disabled=true;refreshButton.textContent="Loading...";
+  setStatus("Loading the Free and Premium resource catalogue...");library.replaceChildren();empty.style.display="none";
+  try{
+    const{data,error}=await client.rpc(CATALOG_RPC);if(error)throw error;
+    resources=(data||[]).map(r=>({resource_id:r.resource_id,title:r.title,description:r.description,education_level:r.education_level,subject:r.subject,resource_type:r.resource_type,curriculum:r.curriculum,access_tier:r.access_tier,created_at:r.created_at,product_id:r.product_id,price_kes:r.price_kes,file_name:null}));
+    updateFilterOptions();updateSummary();applyFilters();
+    setStatus("MASTERBOOK catalogue loaded successfully. "+resources.length+" published Free and Premium resources found.","success");
+  }catch(e){console.error("MASTERBOOK catalogue error:",e);resources=[];filteredResources=[];updateSummary();empty.style.display="block";empty.querySelector("h3").textContent="The Library could not be loaded.";empty.querySelector("p").textContent="Please refresh or contact MASTERBOOK support.";setStatus("Unable to load the catalogue: "+e.message,"error");}
+  finally{loading=false;refreshButton.disabled=false;refreshButton.textContent="↻ Refresh Library";}
 }
-function clearFilters() {
-  search.value=""; level.value=""; category.value="";
-  applyFilters();
-}
+function clearFilters(){search.value="";level.value="";category.value="";applyFilters();}
 $("signInButton").addEventListener("click",signIn);
 $("signUpButton").addEventListener("click",signUp);
 $("signOutButton").addEventListener("click",signOut);
 $("refreshButton").addEventListener("click",loadResources);
+$("refreshPurchases").addEventListener("click",loadMyPurchases);
 $("clearFilters").addEventListener("click",clearFilters);
 $("emptyClear").addEventListener("click",clearFilters);
-search.addEventListener("input",applyFilters);
-level.addEventListener("change",applyFilters);
-category.addEventListener("change",applyFilters);
-$("previousPage").addEventListener("click",() => {
-  if (currentPage>1) {currentPage--;renderLibrary();library.scrollIntoView({behavior:"smooth",block:"start"});}
-});
-$("nextPage").addEventListener("click",() => {
-  const pages=Math.max(1,Math.ceil(filteredResources.length/PAGE_SIZE));
-  if (currentPage<pages) {currentPage++;renderLibrary();library.scrollIntoView({behavior:"smooth",block:"start"});}
-});
-
-client.auth.getSession().then(({data,error}) => {
-  if (error) console.error("Session retrieval error:",error);
-  updateAuthUI(data && data.session ? data.session.user : null);
-});
-client.auth.onAuthStateChange((_event,session) => {
-  updateAuthUI(session ? session.user : null);
-});
+search.addEventListener("input",applyFilters);level.addEventListener("change",applyFilters);category.addEventListener("change",applyFilters);
+$("previousPage").addEventListener("click",()=>{if(currentPage>1){currentPage--;renderLibrary();library.scrollIntoView({behavior:"smooth",block:"start"});}});
+$("nextPage").addEventListener("click",()=>{const pages=Math.max(1,Math.ceil(filteredResources.length/PAGE_SIZE));if(currentPage<pages){currentPage++;renderLibrary();library.scrollIntoView({behavior:"smooth",block:"start"});}});
+client.auth.getSession().then(({data,error})=>{if(error)console.error("Session retrieval error:",error);updateAuthUI(data&&data.session?data.session.user:null);});
+client.auth.onAuthStateChange((_event,session)=>updateAuthUI(session?session.user:null));
 loadResources();
 </script>
 </body>
